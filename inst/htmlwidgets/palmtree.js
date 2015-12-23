@@ -42,7 +42,7 @@ HTMLWidgets.widget({
                         .attr("height", "100%");
 
         // create the plot
-        var plotMargin = {top: 20, right: 30, bottom: 20, left: 30},
+        var plotMargin = {top: 20, right: 20, bottom: 20, left: 30},
             plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right,
             plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
