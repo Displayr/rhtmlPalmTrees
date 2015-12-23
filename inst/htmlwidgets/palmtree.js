@@ -34,7 +34,6 @@ HTMLWidgets.widget({
         var ymax = d3.max(sums)*1.2;
         var ymin = 0;
 
-        console.log(sums);
         var baseSvg = d3.select(el)
                         .append("svg")
                         .classed("svgContent", true)
@@ -42,7 +41,7 @@ HTMLWidgets.widget({
                         .attr("height", "100%");
 
         // create the plot
-        var plotMargin = {top: 20, right: 20, bottom: 20, left: 30},
+        var plotMargin = {top: 0, right: 20, bottom: 20, left: 30},
             plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right,
             plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
@@ -155,7 +154,7 @@ HTMLWidgets.widget({
         var sdBarHdFontSize = sdBarFontSize + 2,
             sdBarHdH = sdBarHdFontSize * 2;
 
-        if (sdBarHdH + sdBarElemH*colNames.length > sdBarHeight) {
+        if (sdBarHdH + sdBarElemH*colNames.length > sdBarHeight - sdBarHdH - sdBarElemH) {
             sdBarHdH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 3)*1.1;
             sdBarHdFontSize = sdBarHdH/2;
             sdBarElemH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 2);
