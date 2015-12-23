@@ -11,7 +11,7 @@
 }
 
 .axis {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
 }
 
 .axis path,
@@ -24,6 +24,11 @@
 .x.axis path {
   display: none;
 }
+
+.y.axis path {
+  display: none;
+}
+
 
 .svg-container {
     display: inline-block;

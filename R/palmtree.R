@@ -15,12 +15,16 @@ palmtree <- function(
     width = NULL,
     height = NULL) {
 
-    row.names <- dimnames(data)[[1]]
-    col.names <- dimnames(data)[[2]]
+    description = dimnames(data)
+    row.names = description[[1]]
+    col.names = description[[2]]
+    rc.names = names(description)
     # create a list that contains the settings
     settings <- list(
         rowNames = row.names,
-        colNames = col.names
+        colNames = col.names,
+        rowHeading = rc.names[1],
+        colHeading = rc.names[2]
     )
 
     # pass the data and settings using 'x'
