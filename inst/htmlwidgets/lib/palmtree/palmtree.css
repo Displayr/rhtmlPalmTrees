@@ -1,0 +1,65 @@
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.title {
+  font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    background-color: #ffffff;
+    width: 100%;
+    height: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+}
+
+.svgContent {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.sideBar {
+    fill: steelblue;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.sideBarElemRect {
+    fill: white;
+    stroke: steelblue;
+    stroke-width: 1px;
+}
+
+.sideBarText {
+  font-family:sans-serif;
+}
