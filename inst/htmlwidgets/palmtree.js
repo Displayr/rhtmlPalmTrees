@@ -16,6 +16,7 @@ HTMLWidgets.widget({
             rowNames = settings.rowNames,
             weights = [],
             sums = [],
+            sumIdx = [],
             sdBarMaxTxtL = 0,
             viewerWidth = el.getBoundingClientRect().width,
             viewerHeight = el.getBoundingClientRect().height,
@@ -29,6 +30,7 @@ HTMLWidgets.widget({
 
         for (i = 0; i < rowNames.length; i++) {
             sums.push(d3.sum(data[i]));
+            sumIdx.push(i);
         }
 
         var ymax = d3.max(sums)*1.2;
@@ -70,14 +72,14 @@ HTMLWidgets.widget({
                 .call(yAxis);
 
         plotArea.selectAll(".bar")
-                .data(sums)
+                .data(sumIdx)
                 .enter()
                 .append("rect")
                 .attr("class", "bar")
-                .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
+                .attr("x", function(d) { return xscale(rowNames[d]) + xscale.rangeBand()/2; })
                 .attr("width", 1)
-                .attr("y", function(d) { return yscale(d); })
-                .attr("height", function(d) { return plotHeight - yscale(d); });
+                .attr("y", function(d) { return yscale(sums[d]); })
+                .attr("height", function(d) { return plotHeight - yscale(sums[d]); });
 
         function reorderBars() {
 
@@ -92,31 +94,12 @@ HTMLWidgets.widget({
                 }
             }
 
-            plotArea.selectAll(".bar").remove();
+            plotArea.selectAll("rect")
+                    .transition()
+                    .duration(500)
+                    .attr("y", function(d) { return yscale(sums[d]); })
+                    .attr("height", function(d) { return plotHeight - yscale(sums[d]); });
 
-            plotArea.selectAll(".bar")
-                    .data(sums)
-                    .enter()
-                    .append("rect")
-                    .attr("class", "bar")
-                    .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
-                    .attr("width", 1)
-                    .attr("y", function(d) { return yscale(d); })
-                    .attr("height", function(d) { return plotHeight - yscale(d); });
-
-    /*        var bars = plotArea.selectAll(".bar")
-                        .data(sums)
-
-
-            bars.enter()
-                .append("rect")
-                .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
-                .attr("width", 1)
-                .attr("y", function(d) { return yscale(d); })
-                .attr("height", function(d) { return plotHeight - yscale(d); });
-
-            bars.exit()
-                .remove();*/
         }
 
 

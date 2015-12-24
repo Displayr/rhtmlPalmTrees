@@ -1,4 +1,4 @@
-Package: palmtree
+Package: PalmTreePlot
 Type: Package
 Title: R package that combines bar charts and radial plots to generate a palm tree plot
 Version: 0.1

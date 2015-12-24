@@ -5,7 +5,7 @@
 
 #' @import htmlwidgets
 #' @export
-palmtree <- function(
+PalmTreePlot <- function(
     data = NULL,
     weights = NULL,
     prefix = "",
