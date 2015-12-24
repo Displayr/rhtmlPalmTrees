@@ -8,6 +8,10 @@
 PalmTreePlot <- function(
     data = NULL,
     weights = NULL,
+    row.names = NULL,
+    row.heading = NULL,
+    col.names = NULL,
+    col.heading = NULL,
     prefix = "",
     suffix = "",
     xlab = "",
@@ -15,16 +19,13 @@ PalmTreePlot <- function(
     width = NULL,
     height = NULL) {
 
-    description = dimnames(data)
-    row.names = description[[1]]
-    col.names = description[[2]]
-    rc.names = names(description)
+
     # create a list that contains the settings
     settings <- list(
         rowNames = row.names,
         colNames = col.names,
-        rowHeading = rc.names[1],
-        colHeading = rc.names[2]
+        rowHeading = row.heading,
+        colHeading = col.heading
     )
 
     # pass the data and settings using 'x'
