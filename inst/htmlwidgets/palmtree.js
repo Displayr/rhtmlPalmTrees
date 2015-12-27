@@ -9,7 +9,7 @@ HTMLWidgets.widget({
   },
 
   renderValue: function(el, x, instance) {
-
+        // a comment
         var data = x.data,
             settings = x.settings,
             colNames = settings.colNames,
