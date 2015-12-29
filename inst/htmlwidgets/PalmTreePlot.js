@@ -24,7 +24,8 @@ HTMLWidgets.widget({
             i,
             j,
             duration = 300,
-            maxSum = 0;
+            maxSum = 0,
+            nticks = 10;
 
         for (i = 0; i < colNames.length; i++) {
             selectedCol.push(1);
@@ -46,7 +47,7 @@ HTMLWidgets.widget({
         }
 
         var ymax = d3.max(sums);
-        var ymin = 0;
+        var ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
 
         var baseSvg = d3.select(el)
                         .append("svg")
@@ -74,7 +75,7 @@ HTMLWidgets.widget({
         var yAxis = d3.svg.axis()
                     .scale(yscale)
                     .orient("left")
-                    .ticks(10);
+                    .ticks(nticks);
 
         var plotArea = baseSvg.append("g")
                         .attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
@@ -112,7 +113,7 @@ HTMLWidgets.widget({
             }
 
             ymax = d3.max(sums);
-            ymin = 0;
+            ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
 
             yscale = d3.scale.linear()
                     .domain([ymin, ymax])
@@ -121,7 +122,7 @@ HTMLWidgets.widget({
             yAxis = d3.svg.axis()
                     .scale(yscale)
                     .orient("left")
-                    .ticks(10);
+                    .ticks(nticks);
 
             plotArea.select(".yaxis")
                     .transition()
