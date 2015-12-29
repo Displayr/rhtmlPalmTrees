@@ -23,7 +23,8 @@ HTMLWidgets.widget({
             viewerHeight = el.getBoundingClientRect().height,
             i,
             j,
-            duration = 300;
+            duration = 300,
+            maxSum = 0;
 
         for (i = 0; i < colNames.length; i++) {
             selectedCol.push(1);
@@ -38,8 +39,13 @@ HTMLWidgets.widget({
             sums.push(tempSum);
             sumIdx.push(i);
         }
+        maxSum = d3.max(sums);
 
-        var ymax = d3.max(sums)*1.2;
+        for (i = 0; i < rowNames.length; i++) {
+            sums[i] = sums[i]/maxSum;
+        }
+
+        var ymax = d3.max(sums);
         var ymin = 0;
 
         var baseSvg = d3.select(el)
@@ -49,7 +55,7 @@ HTMLWidgets.widget({
                         .attr("height", "100%");
 
         // create the plot
-        var plotMargin = {top: 20, right: 20, bottom: 20, left: 35},
+        var plotMargin = {top: viewerHeight*0.1, right: 20, bottom: viewerHeight*0.2, left: 35},
             plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right,
             plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
@@ -85,7 +91,7 @@ HTMLWidgets.widget({
                 .attr("x", function(d) { return xscale(rowNames[d]) + xscale.rangeBand()/2; })
                 .attr("width", 1)
                 .attr("y", function(d) { return yscale(sums[d]); })
-                .attr("height", function(d) { return plotHeight - yscale(sums[d]); });
+                .attr("height", function(d) { return plotHeight - yscale(sums[d]) + viewerHeight*0.1; });
 
         function reorderBars() {
 
@@ -100,7 +106,12 @@ HTMLWidgets.widget({
                 }
             }
 
-            ymax = d3.max(sums)*1.2;
+            maxSum = d3.max(sums);
+            for (i = 0; i < rowNames.length; i++) {
+                sums[i] = sums[i]/maxSum;
+            }
+
+            ymax = d3.max(sums);
             ymin = 0;
 
             yscale = d3.scale.linear()
@@ -121,7 +132,7 @@ HTMLWidgets.widget({
                     .transition()
                     .duration(duration)
                     .attr("y", function(d) { return yscale(sums[d]); })
-                    .attr("height", function(d) { return plotHeight - yscale(sums[d]); });
+                    .attr("height", function(d) { return plotHeight - yscale(sums[d]) + viewerHeight*0.1; });
 
         }
 
