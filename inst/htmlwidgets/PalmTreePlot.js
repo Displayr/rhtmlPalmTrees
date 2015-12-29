@@ -1,6 +1,6 @@
 HTMLWidgets.widget({
 
-  name: "palmtree",
+  name: "PalmTreePlot",
 
   type: "output",
 
@@ -14,22 +14,28 @@ HTMLWidgets.widget({
             settings = x.settings,
             colNames = settings.colNames,
             rowNames = settings.rowNames,
-            weights = [],
+            weights = settings.weights,
+            selectedCol = [],
             sums = [],
             sumIdx = [],
             sdBarMaxTxtL = 0,
             viewerWidth = el.getBoundingClientRect().width,
             viewerHeight = el.getBoundingClientRect().height,
             i,
-            j;
+            j,
+            duration = 300;
 
         for (i = 0; i < colNames.length; i++) {
-            weights.push(1);
+            selectedCol.push(1);
             sdBarMaxTxtL = Math.max(sdBarMaxTxtL, colNames[i].length);
         }
 
         for (i = 0; i < rowNames.length; i++) {
-            sums.push(d3.sum(data[i]));
+            var tempSum = 0;
+            for (j = 0; j < colNames.length; j++) {
+                tempSum += selectedCol[j]*weights[j]*data[i][j];
+            }
+            sums.push(tempSum);
             sumIdx.push(i);
         }
 
@@ -43,7 +49,7 @@ HTMLWidgets.widget({
                         .attr("height", "100%");
 
         // create the plot
-        var plotMargin = {top: 0, right: 20, bottom: 20, left: 30},
+        var plotMargin = {top: 20, right: 20, bottom: 20, left: 35},
             plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right,
             plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
@@ -68,7 +74,7 @@ HTMLWidgets.widget({
                         .attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
 
         plotArea.append("g")
-                .attr("class", "y axis")
+                .attr("class", "yaxis")
                 .call(yAxis);
 
         plotArea.selectAll(".bar")
@@ -90,13 +96,30 @@ HTMLWidgets.widget({
             for (i = 0; i < rowNames.length; i++) {
                 sums[i] = 0;
                 for (j = 0; j < colNames.length; j++) {
-                    sums[i] += weights[j]*data[i][j];
+                    sums[i] += selectedCol[j]*weights[j]*data[i][j];
                 }
             }
 
+            ymax = d3.max(sums)*1.2;
+            ymin = 0;
+
+            yscale = d3.scale.linear()
+                    .domain([ymin, ymax])
+                    .range([plotHeight, 0]);
+
+            yAxis = d3.svg.axis()
+                    .scale(yscale)
+                    .orient("left")
+                    .ticks(10);
+
+            plotArea.select(".yaxis")
+                    .transition()
+                    .duration(duration)
+                    .call(yAxis);
+
             plotArea.selectAll("rect")
                     .transition()
-                    .duration(500)
+                    .duration(duration)
                     .attr("y", function(d) { return yscale(sums[d]); })
                     .attr("height", function(d) { return plotHeight - yscale(sums[d]); });
 
@@ -176,7 +199,7 @@ HTMLWidgets.widget({
             d3.select(this).style("display", "none");
             var selector = "#c" + this.id.substring(1);
             sideBar.select(selector).style("display", "inline");
-            weights[Number(this.id.substring(1))] = 0;
+            selectedCol[Number(this.id.substring(1))] = 0;
             updatePlot();
         }
 
@@ -185,7 +208,7 @@ HTMLWidgets.widget({
             d3.select(this).style("display", "none");
             var selector = "#t" + this.id.substring(1);
             sideBar.select(selector).style("display", "inline");
-            weights[Number(this.id.substring(1))] = 1;
+            selectedCol[Number(this.id.substring(1))] = 1;
             updatePlot();
         }
 

@@ -22,6 +22,7 @@ PalmTreePlot <- function(
 
     # create a list that contains the settings
     settings <- list(
+        weights = weights,
         rowNames = row.names,
         colNames = col.names,
         rowHeading = row.heading,
@@ -36,7 +37,7 @@ PalmTreePlot <- function(
 
     # create the widget
     htmlwidgets::createWidget(
-        name = "palmtree",
+        name = "PalmTreePlot",
         x,
         width = width,
         height = height,
@@ -45,6 +46,6 @@ PalmTreePlot <- function(
             browser.fill = TRUE, # resizing will not work if FALSE
             viewer.fill = TRUE
         ),
-        package = "palmtree"
+        package = "PalmTreePlot"
     )
 }

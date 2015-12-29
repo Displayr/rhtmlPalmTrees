@@ -21,11 +21,19 @@
   shape-rendering: crispEdges;
 }
 
-.x.axis path {
+.xaxis path {
   display: none;
 }
 
-.y.axis path {
+.xaxis {
+    font: 12px sans-serif;
+}
+
+.yaxis {
+    font: 12px sans-serif;
+}
+
+.yaxis path {
   display: none;
 }
 
