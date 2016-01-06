@@ -15,6 +15,8 @@ qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
              grDevices::rgb(255, 255, 255, 255, max = 255), # black
              grDevices::rgb(255, 35, 35, 255, max = 255)) # red
 
+colorVec = substring(qColors,1,7)
+
 CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.1916, 0.284, 0.3514, 0.2534, 0.2089,
                            c( 0.0198, 0.4604, 0.2151, 0.5235, 0.1151, 0.12, 0.5457, 0.3041, 0.06312, 0.384, 0.06064),
                            c( 0.01114, 0.4111, 0.1904, 0.4494, 0.06931, 0.1112, 0.4716, 0.2859, 0.0495, 0.3296, 0.03837),
@@ -41,5 +43,5 @@ PalmTreePlot(data = CSDperceptions,
              row.heading = rc.names[1],
              col.names = description[[2]],
              col.heading = rc.names[2],
-             colors = qColors)
+             colors = colorVec)
 

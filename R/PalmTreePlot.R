@@ -26,7 +26,8 @@ PalmTreePlot <- function(
         rowNames = row.names,
         colNames = col.names,
         rowHeading = row.heading,
-        colHeading = col.heading
+        colHeading = col.heading,
+        colors = colors
     )
 
     # pass the data and settings using 'x'

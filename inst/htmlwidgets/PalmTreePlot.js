@@ -11,18 +11,26 @@ HTMLWidgets.widget({
   renderValue: function(el, x, instance) {
 
         var data = x.data,
+            normData = data,
             settings = x.settings,
             colNames = settings.colNames,
             rowNames = settings.rowNames,
             weights = settings.weights,
+            colors = settings.colors,
             selectedCol = [],
             sums = [],
             sumIdx = [],
+            leafData = [],
+            leavesData = [],
+            ncol = settings.colNames.length,
             sdBarMaxTxtL = 0,
             viewerWidth = el.getBoundingClientRect().width,
             viewerHeight = el.getBoundingClientRect().height,
             i,
             j,
+            tempSum,
+            maxVal,
+            minVal,
             duration = 300,
             maxSum = 0,
             nticks = 10;
@@ -33,17 +41,26 @@ HTMLWidgets.widget({
         }
 
         for (i = 0; i < rowNames.length; i++) {
-            var tempSum = 0;
+            tempSum = 0;
             for (j = 0; j < colNames.length; j++) {
-                tempSum += selectedCol[j]*weights[j]*data[i][j];
+                data[i][j] = weights[j]*data[i][j];
+                tempSum += selectedCol[j]*data[i][j];
             }
             sums.push(tempSum);
             sumIdx.push(i);
         }
         maxSum = d3.max(sums);
 
+        // normalize data
+        maxVal = 0;
+        minVal = 1;
         for (i = 0; i < rowNames.length; i++) {
             sums[i] = sums[i]/maxSum;
+            for (j = 0; j < colNames.length; j++) {
+                normData[i][j] = data[i][j]/maxSum;
+            }
+            maxVal = Math.max(d3.max(normData[i]), maxVal);
+            minVal = Math.min(d3.min(normData[i]), minVal);
         }
 
         var ymax = d3.max(sums);
@@ -55,7 +72,7 @@ HTMLWidgets.widget({
                         .attr("width", "100%")
                         .attr("height", "100%");
 
-        // create the plot
+        // create the bars
         var plotMargin = {top: viewerHeight*0.1, right: 20, bottom: viewerHeight*0.2, left: 35},
             plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right,
             plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
@@ -84,7 +101,64 @@ HTMLWidgets.widget({
                 .attr("class", "yaxis")
                 .call(yAxis);
 
-        plotArea.selectAll(".bar")
+        var maxLeafWidth = Math.floor((xscale(rowNames[1]) - xscale(rowNames[0]))/1.2);
+        var radialScale = d3.scale.linear()
+                            .domain([minVal, maxVal])
+                            .range([Math.floor(maxLeafWidth/3), maxLeafWidth]);
+
+        for (i = 0; i < rowNames.length; i++) {
+            leafData = [];
+            for (j = 0; j < colNames.length; j++) {
+                leafData.push( [{x:0,y:0}, {x:radialScale(normData[i][j])/2, y:-radialScale(normData[i][j])/8},
+                                {x:radialScale(normData[i][j]), y:0}, {x:radialScale(normData[i][j])/2, y:radialScale(normData[i][j])/8}]);
+            }
+            leavesData.push(leafData);
+        }
+
+        var palms = plotArea.selectAll(".g")
+                    .data(leavesData);
+
+        var palmEnter = palms.enter().append("g");
+
+        palmEnter.append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
+                .attr("width", 1)
+                .attr("y", function(d,i) { return yscale(sums[i]); })
+                .attr("height", function(d,i) { return plotHeight - yscale(sums[i]) + viewerHeight*0.1; });
+
+        var line = d3.svg.line()
+            .interpolate("cardinal-closed")
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; });
+
+        /*var leaf = d3_shape.line()
+                    .x(function(d) { return x(d.x); })
+                    .y(function(d) { return y(d.y); })
+                    .curve(d3_shape.cardinalClosed, 0);*/
+
+        var leaves = palmEnter.append("g")
+                            .attr("class", "leaf")
+                            .selectAll("path")
+                            .data(function(d) { return d;});
+
+        leavesEnter = leaves.enter().append("path");
+
+        leavesEnter.attr("d", line);
+
+        d3.selectAll(".leaf")
+            .attr("transform", function(d,i) {
+                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[i]) + ")";
+            });
+
+        leaves.attr("transform", function(d,i) {
+            return "rotate(" + (i*360/ncol) + ")";
+        });
+
+        console.log(colors);
+        leaves.style("fill", function(d,i) { return colors[i];});
+
+        /*plotArea.selectAll(".bar")
                 .data(sumIdx)
                 .enter()
                 .append("rect")
@@ -92,7 +166,11 @@ HTMLWidgets.widget({
                 .attr("x", function(d) { return xscale(rowNames[d]) + xscale.rangeBand()/2; })
                 .attr("width", 1)
                 .attr("y", function(d) { return yscale(sums[d]); })
-                .attr("height", function(d) { return plotHeight - yscale(sums[d]) + viewerHeight*0.1; });
+                .attr("height", function(d) { return plotHeight - yscale(sums[d]) + viewerHeight*0.1; });*/
+        /*var testData = [[0,0],
+                    [radialScale(data[0][0])/2, -radialScale(data[0][0])/6],
+                    [radialScale(data[0][0]), 0],
+                    [radialScale(data[0][0])/2, radialScale(data[0][0])/6]];*/
 
         function reorderBars() {
 
@@ -103,7 +181,7 @@ HTMLWidgets.widget({
             for (i = 0; i < rowNames.length; i++) {
                 sums[i] = 0;
                 for (j = 0; j < colNames.length; j++) {
-                    sums[i] += selectedCol[j]*weights[j]*data[i][j];
+                    sums[i] += selectedCol[j]*data[i][j];
                 }
             }
 
