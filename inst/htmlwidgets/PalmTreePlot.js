@@ -186,7 +186,7 @@ HTMLWidgets.widget({
 
             for (i = 0; i < rowNames.length; i++) {
                 for (j = 0; j < colNames.length; j++) {
-                    if (selectedCol[j] === 0) {
+                    if (selectedCol[j] < 0.5) {
                         leavesData[i][j] =  [{x:0,y:0},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
@@ -242,10 +242,7 @@ HTMLWidgets.widget({
 
             leaves.transition()
                 .duration(duration)
-                .attr("d", line);
-
-            leaves.transition()
-                .duration(duration)
+                .attr("d", line)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : colors[i];
                 });

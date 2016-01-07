@@ -1,5 +1,6 @@
 
-
+# library(devtools)
+# install_github("xtmwang/PalmTreePlot")
 qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
              grDevices::rgb(237, 125, 49, 255, max = 255), # orange
              grDevices::rgb(165, 165, 165, 255, max = 255), # grey
