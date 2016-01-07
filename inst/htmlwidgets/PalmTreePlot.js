@@ -125,13 +125,13 @@ HTMLWidgets.widget({
         var palms = plotArea.selectAll(".g")
                     .data(leavesData);
 
-        var palmEnter = palms.enter().append("g");
+        var palmEnter = palms.enter().append("g").attr("class", "tree");
 
         palmEnter.append("rect")
                 .attr("class", "bar")
                 .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
                 .attr("width", 1)
-                .attr("y", function(d,i) { return plotHeight - viewerHeight*0.1; })
+                .attr("y", function(d,i) { return plotHeight; })
                 .attr("height", function(d,i) { return viewerHeight*0.1; });
 
         var line = d3.svg.line()
@@ -140,9 +140,9 @@ HTMLWidgets.widget({
             .y(function(d) { return d.y; });
 
         var leaves = palmEnter.append("g")
-                            .attr("class", "leaf")
-                            .selectAll("path")
-                            .data(function(d) { return d;});
+                    .attr("class", "leaf")
+                    .selectAll("path")
+                    .data(function(d) { return d;});
 
         leavesEnter = leaves.enter().append("path");
 
@@ -150,7 +150,7 @@ HTMLWidgets.widget({
 
         d3.selectAll(".leaf")
             .attr("transform", function(d,i) {
-                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + (plotHeight - viewerHeight*0.1) + ")";
+                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + plotHeight + ")";
             });
 
         leaves.attr("transform", function(d,i) {
@@ -234,7 +234,7 @@ HTMLWidgets.widget({
                 return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[i]) + ")";
             });
 
-            palms = plotArea.selectAll("g")
+            palms = plotArea.selectAll(".tree")
                     .data(leavesData);
 
             leaves = palmEnter.selectAll("path")
@@ -244,10 +244,23 @@ HTMLWidgets.widget({
                 .duration(duration)
                 .attr("d", line);
 
-            leaves.style("fill", function(d,i) {
-                return selectedCol[i] === 0 ? "#ccc" : colors[i];
-            });
+            leaves.transition()
+                .duration(duration)
+                .style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : colors[i];
+                });
 
+            sdBarColorBars.transition()
+                .duration(duration)
+                .style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : colors[i];
+                });
+
+            sdBarText.transition()
+                .duration(duration)
+                .style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : "#000";
+                });
         }
 
 
@@ -310,9 +323,17 @@ HTMLWidgets.widget({
                         .attr("width", sdBarElemW)
                         .attr("height", sdBarElemH);
 
+        var sdBarColorBarsW = sdBarElemH - 2*sdBarElemMargin;
+        var sdBarColorBars = sdBarElemEnter.append("rect")
+                            .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
+                            .attr("y", function(d,i) { return sdBarY + sdBarElemMargin*2 + sdBarHdH + i*sdBarElemH})
+                            .attr("width", sdBarColorBarsW)
+                            .attr("height", sdBarColorBarsW)
+                            .style("fill", function(d,i) { return colors[i];});
+
         var sdBarText = sdBarElemEnter.append("text")
                         .classed("sideBarText",true)
-                        .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
+                        .attr("x", sdBarX + sdBarElemMargin*2 + sdBarTextPadding + sdBarColorBarsW)
                         .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + i*sdBarElemH + sdBarElemH/2})
                         .attr("dy", "0.35em")
                         .text(function(d) { return d;})
@@ -362,7 +383,7 @@ HTMLWidgets.widget({
                             .style("cursor", "pointer")
                             .on("click", clickHiddenText);
 
-        updatePlot(800);
+        updatePlot(duration);
 
   },
 
