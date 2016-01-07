@@ -11,12 +11,13 @@ HTMLWidgets.widget({
   renderValue: function(el, x, instance) {
 
         var data = x.data,
-            normData = data,
             settings = x.settings,
             colNames = settings.colNames,
             rowNames = settings.rowNames,
             weights = settings.weights,
             colors = settings.colors,
+            tempNorm = [],
+            normData = [],
             selectedCol = [],
             sums = [],
             sumIdx = [],
@@ -31,7 +32,7 @@ HTMLWidgets.widget({
             tempSum,
             maxVal,
             minVal,
-            duration = 300,
+            duration = 800,
             maxSum = 0,
             nticks = 10;
 
@@ -56,9 +57,11 @@ HTMLWidgets.widget({
         minVal = 1;
         for (i = 0; i < rowNames.length; i++) {
             sums[i] = sums[i]/maxSum;
+            tempNorm = [];
             for (j = 0; j < colNames.length; j++) {
-                normData[i][j] = data[i][j]/maxSum;
+                tempNorm.push(data[i][j]/maxSum);
             }
+            normData.push(tempNorm);
             maxVal = Math.max(d3.max(normData[i]), maxVal);
             minVal = Math.min(d3.min(normData[i]), minVal);
         }
@@ -101,7 +104,7 @@ HTMLWidgets.widget({
                 .attr("class", "yaxis")
                 .call(yAxis);
 
-        var maxLeafWidth = Math.floor((xscale(rowNames[1]) - xscale(rowNames[0]))/1.2);
+        var maxLeafWidth = Math.floor((xscale(rowNames[1]) - xscale(rowNames[0]))/1.4);
         var radialScale = d3.scale.linear()
                             .domain([minVal, maxVal])
                             .range([Math.floor(maxLeafWidth/3), maxLeafWidth]);
@@ -109,8 +112,12 @@ HTMLWidgets.widget({
         for (i = 0; i < rowNames.length; i++) {
             leafData = [];
             for (j = 0; j < colNames.length; j++) {
-                leafData.push( [{x:0,y:0}, {x:radialScale(normData[i][j])/2, y:-radialScale(normData[i][j])/8},
-                                {x:radialScale(normData[i][j]), y:0}, {x:radialScale(normData[i][j])/2, y:radialScale(normData[i][j])/8}]);
+                leafData.push( [{x:0,y:0},
+                                {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
+                                {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
+                                {x:radialScale(normData[i][j]), y:0},
+                                {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
+                                {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
             }
             leavesData.push(leafData);
         }
@@ -124,18 +131,13 @@ HTMLWidgets.widget({
                 .attr("class", "bar")
                 .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
                 .attr("width", 1)
-                .attr("y", function(d,i) { return yscale(sums[i]); })
-                .attr("height", function(d,i) { return plotHeight - yscale(sums[i]) + viewerHeight*0.1; });
+                .attr("y", function(d,i) { return plotHeight - viewerHeight*0.1; })
+                .attr("height", function(d,i) { return viewerHeight*0.1; });
 
         var line = d3.svg.line()
             .interpolate("cardinal-closed")
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; });
-
-        /*var leaf = d3_shape.line()
-                    .x(function(d) { return x(d.x); })
-                    .y(function(d) { return y(d.y); })
-                    .curve(d3_shape.cardinalClosed, 0);*/
 
         var leaves = palmEnter.append("g")
                             .attr("class", "leaf")
@@ -148,46 +150,58 @@ HTMLWidgets.widget({
 
         d3.selectAll(".leaf")
             .attr("transform", function(d,i) {
-                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[i]) + ")";
+                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + (plotHeight - viewerHeight*0.1) + ")";
             });
 
         leaves.attr("transform", function(d,i) {
             return "rotate(" + (i*360/ncol) + ")";
         });
 
-        console.log(colors);
         leaves.style("fill", function(d,i) { return colors[i];});
-
-        /*plotArea.selectAll(".bar")
-                .data(sumIdx)
-                .enter()
-                .append("rect")
-                .attr("class", "bar")
-                .attr("x", function(d) { return xscale(rowNames[d]) + xscale.rangeBand()/2; })
-                .attr("width", 1)
-                .attr("y", function(d) { return yscale(sums[d]); })
-                .attr("height", function(d) { return plotHeight - yscale(sums[d]) + viewerHeight*0.1; });*/
-        /*var testData = [[0,0],
-                    [radialScale(data[0][0])/2, -radialScale(data[0][0])/6],
-                    [radialScale(data[0][0]), 0],
-                    [radialScale(data[0][0])/2, radialScale(data[0][0])/6]];*/
 
         function reorderBars() {
 
         }
 
-        function updatePlot() {
+        function updatePlot(duration) {
 
-            for (i = 0; i < rowNames.length; i++) {
-                sums[i] = 0;
-                for (j = 0; j < colNames.length; j++) {
-                    sums[i] += selectedCol[j]*data[i][j];
+            if (d3.sum(selectedCol) === 0) {
+
+                // clear plot
+
+            } else {
+                for (i = 0; i < rowNames.length; i++) {
+                    sums[i] = 0;
+                    for (j = 0; j < colNames.length; j++) {
+                        sums[i] += selectedCol[j]*data[i][j];
+                    }
                 }
             }
 
             maxSum = d3.max(sums);
+
             for (i = 0; i < rowNames.length; i++) {
                 sums[i] = sums[i]/maxSum;
+            }
+
+            for (i = 0; i < rowNames.length; i++) {
+                for (j = 0; j < colNames.length; j++) {
+                    if (selectedCol[j] === 0) {
+                        leavesData[i][j] =  [{x:0,y:0},
+                                            {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
+                                            {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
+                                            {x:radialScale(normData[i][j]), y:0},
+                                            {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
+                                            {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
+                    } else {
+                        leavesData[i][j] =  [{x:0,y:0},
+                                            {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
+                                            {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
+                                            {x:radialScale(normData[i][j]), y:0},
+                                            {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
+                                            {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
+                    }
+                }
             }
 
             ymax = d3.max(sums);
@@ -210,8 +224,29 @@ HTMLWidgets.widget({
             plotArea.selectAll("rect")
                     .transition()
                     .duration(duration)
-                    .attr("y", function(d) { return yscale(sums[d]); })
-                    .attr("height", function(d) { return plotHeight - yscale(sums[d]) + viewerHeight*0.1; });
+                    .attr("y", function(d,i) { return yscale(sums[i]); })
+                    .attr("height", function(d,i) { return plotHeight - yscale(sums[i]) + viewerHeight*0.1; });
+
+            d3.selectAll(".leaf")
+            .transition()
+            .duration(duration)
+            .attr("transform", function(d,i) {
+                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[i]) + ")";
+            });
+
+            palms = plotArea.selectAll("g")
+                    .data(leavesData);
+
+            leaves = palmEnter.selectAll("path")
+                            .data(function(d) { return d;});
+
+            leaves.transition()
+                .duration(duration)
+                .attr("d", line);
+
+            leaves.style("fill", function(d,i) {
+                return selectedCol[i] === 0 ? "#ccc" : colors[i];
+            });
 
         }
 
@@ -290,7 +325,7 @@ HTMLWidgets.widget({
             var selector = "#c" + this.id.substring(1);
             sideBar.select(selector).style("display", "inline");
             selectedCol[Number(this.id.substring(1))] = 0;
-            updatePlot();
+            updatePlot(duration);
         }
 
         function clickHiddenText() {
@@ -299,7 +334,7 @@ HTMLWidgets.widget({
             var selector = "#t" + this.id.substring(1);
             sideBar.select(selector).style("display", "inline");
             selectedCol[Number(this.id.substring(1))] = 1;
-            updatePlot();
+            updatePlot(duration);
         }
 
         var sdBarSwitchOn = sdBarElemEnter.append("text")
@@ -327,7 +362,7 @@ HTMLWidgets.widget({
                             .style("cursor", "pointer")
                             .on("click", clickHiddenText);
 
-
+        updatePlot(800);
 
   },
 

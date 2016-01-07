@@ -19,6 +19,9 @@ PalmTreePlot <- function(
     width = NULL,
     height = NULL) {
 
+    if (sum(data < 0) > 0) {
+        stop("Input data must not contain negative numbers.")
+    }
 
     # create a list that contains the settings
     settings <- list(
