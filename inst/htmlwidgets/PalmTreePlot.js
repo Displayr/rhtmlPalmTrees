@@ -32,6 +32,8 @@ HTMLWidgets.widget({
             tempSum,
             maxVal,
             minVal,
+            rindices,
+            colSort = "0",
             duration = 800,
             maxSum = 0,
             nticks = 10;
@@ -51,6 +53,7 @@ HTMLWidgets.widget({
             sumIdx.push(i);
         }
         maxSum = d3.max(sums);
+        rindices = d3.range(rowNames.length);
 
         // normalize data
         maxVal = 0;
@@ -112,7 +115,7 @@ HTMLWidgets.widget({
         for (i = 0; i < rowNames.length; i++) {
             leafData = [];
             for (j = 0; j < colNames.length; j++) {
-                leafData.push( [{x:0,y:0},
+                leafData.push( [{x:0,y:0,rn:rowNames[i]},
                                 {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                 {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j]), y:0},
@@ -122,17 +125,28 @@ HTMLWidgets.widget({
             leavesData.push(leafData);
         }
 
-        var palms = plotArea.selectAll(".g")
-                    .data(leavesData);
+        var bars = plotArea.selectAll(".g")
+                    .data(rowNames);
 
-        var palmEnter = palms.enter().append("g").attr("class", "tree");
+        var barsEnter = bars.enter();
 
-        palmEnter.append("rect")
+        barsEnter.append("rect")
                 .attr("class", "bar")
                 .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
                 .attr("width", 1)
                 .attr("y", function(d,i) { return plotHeight; })
                 .attr("height", function(d,i) { return viewerHeight*0.1; });
+
+        var palms = plotArea.selectAll(".g")
+                    .data(leavesData);
+
+        var palmEnter = palms.enter();
+
+     /*   palmEnter.append("rect")
+                .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
+                .attr("width", 1)
+                .attr("y", function(d,i) { return plotHeight; })
+                .attr("height", function(d,i) { return viewerHeight*0.1; });*/
 
         var line = d3.svg.line()
             .interpolate("cardinal-closed")
@@ -159,7 +173,63 @@ HTMLWidgets.widget({
 
         leaves.style("fill", function(d,i) { return colors[i];});
 
-        function reorderBars() {
+
+        function sortWithIndices(toSort) {
+            for (var i = 0; i < toSort.length; i++) {
+                toSort[i] = [toSort[i], i];
+            }
+            console.log(toSort);
+            toSort.sort(function(left, right) {
+                return left[0] < right[0] ? -1 : 1;
+            });
+            console.log(toSort);
+            toSort.sortIndices = [];
+            for (var j = 0; j < toSort.length; j++) {
+                toSort.sortIndices.push(toSort[j][1]);
+                toSort[j] = toSort[j][0];
+            }
+            console.log(toSort);
+            return toSort.sortIndices;
+        }
+
+        var rowNames1 = [];
+        for (i = 0; i < rowNames.length; i++) {
+            rowNames1.push(rowNames[i]);
+        }
+        rowNames1.sort();
+
+        function sortBars() {
+
+            if (colSort == "0") {
+
+                rindices = d3.range(rowNames.length);
+                xscale.domain(rowNames);
+
+            } else if (colSort == "1") {
+                var rowNames2 = [];
+                for (i = 0; i < rowNames.length; i++) {
+                    rowNames2.push(rowNames[i]);
+                }
+                rindices = sortWithIndices(rowNames2);
+                xscale.domain(rowNames1);
+
+            } else if (colSort == "2") {
+
+            }
+
+            plotArea.selectAll(".bar")
+                    .sort(function(a,b) { return xscale(a) - xscale(b);})
+                    .transition()
+                    .duration(duration)
+                    .attr("x", function(d) { return xscale(d) + xscale.rangeBand()/2; });
+
+            plotArea.selectAll(".leaf")
+                    .sort(function(a,b) { return xscale(a[0][0].rn) - xscale(b[0][0].rn);})
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", function(d,i) {
+                        return "translate(" + (xscale(d[0][0].rn) + xscale.rangeBand()/2) + "," + yscale(sums[rindices[i]]) + ")";
+                    });
 
         }
 
@@ -187,14 +257,14 @@ HTMLWidgets.widget({
             for (i = 0; i < rowNames.length; i++) {
                 for (j = 0; j < colNames.length; j++) {
                     if (selectedCol[j] < 0.5) {
-                        leavesData[i][j] =  [{x:0,y:0},
+                        leavesData[i][j] =  [{x:0,y:0,rn:rowNames[i]},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
                                             {x:radialScale(normData[i][j]), y:0},
                                             {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
                                             {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
                     } else {
-                        leavesData[i][j] =  [{x:0,y:0},
+                        leavesData[i][j] =  [{x:0,y:0,rn:rowNames[i]},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                             {x:radialScale(normData[i][j]), y:0},
@@ -224,21 +294,23 @@ HTMLWidgets.widget({
             plotArea.selectAll("rect")
                     .transition()
                     .duration(duration)
-                    .attr("y", function(d,i) { return yscale(sums[i]); })
-                    .attr("height", function(d,i) { return plotHeight - yscale(sums[i]) + viewerHeight*0.1; });
+                    .attr("y", function(d,i) { return yscale(sums[rindices[i]]); })
+                    .attr("height", function(d,i) { return plotHeight - yscale(sums[rindices[i]]) + viewerHeight*0.1; });
 
             d3.selectAll(".leaf")
             .transition()
             .duration(duration)
             .attr("transform", function(d,i) {
-                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[i]) + ")";
+                if (colSort == "0"){
+                    return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[rindices[i]]) + ")";
+                } else {
+                    return "translate(" + (xscale(rowNames1[i]) + xscale.rangeBand()/2) + "," + yscale(sums[rindices[i]]) + ")";
+                }
             });
 
-            palms = plotArea.selectAll(".tree")
-                    .data(leavesData);
+            palms.data(leavesData);
 
-            leaves = palmEnter.selectAll("path")
-                            .data(function(d) { return d;});
+            leaves.data(function(d) { return d;});
 
             leaves.transition()
                 .duration(duration)
@@ -258,6 +330,11 @@ HTMLWidgets.widget({
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : "#000";
                 });
+
+            if (colSort == "2") {
+                sortBars();
+            }
+
         }
 
 
@@ -295,23 +372,22 @@ HTMLWidgets.widget({
         var sdBarHdFontSize = sdBarFontSize + 2,
             sdBarHdH = sdBarHdFontSize * 2;
 
-        if (sdBarHdH + sdBarElemH*colNames.length > sdBarHeight - sdBarHdH - sdBarElemH) {
-            sdBarHdH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 3)*1.1;
+        if (sdBarHdH + sdBarElemH*(colNames.length+6) > sdBarHeight - sdBarHdH - sdBarElemH) {
+            sdBarHdH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 7)*1.1;
             sdBarHdFontSize = sdBarHdH/2;
-            sdBarElemH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 2);
+            sdBarElemH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 6);
             sdBarFontSize = sdBarElemH/2;
         }
         var sdBarHdY = sdBarY + sdBarElemMargin + sdBarHdH/2;
 
         sideBar.append("text")
+                .attr("class","sdBarHeading")
                 .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
                 .attr("y", sdBarHdY)
                 .attr("dy", "0.35em")
                 .attr("fill", "white")
                 .text(settings.colHeading)
-                .style("font-family", "sans-serif")
-                .style("font-size", sdBarHdFontSize)
-                .style("font-weight", "bold");
+                .style("font-size", sdBarHdFontSize);
 
         sdBarElemEnter.append("rect")
                         .classed("sideBarElemRect",true)
@@ -355,6 +431,32 @@ HTMLWidgets.widget({
             updatePlot(duration);
         }
 
+        function clickReset() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            d3.selectAll(".sideBarSwitchOff").style("display", "none");
+            d3.selectAll(".sideBarSwitchOn").style("display", "inline");
+            selectedCol.forEach(function(d,i) {
+                selectedCol[i] = 1;
+            });
+            updatePlot(duration);
+        }
+
+        function clickSort() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            var thisid = this.id.substring(1);
+
+            if (thisid != colSort) {
+                colSort = thisid;
+                sdBarSort.selectAll(".sdBarSortBox").style("fill", "#fff").style("stroke","#ccc");
+                sdBarSort.selectAll(".sdBarSortText").style("fill", "#ccc");
+
+                sdBarSort.select("#sortC" + thisid).style("fill", "steelblue").style("stroke","steelblue");
+                sdBarSort.select("#sortT" + thisid).style("fill", "#000");
+
+                sortBars();
+            }
+        }
+
         var sdBarSwitchOn = sdBarElemEnter.append("text")
                             .attr("id", function(d,i) { return "t" + i;})
                             .attr("x", sdBarX + sdBarWidth - sdBarElemMargin - sdBarTextPadding)
@@ -362,7 +464,7 @@ HTMLWidgets.widget({
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "end")
                             .text("ON")
-                            .classed("sideBarText",true)
+                            .classed("sideBarSwitchOn",true)
                             .style("font-size", sdBarFontSize)
                             .style("cursor", "pointer")
                             .on("click", clickText);
@@ -374,12 +476,71 @@ HTMLWidgets.widget({
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "end")
                             .text("OFF")
-                            .classed("sideBarText",true)
+                            .classed("sideBarSwitchOff",true)
                             .style("font-size", sdBarFontSize)
                             .style("display", "none")
                             .style("cursor", "pointer")
                             .on("click", clickHiddenText);
 
+        var sdBarReset = sideBar.append("g");
+
+        var sdBarResetText = sdBarReset.append("text")
+                                .attr("class", "sdBarResetButton")
+                                .attr("x", sdBarX + sdBarWidth - sdBarElemMargin - sdBarTextPadding)
+                                .attr("y", sdBarY + sdBarElemMargin + sdBarHdH + ncol*sdBarElemH + sdBarElemH/2)
+                                .attr("dy", "0.35em")
+                                .attr("text-anchor", "end")
+                                .text("Reset")
+                                .style("font-size", sdBarFontSize)
+                                .on("click", clickReset);
+
+        // Sort control
+        var sortText = ["None", "Alphabetically", "By rank"];
+        var sdBarSort = sideBar.append("g");
+
+        sdBarSort.append("text")
+                    .attr("class", "sdBarSortHeading")
+                    .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
+                    .attr("y", sdBarY + sdBarElemMargin + sdBarHdH + (ncol+1)*sdBarElemH + sdBarElemH/2)
+                    .attr("dy", "0.35em")
+                    .attr("text-anchor", "start")
+                    .text("Sort")
+                    .style("font-size", sdBarHdFontSize);
+
+        var sdBarSortEnter = sdBarSort.selectAll("g.span")
+                        .data(sortText)
+                        .enter()
+                        .append("g")
+                        .attr("id", function(d,i) { return "s" + i;});
+
+        sdBarSortEnter.append("rect")
+                        .classed("sideBarElemRect",true)
+                        .attr("x", sdBarX + sdBarElemMargin)
+                        .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + (ncol+2)*sdBarElemH + i*sdBarElemH})
+                        .attr("width", sdBarElemW)
+                        .attr("height", sdBarElemH);
+
+        sdBarSortEnter.append("circle")
+                        .attr("class","sdBarSortBox")
+                        .attr("id", function(d,i) { return "sortC" + i;})
+                        .attr("cx", sdBarX + sdBarElemMargin + sdBarTextPadding + sdBarColorBarsW*0.5)
+                        .attr("cy", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + (ncol+2)*sdBarElemH + sdBarElemH*i + sdBarElemH/2})
+                        .attr("r", sdBarColorBarsW*0.35)
+                        .style("fill", "#fff");
+
+        sdBarSortEnter.append("text")
+                    .attr("class", "sdBarSortText")
+                    .attr("id", function(d,i) { return "sortT" + i;})
+                    .attr("x", sdBarX + sdBarElemMargin*2 + sdBarTextPadding + sdBarColorBarsW)
+                    .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + (ncol+2)*sdBarElemH + sdBarElemH*i + sdBarElemH/2})
+                    .attr("dy", "0.35em")
+                    .attr("text-anchor", "start")
+                    .text(function(d) {return d;})
+                    .style("font-size", sdBarFontSize);
+
+        sdBarSort.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
+        sdBarSort.select("#sortT0").style("fill", "#000");
+        sdBarSort.selectAll("g").on("click", clickSort);
         updatePlot(duration);
 
   },

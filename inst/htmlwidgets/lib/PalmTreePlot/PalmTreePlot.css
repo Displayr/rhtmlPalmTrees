@@ -12,6 +12,36 @@
 .tree {
 }
 
+.sdBarHeading{
+    fill: #fff;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.sdBarResetButton{
+    fill: #000;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+.sdBarSortHeading{
+    fill: #fff;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.sdBarSortText{
+    fill: #ccc;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+.sdBarSortBox {
+    cursor: pointer;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
 .title {
   font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -80,5 +110,13 @@
 }
 
 .sideBarText {
-  font-family:sans-serif;
+    font-family:sans-serif;
+}
+
+.sideBarSwitchOff {
+    font-family:sans-serif;
+}
+
+.sideBarSwitchOn {
+    font-family:sans-serif;
 }
