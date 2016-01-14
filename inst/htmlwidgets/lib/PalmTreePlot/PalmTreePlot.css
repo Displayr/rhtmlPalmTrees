@@ -1,5 +1,5 @@
 .bar {
-  fill: steelblue;
+  fill: #bbb;
 }
 
 .bar:hover {
@@ -10,6 +10,11 @@
 }
 
 .tree {
+}
+
+.plotAreaText {
+    font-family:sans-serif;
+    writing-mode: tb;
 }
 
 .sdBarHeading{

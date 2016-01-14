@@ -115,7 +115,7 @@ HTMLWidgets.widget({
         for (i = 0; i < rowNames.length; i++) {
             leafData = [];
             for (j = 0; j < colNames.length; j++) {
-                leafData.push( [{x:0,y:0,rn:rowNames[i]},
+                leafData.push( [{x:0, y:0, name:rowNames[i], value:sums[i]},
                                 {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                 {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j]), y:0},
@@ -125,28 +125,29 @@ HTMLWidgets.widget({
             leavesData.push(leafData);
         }
 
+        var barData = [];
+        var textData = [];
+        for (i = 0; i < rowNames.length; i++) {
+            barData.push({name: rowNames[i], value: sums[i]});
+            textData.push({name: rowNames[i], value: sums[i]});
+        }
+
         var bars = plotArea.selectAll(".g")
-                    .data(rowNames);
+                    .data(barData);
 
         var barsEnter = bars.enter();
 
         barsEnter.append("rect")
                 .attr("class", "bar")
-                .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
+                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("width", 1)
-                .attr("y", function(d,i) { return plotHeight; })
-                .attr("height", function(d,i) { return viewerHeight*0.1; });
+                .attr("y", function(d) { return plotHeight; })
+                .attr("height", function(d) { return viewerHeight*0.1; });
 
         var palms = plotArea.selectAll(".g")
                     .data(leavesData);
 
         var palmEnter = palms.enter();
-
-     /*   palmEnter.append("rect")
-                .attr("x", function(d,i) { return xscale(rowNames[i]) + xscale.rangeBand()/2; })
-                .attr("width", 1)
-                .attr("y", function(d,i) { return plotHeight; })
-                .attr("height", function(d,i) { return viewerHeight*0.1; });*/
 
         var line = d3.svg.line()
             .interpolate("cardinal-closed")
@@ -163,8 +164,8 @@ HTMLWidgets.widget({
         leavesEnter.attr("d", line);
 
         d3.selectAll(".leaf")
-            .attr("transform", function(d,i) {
-                return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + plotHeight + ")";
+            .attr("transform", function(d) {
+                return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + plotHeight + ")";
             });
 
         leaves.attr("transform", function(d,i) {
@@ -178,58 +179,95 @@ HTMLWidgets.widget({
             for (var i = 0; i < toSort.length; i++) {
                 toSort[i] = [toSort[i], i];
             }
-            console.log(toSort);
             toSort.sort(function(left, right) {
                 return left[0] < right[0] ? -1 : 1;
             });
-            console.log(toSort);
             toSort.sortIndices = [];
             for (var j = 0; j < toSort.length; j++) {
                 toSort.sortIndices.push(toSort[j][1]);
                 toSort[j] = toSort[j][0];
             }
-            console.log(toSort);
             return toSort.sortIndices;
         }
 
-        var rowNames1 = [];
-        for (i = 0; i < rowNames.length; i++) {
-            rowNames1.push(rowNames[i]);
+        function sortFromIndices(toSort, indices) {
+            var output = [];
+
+            for (var i = 0; i < toSort.length; i++) {
+                output.push(toSort[indices[i]]);
+            }
+            return output;
         }
-        rowNames1.sort();
+
 
         function sortBars() {
 
+            var rowNamesTemp = [];
             if (colSort == "0") {
-
-                rindices = d3.range(rowNames.length);
-                xscale.domain(rowNames);
-
-            } else if (colSort == "1") {
-                var rowNames2 = [];
                 for (i = 0; i < rowNames.length; i++) {
-                    rowNames2.push(rowNames[i]);
+                    rowNamesTemp.push(rowNames[i]);
                 }
-                rindices = sortWithIndices(rowNames2);
+                rindices = sortWithIndices(rowNamesTemp);
                 xscale.domain(rowNames1);
 
-            } else if (colSort == "2") {
-
-            }
-
-            plotArea.selectAll(".bar")
-                    .sort(function(a,b) { return xscale(a) - xscale(b);})
+                plotArea.selectAll(".bar")
+                    .sort(function(a,b) { return xscale(a.name) - xscale(b.name);})
                     .transition()
                     .duration(duration)
-                    .attr("x", function(d) { return xscale(d) + xscale.rangeBand()/2; });
+                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("y", function(d) { return yscale(d.value); })
+                    .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
 
-            plotArea.selectAll(".leaf")
-                    .sort(function(a,b) { return xscale(a[0][0].rn) - xscale(b[0][0].rn);})
+                plotArea.selectAll(".plotAreaText")
+                    .sort(function(a,b) { return xscale(a.name) - xscale(b.name);})
+                    .transition()
+                    .duration(duration)
+                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("y", function(d) { return yscale(d.value); });
+
+                plotArea.selectAll(".leaf")
+                    .sort(function(a,b) { return xscale(a[0][0].name) - xscale(b[0][0].name);})
                     .transition()
                     .duration(duration)
                     .attr("transform", function(d,i) {
-                        return "translate(" + (xscale(d[0][0].rn) + xscale.rangeBand()/2) + "," + yscale(sums[rindices[i]]) + ")";
+                        return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
                     });
+
+
+            } else if (colSort == "1") {
+
+                var sumsTemp = [];
+                for (i = 0; i < rowNames.length; i++) {
+                    sumsTemp.push(sums[i]);
+                }
+                rindices = sortWithIndices(sumsTemp);
+                rowNames2 = sortFromIndices(rowNames, rindices);
+                xscale.domain(rowNames2);
+
+                plotArea.selectAll(".bar")
+                    .sort(function(a,b) { return a.value - b.value;})
+                    .transition()
+                    .duration(duration)
+                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("y", function(d) { return yscale(d.value); })
+                    .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
+
+                plotArea.selectAll(".plotAreaText")
+                    .sort(function(a,b) { return a.value - b.value;})
+                    .transition()
+                    .duration(duration)
+                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("y", function(d) { return yscale(d.value); });
+
+                plotArea.selectAll(".leaf")
+                    .sort(function(a,b) { return a[0][0].value - b[0][0].value;})
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", function(d,i) {
+                        return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
+                    });
+            }
+
 
         }
 
@@ -254,17 +292,24 @@ HTMLWidgets.widget({
                 sums[i] = sums[i]/maxSum;
             }
 
+            barData = [];
+            textData = [];
+            for (i = 0; i < rowNames.length; i++) {
+                barData.push({name: rowNames[i], value: sums[i]});
+                textData.push({name: rowNames[i], value: sums[i]});
+            }
+
             for (i = 0; i < rowNames.length; i++) {
                 for (j = 0; j < colNames.length; j++) {
                     if (selectedCol[j] < 0.5) {
-                        leavesData[i][j] =  [{x:0,y:0,rn:rowNames[i]},
+                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
                                             {x:radialScale(normData[i][j]), y:0},
                                             {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
                                             {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
                     } else {
-                        leavesData[i][j] =  [{x:0,y:0,rn:rowNames[i]},
+                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                             {x:radialScale(normData[i][j]), y:0},
@@ -291,26 +336,17 @@ HTMLWidgets.widget({
                     .duration(duration)
                     .call(yAxis);
 
-            plotArea.selectAll("rect")
+            bars.data(barData);
+            texts.data(textData);
+            palms.data(leavesData);
+            leaves.data(function(d) { return d;});
+
+            plotArea.selectAll(".leaf")
                     .transition()
                     .duration(duration)
-                    .attr("y", function(d,i) { return yscale(sums[rindices[i]]); })
-                    .attr("height", function(d,i) { return plotHeight - yscale(sums[rindices[i]]) + viewerHeight*0.1; });
-
-            d3.selectAll(".leaf")
-            .transition()
-            .duration(duration)
-            .attr("transform", function(d,i) {
-                if (colSort == "0"){
-                    return "translate(" + (xscale(rowNames[i]) + xscale.rangeBand()/2) + "," + yscale(sums[rindices[i]]) + ")";
-                } else {
-                    return "translate(" + (xscale(rowNames1[i]) + xscale.rangeBand()/2) + "," + yscale(sums[rindices[i]]) + ")";
-                }
-            });
-
-            palms.data(leavesData);
-
-            leaves.data(function(d) { return d;});
+                    .attr("transform", function(d) {
+                        return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
+                    });
 
             leaves.transition()
                 .duration(duration)
@@ -331,9 +367,7 @@ HTMLWidgets.widget({
                     return selectedCol[i] === 0 ? "#ccc" : "#000";
                 });
 
-            if (colSort == "2") {
-                sortBars();
-            }
+            sortBars();
 
         }
 
@@ -372,10 +406,10 @@ HTMLWidgets.widget({
         var sdBarHdFontSize = sdBarFontSize + 2,
             sdBarHdH = sdBarHdFontSize * 2;
 
-        if (sdBarHdH + sdBarElemH*(colNames.length+6) > sdBarHeight - sdBarHdH - sdBarElemH) {
-            sdBarHdH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 7)*1.1;
+        if (sdBarHdH + sdBarElemH*(colNames.length+5) > sdBarHeight - sdBarHdH - sdBarElemH) {
+            sdBarHdH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 6)*1.1;
             sdBarHdFontSize = sdBarHdH/2;
-            sdBarElemH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 6);
+            sdBarElemH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 5);
             sdBarFontSize = sdBarElemH/2;
         }
         var sdBarHdY = sdBarY + sdBarElemMargin + sdBarHdH/2;
@@ -495,7 +529,7 @@ HTMLWidgets.widget({
                                 .on("click", clickReset);
 
         // Sort control
-        var sortText = ["None", "Alphabetically", "By rank"];
+        var sortText = ["Alphabetically", "By rank"];
         var sdBarSort = sideBar.append("g");
 
         sdBarSort.append("text")
@@ -541,7 +575,27 @@ HTMLWidgets.widget({
         sdBarSort.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
         sdBarSort.select("#sortT0").style("fill", "#000");
         sdBarSort.selectAll("g").on("click", clickSort);
+
+        var rowNames1 = [];
+        var rowNames2 = [];
+        for (i = 0; i < rowNames.length; i++) {
+            rowNames1.push(rowNames[i]);
+        }
+        rowNames1.sort();
+
+        var texts = plotArea.selectAll(".gt")
+                    .data(textData);
+
+        var textsEnter = texts.enter();
+        textsEnter.append("text")
+                .attr("class", "plotAreaText")
+                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("y", function(d) { return plotHeight; })
+                .text(function(d) { return d.name;})
+                .style("font-size", sdBarFontSize);
+
         updatePlot(duration);
+
 
   },
 
