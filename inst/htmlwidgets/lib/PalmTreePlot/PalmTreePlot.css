@@ -12,6 +12,11 @@
 .tree {
 }
 
+.plotAreaHeading {
+    font-family:sans-serif;
+    font-weight: bold;
+}
+
 .plotAreaText {
     font-family:sans-serif;
     writing-mode: tb;

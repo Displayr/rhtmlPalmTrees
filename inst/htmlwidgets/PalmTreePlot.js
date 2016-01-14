@@ -23,6 +23,8 @@ HTMLWidgets.widget({
             sumIdx = [],
             leafData = [],
             leavesData = [],
+            leafRmean = [], // used to put tooltip dummy circle
+            leafRmax = [],  // used to put text
             ncol = settings.colNames.length,
             sdBarMaxTxtL = 0,
             viewerWidth = el.getBoundingClientRect().width,
@@ -107,13 +109,15 @@ HTMLWidgets.widget({
                 .attr("class", "yaxis")
                 .call(yAxis);
 
-        var maxLeafWidth = Math.floor((xscale(rowNames[1]) - xscale(rowNames[0]))/1.4);
+        var maxLeafWidth = Math.min(plotMargin.top,Math.floor((xscale(rowNames[1]) - xscale(rowNames[0]))/1.4));
         var radialScale = d3.scale.linear()
                             .domain([minVal, maxVal])
                             .range([Math.floor(maxLeafWidth/3), maxLeafWidth]);
 
         for (i = 0; i < rowNames.length; i++) {
             leafData = [];
+            leafRmean.push(d3.mean(normData[i]));
+            leafRmax.push(d3.max(normData[i]));
             for (j = 0; j < colNames.length; j++) {
                 leafData.push( [{x:0, y:0, name:rowNames[i], value:sums[i]},
                                 {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
@@ -129,8 +133,9 @@ HTMLWidgets.widget({
         var textData = [];
         for (i = 0; i < rowNames.length; i++) {
             barData.push({name: rowNames[i], value: sums[i]});
-            textData.push({name: rowNames[i], value: sums[i]});
+            textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
         }
+
 
         var bars = plotArea.selectAll(".g")
                     .data(barData);
@@ -223,7 +228,7 @@ HTMLWidgets.widget({
                     .transition()
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("y", function(d) { return yscale(d.value); });
+                    .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
 
                 plotArea.selectAll(".leaf")
                     .sort(function(a,b) { return xscale(a[0][0].name) - xscale(b[0][0].name);})
@@ -257,7 +262,7 @@ HTMLWidgets.widget({
                     .transition()
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("y", function(d) { return yscale(d.value); });
+                    .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
 
                 plotArea.selectAll(".leaf")
                     .sort(function(a,b) { return a[0][0].value - b[0][0].value;})
@@ -296,7 +301,7 @@ HTMLWidgets.widget({
             textData = [];
             for (i = 0; i < rowNames.length; i++) {
                 barData.push({name: rowNames[i], value: sums[i]});
-                textData.push({name: rowNames[i], value: sums[i]});
+                textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
             }
 
             for (i = 0; i < rowNames.length; i++) {
@@ -593,6 +598,13 @@ HTMLWidgets.widget({
                 .attr("y", function(d) { return plotHeight; })
                 .text(function(d) { return d.name;})
                 .style("font-size", sdBarFontSize);
+
+        plotArea.append("text")
+                .attr("class", "plotAreaHeading")
+                .attr("x", plotWidth/2)
+                .attr("y", plotHeight + plotMargin.top + plotMargin.bottom*0.4)
+                .text(settings.rowHeading)
+                .style("font-size", sdBarHdFontSize);
 
         updatePlot(duration);
 
