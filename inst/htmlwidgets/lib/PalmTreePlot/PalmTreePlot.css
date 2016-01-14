@@ -2,10 +2,6 @@
   fill: #bbb;
 }
 
-.bar:hover {
-  fill: brown;
-}
-
 .leaf {
 }
 
@@ -129,4 +125,9 @@
 
 .sideBarSwitchOn {
     font-family:sans-serif;
+}
+
+.ghostCircle {
+    fill: transparent;
+    stroke: none;
 }

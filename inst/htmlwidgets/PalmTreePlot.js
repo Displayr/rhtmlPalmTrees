@@ -136,10 +136,9 @@ HTMLWidgets.widget({
             textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
         }
 
-
+        // vertical bars
         var bars = plotArea.selectAll(".g")
                     .data(barData);
-
         var barsEnter = bars.enter();
 
         barsEnter.append("rect")
@@ -149,16 +148,15 @@ HTMLWidgets.widget({
                 .attr("y", function(d) { return plotHeight; })
                 .attr("height", function(d) { return viewerHeight*0.1; });
 
+        // leaves
+        var line = d3.svg.line()
+                    .interpolate("cardinal-closed")
+                    .x(function(d) { return d.x; })
+                    .y(function(d) { return d.y; });
+
         var palms = plotArea.selectAll(".g")
                     .data(leavesData);
-
         var palmEnter = palms.enter();
-
-        var line = d3.svg.line()
-            .interpolate("cardinal-closed")
-            .x(function(d) { return d.x; })
-            .y(function(d) { return d.y; });
-
         var leaves = palmEnter.append("g")
                     .attr("class", "leaf")
                     .selectAll("path")
@@ -179,7 +177,7 @@ HTMLWidgets.widget({
 
         leaves.style("fill", function(d,i) { return colors[i];});
 
-
+        // sort and return sort indices
         function sortWithIndices(toSort) {
             for (var i = 0; i < toSort.length; i++) {
                 toSort[i] = [toSort[i], i];
@@ -195,19 +193,19 @@ HTMLWidgets.widget({
             return toSort.sortIndices;
         }
 
+        // sort using supplied indices
         function sortFromIndices(toSort, indices) {
             var output = [];
-
             for (var i = 0; i < toSort.length; i++) {
                 output.push(toSort[indices[i]]);
             }
             return output;
         }
 
-
+        // sort bars
         function sortBars() {
-
             var rowNamesTemp = [];
+
             if (colSort == "0") {
                 for (i = 0; i < rowNames.length; i++) {
                     rowNamesTemp.push(rowNames[i]);
@@ -230,6 +228,11 @@ HTMLWidgets.widget({
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
 
+               plotArea.selectAll(".ghostCircle")
+                    .sort(function(a,b) { return xscale(a.name) - xscale(b.name);})
+                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("cy", function(d) { return yscale(d.value); });
+
                 plotArea.selectAll(".leaf")
                     .sort(function(a,b) { return xscale(a[0][0].name) - xscale(b[0][0].name);})
                     .transition()
@@ -237,7 +240,6 @@ HTMLWidgets.widget({
                     .attr("transform", function(d,i) {
                         return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
                     });
-
 
             } else if (colSort == "1") {
 
@@ -264,6 +266,11 @@ HTMLWidgets.widget({
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
 
+                plotArea.selectAll(".ghostCircle")
+                    .sort(function(a,b) { return a.value - b.value;})
+                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("cy", function(d) { return yscale(d.value); });
+
                 plotArea.selectAll(".leaf")
                     .sort(function(a,b) { return a[0][0].value - b[0][0].value;})
                     .transition()
@@ -272,10 +279,9 @@ HTMLWidgets.widget({
                         return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
                     });
             }
-
-
         }
 
+        // update plot when something is clicked
         function updatePlot(duration) {
 
             if (d3.sum(selectedCol) === 0) {
@@ -299,9 +305,11 @@ HTMLWidgets.widget({
 
             barData = [];
             textData = [];
+            tipData = [];
             for (i = 0; i < rowNames.length; i++) {
                 barData.push({name: rowNames[i], value: sums[i]});
                 textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
+                tipData.push({name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i]});
             }
 
             for (i = 0; i < rowNames.length; i++) {
@@ -344,6 +352,7 @@ HTMLWidgets.widget({
             bars.data(barData);
             texts.data(textData);
             palms.data(leavesData);
+            tips.data(tipData);
             leaves.data(function(d) { return d;});
 
             plotArea.selectAll(".leaf")
@@ -375,7 +384,6 @@ HTMLWidgets.widget({
             sortBars();
 
         }
-
 
         // create the side bar
 
@@ -581,6 +589,8 @@ HTMLWidgets.widget({
         sdBarSort.select("#sortT0").style("fill", "#000");
         sdBarSort.selectAll("g").on("click", clickSort);
 
+
+        // additional stuff
         var rowNames1 = [];
         var rowNames2 = [];
         for (i = 0; i < rowNames.length; i++) {
@@ -605,6 +615,32 @@ HTMLWidgets.widget({
                 .attr("y", plotHeight + plotMargin.top + plotMargin.bottom*0.4)
                 .text(settings.rowHeading)
                 .style("font-size", sdBarHdFontSize);
+
+        // work on tooltip
+        var tip = {};
+        var tipData = [];
+        var tips, tipsEnter;
+        if(settings.tooltips){
+
+            for (i = 0; i < rowNames.length; i++) {
+                tipData.push({name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i]});
+            }
+
+            tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(function(d) { return d.tip; });
+
+            plotArea.call(tip);
+            tips = plotArea.selectAll(".gtx")
+                            .data(tipData);
+
+            tipsEnter = tips.enter();
+            tipsEnter.append("circle")
+                    .attr("class", "ghostCircle")
+                    .attr("r", function(d) { return radialScale(d.r)})
+                    .on('mouseover', tip.show)
+                    .on('mouseout', tip.hide);
+        }
 
         updatePlot(duration);
 

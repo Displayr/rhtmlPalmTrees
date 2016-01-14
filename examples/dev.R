@@ -36,6 +36,8 @@ description = dimnames(CSDperceptions)
 row.names = description[[1]]
 col.names = description[[2]]
 rc.names = names(description)
+prefix = rep("", length(col.names))
+suffix = rep("Percent", length(col.names))
 
 library(PalmTreePlot)
 PalmTreePlot(data = CSDperceptions,
@@ -44,5 +46,8 @@ PalmTreePlot(data = CSDperceptions,
              row.heading = rc.names[1],
              col.names = description[[2]],
              col.heading = rc.names[2],
+             prefix = prefix,
+             suffix = suffix,
+             tooltips = "Default",
              colors = colorVec)
 
