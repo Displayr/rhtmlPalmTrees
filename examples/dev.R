@@ -37,7 +37,7 @@ row.names = description[[1]]
 col.names = description[[2]]
 rc.names = names(description)
 prefix = rep("", length(col.names))
-suffix = rep("Percent", length(col.names))
+suffix = rep("%", length(col.names))
 
 library(PalmTreePlot)
 PalmTreePlot(data = CSDperceptions,
