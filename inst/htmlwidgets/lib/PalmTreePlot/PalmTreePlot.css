@@ -130,4 +130,5 @@
 .ghostCircle {
     fill: transparent;
     stroke: none;
+    cursor: pointer;
 }

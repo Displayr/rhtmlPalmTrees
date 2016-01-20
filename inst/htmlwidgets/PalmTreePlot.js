@@ -1,89 +1,63 @@
-HTMLWidgets.widget({
+function PalmPlot() {
+    var viewerWidth = 600, // default width
+        viewerHeight = 600, // default height
+        plotWidth = 400,
+        plotHeight = 400,
+        data = [],
+        settings = {},
+        plotMargin = {},
+        dims = {},
+        tempNorm = [],
+        normData = [],
+        selectedCol = [],
+        sums = [],
+        sumIdx = [],
+        leafData = [],
+        leavesData = [],
+        leafRmean = [], // used to put tooltip dummy circle
+        leafRmax = [],  // used to put text;
+        i,
+        j,
+        tempSum,
+        maxVal,
+        minVal,
+        rindices,
+        colSort = "0",
+        duration = 800,
+        maxSum = 0,
+        nticks = 10,
+        colNames,
+        rowNames,
+        weights,
+        colors,
+        ncol,
+        sdBarMaxTxtL = 0;
 
-  name: "PalmTreePlot",
+    function setup_sizes(settings) {
 
-  type: "output",
+        plotMargin = {top: viewerHeight*0.1, right: 20, bottom: viewerHeight*0.2, left: 35};
+        plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right;
+        plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
-  initialize: function(el, width, height) {
+    }
 
-  },
+    function setup_colors(n) {
 
-  renderValue: function(el, x, instance) {
+    }
 
-        var data = x.data,
-            settings = x.settings,
-            colNames = settings.colNames,
-            rowNames = settings.rowNames,
-            weights = settings.weights,
-            colors = settings.colors,
-            tempNorm = [],
-            normData = [],
-            selectedCol = [],
-            sums = [],
-            sumIdx = [],
-            leafData = [],
-            leavesData = [],
-            leafRmean = [], // used to put tooltip dummy circle
-            leafRmax = [],  // used to put text
-            ncol = settings.colNames.length,
-            sdBarMaxTxtL = 0,
-            viewerWidth = el.getBoundingClientRect().width,
-            viewerHeight = el.getBoundingClientRect().height,
-            i,
-            j,
-            tempSum,
-            maxVal,
-            minVal,
-            rindices,
-            colSort = "0",
-            duration = 800,
-            maxSum = 0,
-            nticks = 10;
+    function resize_chart (el) {
+        // recompute sizes
+        setup_sizes(settings);
+    }
 
-        for (i = 0; i < colNames.length; i++) {
-            selectedCol.push(1);
-            sdBarMaxTxtL = Math.max(sdBarMaxTxtL, colNames[i].length);
-        }
-
-        for (i = 0; i < rowNames.length; i++) {
-            tempSum = 0;
-            for (j = 0; j < colNames.length; j++) {
-                data[i][j] = weights[j]*data[i][j];
-                tempSum += selectedCol[j]*data[i][j];
-            }
-            sums.push(tempSum);
-            sumIdx.push(i);
-        }
-        maxSum = d3.max(sums);
-        rindices = d3.range(rowNames.length);
-
-        // normalize data
-        maxVal = 0;
-        minVal = 1;
-        for (i = 0; i < rowNames.length; i++) {
-            sums[i] = sums[i]/maxSum;
-            tempNorm = [];
-            for (j = 0; j < colNames.length; j++) {
-                tempNorm.push(data[i][j]/maxSum);
-            }
-            normData.push(tempNorm);
-            maxVal = Math.max(d3.max(normData[i]), maxVal);
-            minVal = Math.min(d3.min(normData[i]), minVal);
-        }
+    var chart = function chart(selection){
 
         var ymax = d3.max(sums);
         var ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
 
-        var baseSvg = d3.select(el)
-                        .append("svg")
-                        .classed("svgContent", true)
-                        .attr("width", "100%")
-                        .attr("height", "100%");
+        var baseSvg = selection.select("svg");
 
         // create the bars
-        var plotMargin = {top: viewerHeight*0.1, right: 20, bottom: viewerHeight*0.2, left: 35},
-            plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right,
-            plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
         var xscale = d3.scale.ordinal()
                     .domain(rowNames)
@@ -628,7 +602,8 @@ HTMLWidgets.widget({
 
             tip = d3.tip()
                     .attr('class', 'd3-tip')
-                    .html(function(d) { return d.tip; });
+                    .html(function(d) { return d.tip; })
+                    .direction("s");
 
             plotArea.call(tip);
             tips = plotArea.selectAll(".gtx")
@@ -644,10 +619,115 @@ HTMLWidgets.widget({
 
         updatePlot(duration);
 
+    };
 
-  },
+    // settings getter/setter
+    chart.data = function(value) {
+        if (!arguments.length) return data;
+        data = value;
 
-  resize: function(el, width, height, instance) {
+        for (i = 0; i < colNames.length; i++) {
+            selectedCol.push(1);
+            sdBarMaxTxtL = Math.max(sdBarMaxTxtL, colNames[i].length);
+        }
 
-  }
+        for (i = 0; i < rowNames.length; i++) {
+            tempSum = 0;
+            for (j = 0; j < colNames.length; j++) {
+                data[i][j] = weights[j]*data[i][j];
+                tempSum += selectedCol[j]*data[i][j];
+            }
+            sums.push(tempSum);
+            sumIdx.push(i);
+        }
+        maxSum = d3.max(sums);
+        rindices = d3.range(rowNames.length);
+
+        // normalize data
+        maxVal = 0;
+        minVal = 1;
+        for (i = 0; i < rowNames.length; i++) {
+            sums[i] = sums[i]/maxSum;
+            tempNorm = [];
+            for (j = 0; j < colNames.length; j++) {
+                tempNorm.push(data[i][j]/maxSum);
+            }
+            normData.push(tempNorm);
+            maxVal = Math.max(d3.max(normData[i]), maxVal);
+            minVal = Math.min(d3.min(normData[i]), minVal);
+        }
+        return chart;
+    };
+
+    // settings getter/setter
+    chart.settings = function(value) {
+        if (!arguments.length) return settings;
+
+        settings = value;
+        colNames = settings.colNames;
+        rowNames = settings.rowNames;
+        weights = settings.weights;
+        ncol = settings.colNames.length;
+        colors = settings.colors;
+
+        if (!colors) {
+            colors = setup_colors(colNames.length);
+        }
+
+        setup_sizes(settings);
+        return chart;
+    };
+
+    // resize
+    chart.resize = function(el) {
+        resize_chart(el);
+    };
+
+    chart.width = function(value) {
+        // width getter/setter
+        if (!arguments.length) return width;
+        viewerWidth = value;
+        return chart;
+    };
+
+    // height getter/setter
+    chart.height = function(value) {
+        if (!arguments.length) return height;
+        viewerHeight = value;
+        return chart;
+    };
+
+    return chart;
+}
+
+
+HTMLWidgets.widget({
+
+    name: "PalmTreePlot",
+
+    type: "output",
+
+    initialize: function(el, width, height) {
+
+        d3.select(el)
+            .append("svg")
+            .classed("svgContent", true)
+            .attr("width", width)
+            .attr("height", height);
+
+        return PalmPlot().width(width).height(height);
+    },
+
+    resize: function(el, width, height, instance) {
+        //return PalmPlot().width(width).height(height).resize(el);
+    },
+
+    renderValue: function(el, x, instance) {
+
+        instance = instance.settings(x.settings);
+        instance = instance.data(x.data);
+
+        d3.select(el).call(instance);
+
+    }
 });
