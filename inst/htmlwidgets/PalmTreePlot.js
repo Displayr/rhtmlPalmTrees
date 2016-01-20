@@ -6,7 +6,7 @@ function PalmPlot() {
         data = [],
         settings = {},
         plotMargin = {},
-        dims = {},
+        param = {},
         tempNorm = [],
         normData = [],
         selectedCol = [],
@@ -30,8 +30,7 @@ function PalmPlot() {
         rowNames,
         weights,
         colors,
-        ncol,
-        sdBarMaxTxtL = 0;
+        ncol;
 
     function setup_sizes(settings) {
 
@@ -39,23 +38,123 @@ function PalmPlot() {
         plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
+        // sidebar parameters
+        param.sdBarWidth = viewerWidth*0.2;
+        param.sdBarHeight = viewerHeight;
+        param.sdBarX = viewerWidth - param.sdBarWidth;
+        param.sdBarY = 0;
+
+        param.sdBarMargin = 3;
+        param.sdBarTextPadding = 3;
+        param.sdBarElemW = param.sdBarWidth - 2*param.sdBarMargin;
+
+        param.sdBarFontSize = param.sdBarElemW/param.sdBarMaxTxtL;
+        param.sdBarElemH = param.sdBarFontSize * 2;
+
+        // heading
+        param.sdBarHdFontSize = param.sdBarFontSize + 2,
+        param.sdBarHdH = param.sdBarHdFontSize * 2;
+
+        if (param.sdBarHdH + param.sdBarElemH*(colNames.length+5) > param.sdBarHeight - param.sdBarHdH - param.sdBarElemH) {
+            param.sdBarHdH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + 6)*1.1;
+            param.sdBarHdFontSize = param.sdBarHdH/2;
+            param.sdBarElemH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + 5);
+            param.sdBarFontSize = param.sdBarElemH/2;
+        }
+        // heading X,Y offset
+        param.sdBarHdX = param.sdBarX + param.sdBarMargin + param.sdBarTextPadding;
+        param.sdBarHdY = param.sdBarY + param.sdBarMargin + param.sdBarHdH/2;
+
+        // white container box X,Y offset
+        param.sdBarElemX = param.sdBarX + param.sdBarMargin;
+        param.sdBarElemY = param.sdBarY + param.sdBarMargin + param.sdBarHdH;
+
+        // color boxes
+        param.sdBarColorBarsX = param.sdBarElemX + param.sdBarTextPadding;
+        param.sdBarColorBarsY = param.sdBarElemY + param.sdBarTextPadding;
+        param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarTextPadding;
+
+        // Column name (text) X,Y offset
+        param.sdBarTextX = param.sdBarColorBarsX + param.sdBarColorBarsW + param.sdBarTextPadding;
+        param.sdBarTextY = param.sdBarElemY + param.sdBarElemH/2;
+
+        param.sdBarSwitchX = param.sdBarElemX + param.sdBarElemW - param.sdBarTextPadding;
+        param.sdBarSwitchY = param.sdBarTextY;
     }
 
-    function setup_colors(n) {
+    function setup_colors() {
 
     }
 
     function resize_chart (el) {
         // recompute sizes
         setup_sizes(settings);
+
+        // resize main plot area
+
+        // resize side bar
+        console.log(param);
+        var baseSvg = d3.select(el).select("svg");
+        baseSvg.selectAll(".sideBar")
+                .attr("x", param.sdBarX)
+                .attr("y", param.sdBarY)
+                .attr("width",param.sdBarWidth)
+                .attr("height",param.sdBarHeight);
+        baseSvg.selectAll(".sdBarHeading")
+                .attr("x", param.sdBarHdX)
+                .attr("y", param.sdBarHdY)
+                .style("font-size", param.sdBarHdFontSize);
+        baseSvg.selectAll(".sideBarElemRect")
+                .attr("x", param.sdBarElemX)
+                .attr("y", function(d,i) { return param.sdBarElemY + i*param.sdBarElemH})
+                .attr("width", param.sdBarElemW)
+                .attr("height", param.sdBarElemH);
+        baseSvg.selectAll(".sideBarColorBox")
+                .attr("x", param.sdBarColorBarsX)
+                .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH})
+                .attr("width", param.sdBarColorBarsW)
+                .attr("height", param.sdBarColorBarsW);
+        baseSvg.selectAll(".sideBarText")
+                .attr("x", param.sdBarTextX)
+                .attr("y", function(d,i) { return param.sdBarTextY + i*param.sdBarElemH })
+                .style("font-size", param.sdBarFontSize);
+        baseSvg.selectAll(".sideBarSwitchOn")
+                .attr("x", param.sdBarSwitchX)
+                .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH })
+                .style("font-size", param.sdBarFontSize);
+        baseSvg.selectAll(".sideBarSwitchOff")
+                .attr("x", param.sdBarSwitchX)
+                .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH})
+                .style("font-size", param.sdBarFontSize);
+        baseSvg.selectAll(".sdBarResetButton")
+                .attr("x", param.sdBarSwitchX)
+                .attr("y", param.sdBarSwitchY + ncol*param.sdBarElemH)
+                .style("font-size", param.sdBarFontSize);
+        baseSvg.selectAll(".sdBarSortHeading")
+                .attr("x", param.sdBarHdX)
+                .attr("y", param.sdBarTextY + (ncol+1)*param.sdBarElemH)
+                .style("font-size", param.sdBarHdFontSize);
+        baseSvg.selectAll(".sideBarElemSortRect")
+                .attr("x", param.sdBarElemX)
+                .attr("y", function(d,i) { return param.sdBarElemY + (ncol+2)*param.sdBarElemH + i*param.sdBarElemH})
+                .attr("width", param.sdBarElemW)
+                .attr("height", param.sdBarElemH);
+        baseSvg.selectAll(".sdBarSortBox")
+                .attr("cx", param.sdBarColorBarsX + param.sdBarColorBarsW*0.5)
+                .attr("cy", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
+                .attr("r", param.sdBarColorBarsW*0.35);
+        baseSvg.selectAll(".sdBarSortText")
+                .attr("x", param.sdBarTextX)
+                .attr("y", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
+                .style("font-size", param.sdBarFontSize);
     }
 
-    var chart = function chart(selection){
+    function chart(el){
 
         var ymax = d3.max(sums);
         var ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
 
-        var baseSvg = selection.select("svg");
+        var baseSvg = el.select("svg");
 
         // create the bars
 
@@ -140,10 +239,10 @@ function PalmPlot() {
 
         leavesEnter.attr("d", line);
 
-        d3.selectAll(".leaf")
-            .attr("transform", function(d) {
-                return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + plotHeight + ")";
-            });
+        plotArea.selectAll(".leaf")
+                .attr("transform", function(d) {
+                    return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + plotHeight + ")";
+                });
 
         leaves.attr("transform", function(d,i) {
             return "rotate(" + (i*360/ncol) + ")";
@@ -360,78 +459,59 @@ function PalmPlot() {
         }
 
         // create the side bar
-
         var sideBar = baseSvg.append("g");
-        var sdBarWidth = viewerWidth*0.2,
-            sdBarHeight = viewerHeight,
-            sdBarX = viewerWidth - sdBarWidth,
-            sdBarY = 0;
 
+        // background
         sideBar.append("rect")
-                .attr("x", sdBarX)
-                .attr("y", sdBarY)
+                .attr("x", param.sdBarX)
+                .attr("y", param.sdBarY)
                 .attr("rx", 7)
                 .attr("ry", 7)
-                .attr("width",sdBarWidth)
-                .attr("height",sdBarHeight)
+                .attr("width",param.sdBarWidth)
+                .attr("height",param.sdBarHeight)
                 .classed("sideBar", true);
 
+        // containers
         var sdBarElem = sideBar.selectAll("sdBar.g")
                         .data(colNames);
-
         var sdBarElemEnter = sdBarElem.enter()
                             .append("g");
 
-        var sdBarElemMargin = 3,
-            sdBarTextPadding = 3,
-            sdBarElemW = sdBarWidth - 2*sdBarElemMargin;
-
-        var sdBarFontSize = sdBarElemW/sdBarMaxTxtL,
-            sdBarElemH = sdBarFontSize * 2;
-
         // heading
-        var sdBarHdFontSize = sdBarFontSize + 2,
-            sdBarHdH = sdBarHdFontSize * 2;
-
-        if (sdBarHdH + sdBarElemH*(colNames.length+5) > sdBarHeight - sdBarHdH - sdBarElemH) {
-            sdBarHdH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 6)*1.1;
-            sdBarHdFontSize = sdBarHdH/2;
-            sdBarElemH = (sdBarHeight - 2*sdBarElemMargin)/(colNames.length + 5);
-            sdBarFontSize = sdBarElemH/2;
-        }
-        var sdBarHdY = sdBarY + sdBarElemMargin + sdBarHdH/2;
-
         sideBar.append("text")
                 .attr("class","sdBarHeading")
-                .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
-                .attr("y", sdBarHdY)
+                .attr("x", param.sdBarHdX)
+                .attr("y", param.sdBarHdY)
                 .attr("dy", "0.35em")
                 .attr("fill", "white")
                 .text(settings.colHeading)
-                .style("font-size", sdBarHdFontSize);
+                .style("font-size", param.sdBarHdFontSize);
 
+        // container elements (white rectangles)
         sdBarElemEnter.append("rect")
                         .classed("sideBarElemRect",true)
-                        .attr("x", sdBarX + sdBarElemMargin)
-                        .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + i*sdBarElemH})
-                        .attr("width", sdBarElemW)
-                        .attr("height", sdBarElemH);
+                        .attr("x", param.sdBarElemX)
+                        .attr("y", function(d,i) { return param.sdBarElemY + i*param.sdBarElemH})
+                        .attr("width", param.sdBarElemW)
+                        .attr("height", param.sdBarElemH);
 
-        var sdBarColorBarsW = sdBarElemH - 2*sdBarElemMargin;
+        // colors representing columns
         var sdBarColorBars = sdBarElemEnter.append("rect")
-                            .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
-                            .attr("y", function(d,i) { return sdBarY + sdBarElemMargin*2 + sdBarHdH + i*sdBarElemH})
-                            .attr("width", sdBarColorBarsW)
-                            .attr("height", sdBarColorBarsW)
+                            .attr("class", "sideBarColorBox")
+                            .attr("x", param.sdBarColorBarsX)
+                            .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH})
+                            .attr("width", param.sdBarColorBarsW)
+                            .attr("height", param.sdBarColorBarsW)
                             .style("fill", function(d,i) { return colors[i];});
 
+        // column names
         var sdBarText = sdBarElemEnter.append("text")
                         .classed("sideBarText",true)
-                        .attr("x", sdBarX + sdBarElemMargin*2 + sdBarTextPadding + sdBarColorBarsW)
-                        .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + i*sdBarElemH + sdBarElemH/2})
+                        .attr("x", param.sdBarTextX)
+                        .attr("y", function(d,i) { return param.sdBarTextY + i*param.sdBarElemH })
                         .attr("dy", "0.35em")
                         .text(function(d) { return d;})
-                        .style("font-size", sdBarFontSize)
+                        .style("font-size", param.sdBarFontSize)
                         .style("cursor", "default");
 
         function clickText() {
@@ -480,25 +560,25 @@ function PalmPlot() {
 
         var sdBarSwitchOn = sdBarElemEnter.append("text")
                             .attr("id", function(d,i) { return "t" + i;})
-                            .attr("x", sdBarX + sdBarWidth - sdBarElemMargin - sdBarTextPadding)
-                            .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + i*sdBarElemH + sdBarElemH/2})
+                            .attr("x", param.sdBarSwitchX)
+                            .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH })
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "end")
                             .text("ON")
                             .classed("sideBarSwitchOn",true)
-                            .style("font-size", sdBarFontSize)
+                            .style("font-size", param.sdBarFontSize)
                             .style("cursor", "pointer")
                             .on("click", clickText);
 
         var sdBarSwitchOff = sdBarElemEnter.append("text")
                             .attr("id", function(d,i) { return "c" + i;})
-                            .attr("x", sdBarX + sdBarWidth - sdBarElemMargin - sdBarTextPadding)
-                            .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + i*sdBarElemH + sdBarElemH/2})
+                            .attr("x", param.sdBarSwitchX)
+                            .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH})
                             .attr("dy", "0.35em")
                             .attr("text-anchor", "end")
                             .text("OFF")
                             .classed("sideBarSwitchOff",true)
-                            .style("font-size", sdBarFontSize)
+                            .style("font-size", param.sdBarFontSize)
                             .style("display", "none")
                             .style("cursor", "pointer")
                             .on("click", clickHiddenText);
@@ -507,12 +587,12 @@ function PalmPlot() {
 
         var sdBarResetText = sdBarReset.append("text")
                                 .attr("class", "sdBarResetButton")
-                                .attr("x", sdBarX + sdBarWidth - sdBarElemMargin - sdBarTextPadding)
-                                .attr("y", sdBarY + sdBarElemMargin + sdBarHdH + ncol*sdBarElemH + sdBarElemH/2)
+                                .attr("x", param.sdBarSwitchX)
+                                .attr("y", param.sdBarSwitchY + ncol*param.sdBarElemH)
                                 .attr("dy", "0.35em")
                                 .attr("text-anchor", "end")
                                 .text("Reset")
-                                .style("font-size", sdBarFontSize)
+                                .style("font-size", param.sdBarFontSize)
                                 .on("click", clickReset);
 
         // Sort control
@@ -521,12 +601,12 @@ function PalmPlot() {
 
         sdBarSort.append("text")
                     .attr("class", "sdBarSortHeading")
-                    .attr("x", sdBarX + sdBarElemMargin + sdBarTextPadding)
-                    .attr("y", sdBarY + sdBarElemMargin + sdBarHdH + (ncol+1)*sdBarElemH + sdBarElemH/2)
+                    .attr("x", param.sdBarHdX)
+                    .attr("y", param.sdBarTextY + (ncol+1)*param.sdBarElemH)
                     .attr("dy", "0.35em")
                     .attr("text-anchor", "start")
                     .text("Sort")
-                    .style("font-size", sdBarHdFontSize);
+                    .style("font-size", param.sdBarHdFontSize);
 
         var sdBarSortEnter = sdBarSort.selectAll("g.span")
                         .data(sortText)
@@ -535,29 +615,29 @@ function PalmPlot() {
                         .attr("id", function(d,i) { return "s" + i;});
 
         sdBarSortEnter.append("rect")
-                        .classed("sideBarElemRect",true)
-                        .attr("x", sdBarX + sdBarElemMargin)
-                        .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + (ncol+2)*sdBarElemH + i*sdBarElemH})
-                        .attr("width", sdBarElemW)
-                        .attr("height", sdBarElemH);
+                        .classed("sideBarElemSortRect",true)
+                        .attr("x", param.sdBarElemX)
+                        .attr("y", function(d,i) { return param.sdBarElemY + (ncol+2)*param.sdBarElemH + i*param.sdBarElemH})
+                        .attr("width", param.sdBarElemW)
+                        .attr("height", param.sdBarElemH);
 
         sdBarSortEnter.append("circle")
                         .attr("class","sdBarSortBox")
                         .attr("id", function(d,i) { return "sortC" + i;})
-                        .attr("cx", sdBarX + sdBarElemMargin + sdBarTextPadding + sdBarColorBarsW*0.5)
-                        .attr("cy", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + (ncol+2)*sdBarElemH + sdBarElemH*i + sdBarElemH/2})
-                        .attr("r", sdBarColorBarsW*0.35)
+                        .attr("cx", param.sdBarColorBarsX + param.sdBarColorBarsW*0.5)
+                        .attr("cy", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
+                        .attr("r", param.sdBarColorBarsW*0.35)
                         .style("fill", "#fff");
 
         sdBarSortEnter.append("text")
                     .attr("class", "sdBarSortText")
                     .attr("id", function(d,i) { return "sortT" + i;})
-                    .attr("x", sdBarX + sdBarElemMargin*2 + sdBarTextPadding + sdBarColorBarsW)
-                    .attr("y", function(d,i) { return sdBarY + sdBarElemMargin + sdBarHdH + (ncol+2)*sdBarElemH + sdBarElemH*i + sdBarElemH/2})
+                    .attr("x", param.sdBarTextX)
+                    .attr("y", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
                     .attr("dy", "0.35em")
                     .attr("text-anchor", "start")
                     .text(function(d) {return d;})
-                    .style("font-size", sdBarFontSize);
+                    .style("font-size", param.sdBarFontSize);
 
         sdBarSort.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
         sdBarSort.select("#sortT0").style("fill", "#000");
@@ -581,14 +661,14 @@ function PalmPlot() {
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("y", function(d) { return plotHeight; })
                 .text(function(d) { return d.name;})
-                .style("font-size", sdBarFontSize);
+                .style("font-size", param.sdBarFontSize);
 
         plotArea.append("text")
                 .attr("class", "plotAreaHeading")
                 .attr("x", plotWidth/2)
                 .attr("y", plotHeight + plotMargin.top + plotMargin.bottom*0.4)
                 .text(settings.rowHeading)
-                .style("font-size", sdBarHdFontSize);
+                .style("font-size", param.sdBarHdFontSize);
 
         // work on tooltip
         var tip = {};
@@ -628,9 +708,7 @@ function PalmPlot() {
 
         for (i = 0; i < colNames.length; i++) {
             selectedCol.push(1);
-            sdBarMaxTxtL = Math.max(sdBarMaxTxtL, colNames[i].length);
         }
-
         for (i = 0; i < rowNames.length; i++) {
             tempSum = 0;
             for (j = 0; j < colNames.length; j++) {
@@ -671,7 +749,12 @@ function PalmPlot() {
         colors = settings.colors;
 
         if (!colors) {
-            colors = setup_colors(colNames.length);
+            colors = setup_colors();
+        }
+
+        param.sdBarMaxTxtL = 0;
+        for (i = 0; i < colNames.length; i++) {
+            param.sdBarMaxTxtL = Math.max(param.sdBarMaxTxtL, colNames[i].length);
         }
 
         setup_sizes(settings);
@@ -719,7 +802,12 @@ HTMLWidgets.widget({
     },
 
     resize: function(el, width, height, instance) {
-        //return PalmPlot().width(width).height(height).resize(el);
+
+        d3.select(el).select("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        return instance.width(width).height(height).resize(el);
     },
 
     renderValue: function(el, x, instance) {

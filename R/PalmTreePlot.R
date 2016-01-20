@@ -99,6 +99,11 @@ PalmTreePlot <- function(
         }
     }
 
+    if (!is.null(colors) && length(colors) < length(col.names)) {
+        a = rbind(colors, col.names)
+        colors = a[1,]
+    }
+
     # create a list that contains the settings
     settings <- list(
         weights = weights,

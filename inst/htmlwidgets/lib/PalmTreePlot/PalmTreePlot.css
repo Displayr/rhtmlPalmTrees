@@ -18,35 +18,6 @@
     writing-mode: tb;
 }
 
-.sdBarHeading{
-    fill: #fff;
-    font-weight: bold;
-    font-family: sans-serif;
-}
-
-.sdBarResetButton{
-    fill: #000;
-    cursor: pointer;
-    font-family: sans-serif;
-}
-
-.sdBarSortHeading{
-    fill: #fff;
-    font-weight: bold;
-    font-family: sans-serif;
-}
-
-.sdBarSortText{
-    fill: #ccc;
-    cursor: pointer;
-    font-family: sans-serif;
-}
-
-.sdBarSortBox {
-    cursor: pointer;
-    stroke: #ccc;
-    stroke-width: 1.5px;
-}
 
 .title {
   font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -109,10 +80,26 @@
     stroke-width: 1.5px;
 }
 
+.sdBarHeading{
+    fill: #fff;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
 .sideBarElemRect {
     fill: white;
     stroke: steelblue;
     stroke-width: 1px;
+}
+
+.sideBarElemSortRect{
+    fill: white;
+    stroke: steelblue;
+    stroke-width: 1px;
+}
+
+.sideBarColorBox {
+
 }
 
 .sideBarText {
@@ -125,6 +112,30 @@
 
 .sideBarSwitchOn {
     font-family:sans-serif;
+}
+
+.sdBarResetButton{
+    fill: #000;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+.sdBarSortHeading{
+    fill: #fff;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.sdBarSortText{
+    fill: #ccc;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
+.sdBarSortBox {
+    cursor: pointer;
+    stroke: #ccc;
+    stroke-width: 1.5px;
 }
 
 .ghostCircle {
