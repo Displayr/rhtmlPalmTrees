@@ -54,11 +54,13 @@ function PalmPlot() {
         // heading
         param.sdBarHdFontSize = param.sdBarFontSize + 2,
         param.sdBarHdH = param.sdBarHdFontSize * 2;
+        param.sdBarElemY = param.sdBarY + param.sdBarMargin + param.sdBarHdH;
 
-        if (param.sdBarHdH + param.sdBarElemH*(colNames.length+5) > param.sdBarHeight - param.sdBarHdH - param.sdBarElemH) {
-            param.sdBarHdH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + 6)*1.1;
+
+        if (param.sdBarElemY + (ncol+2)*param.sdBarElemH + 2*param.sdBarElemH > param.sdBarHeight - param.sdBarMargin) {
+            param.sdBarElemH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + 3 + 1.1*2);
+            param.sdBarHdH = param.sdBarElemH*1.1;
             param.sdBarHdFontSize = param.sdBarHdH/2;
-            param.sdBarElemH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + 5);
             param.sdBarFontSize = param.sdBarElemH/2;
         }
         // heading X,Y offset
