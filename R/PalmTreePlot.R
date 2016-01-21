@@ -65,10 +65,10 @@ PalmTreePlot <- function(
                 for (j in 1:nc) {
                     tip.data[i,j] = weights[j]*tip.data[i,j]
                 }
-                tip.data[i,] = tip.data[i,]/sum(tip.data[i,])
+                #tip.data[i,] = tip.data[i,]/sum(tip.data[i,])
             }
 
-            tip.data = formatC(tip.data*100, digits = 1, format = "f")
+            tip.data = formatC(tip.data, digits = 1, format = "f")
             column.labels.repeated = matrix(col.names, nr, nc, byrow = TRUE)
 
             if (!is.null(prefix)) {
@@ -112,7 +112,9 @@ PalmTreePlot <- function(
         rowHeading = row.heading,
         colHeading = col.heading,
         tooltips = tooltips,
-        colors = colors
+        colors = colors,
+        prefix = prefix,
+        suffix = suffix
     )
 
     # pass the data and settings using 'x'

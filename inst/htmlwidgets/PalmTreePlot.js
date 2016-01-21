@@ -45,6 +45,7 @@ function PalmPlot() {
         palms,
         tips,
         leaves;
+    var commasFormatter = d3.format(",.1f");
 
     function setup_sizes(settings) {
 
@@ -70,9 +71,9 @@ function PalmPlot() {
         param.sdBarHdH = param.sdBarHdFontSize * 2;
         param.sdBarElemY = param.sdBarY + param.sdBarMargin + param.sdBarHdH;
 
-
-        if (param.sdBarElemY + (ncol+2)*param.sdBarElemH + 2*param.sdBarElemH > param.sdBarHeight - param.sdBarMargin) {
-            param.sdBarElemH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + 3 + 1.1*2);
+        var sortOptions = 4;
+        if (param.sdBarElemY + (ncol+2)*param.sdBarElemH + sortOptions*param.sdBarElemH > param.sdBarHeight - param.sdBarMargin) {
+            param.sdBarElemH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + sortOptions + 1 + 1.1*2);
             param.sdBarHdH = param.sdBarElemH*1.1;
             param.sdBarHdFontSize = param.sdBarHdH/2;
             param.sdBarFontSize = param.sdBarElemH/2;
@@ -118,14 +119,14 @@ function PalmPlot() {
         for (i = 0; i < rowNames.length; i++) {
             for (j = 0; j < colNames.length; j++) {
                 if (selectedCol[j] < 0.5) {
-                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
                                         {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
                                         {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
                                         {x:radialScale(normData[i][j]), y:0},
                                         {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
                                         {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
                 } else {
-                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
                                         {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                         {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                         {x:radialScale(normData[i][j]), y:0},
@@ -148,7 +149,7 @@ function PalmPlot() {
                 .style("font-size", param.sdBarFontSize);
         baseSvg.selectAll(".plotAreaHeading")
                 .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.top + plotMargin.bottom*0.4)
+                .attr("y", plotHeight + plotMargin.bottom*0.9)
                 .style("font-size", param.sdBarHdFontSize);
         baseSvg.selectAll(".ghostCircle")
                 .attr("r", function(d) { return radialScale(d.r)})
@@ -159,6 +160,11 @@ function PalmPlot() {
                     return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
                 });
         leaves.attr("d", line);
+        if (settings.suffix) {
+            baseSvg.selectAll(".suffixText")
+                    .attr("x", -plotMargin.left)
+                    .attr("y", -plotMargin.top*0.5);
+        }
         // resize side bar
         baseSvg.selectAll(".sideBar")
                 .attr("x", param.sdBarX)
@@ -234,7 +240,8 @@ function PalmPlot() {
         yAxis = d3.svg.axis()
                     .scale(yscale)
                     .orient("left")
-                    .ticks(nticks);
+                    .ticks(nticks)
+                    .tickFormat(function(d) { return settings.prefix[0] + commasFormatter(d); });
 
         // create the bars
         var baseSvg = selection.select("svg");
@@ -255,7 +262,7 @@ function PalmPlot() {
             leafRmean.push(d3.mean(normData[i]));
             leafRmax.push(d3.max(normData[i]));
             for (j = 0; j < colNames.length; j++) {
-                leafData.push( [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                leafData.push( [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
                                 {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                 {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j]), y:0},
@@ -266,8 +273,8 @@ function PalmPlot() {
         }
 
         for (i = 0; i < rowNames.length; i++) {
-            barData.push({name: rowNames[i], value: sums[i]});
-            textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
+            barData.push({name: rowNames[i], value: sums[i], index: i});
+            textData.push({name: rowNames[i], value: sums[i], index: i, offset: leafRmax[i]});
         }
 
         // vertical bars
@@ -312,13 +319,19 @@ function PalmPlot() {
         leaves.style("fill", function(d,i) { return colors[i];});
 
         // sort and return sort indices
-        function sortWithIndices(toSort) {
+        function sortWithIndices(toSort, mode) {
             for (var i = 0; i < toSort.length; i++) {
                 toSort[i] = [toSort[i], i];
             }
-            toSort.sort(function(left, right) {
-                return left[0] < right[0] ? -1 : 1;
-            });
+            if (mode === 0) {
+                toSort.sort(function(left, right) {
+                    return left[0] < right[0] ? -1 : 1;
+                });
+            } else {
+                toSort.sort(function(left, right) {
+                    return left[0] < right[0] ? 1 : -1;
+                });
+            }
             toSort.sortIndices = [];
             for (var j = 0; j < toSort.length; j++) {
                 toSort.sortIndices.push(toSort[j][1]);
@@ -339,80 +352,76 @@ function PalmPlot() {
         // sort bars
         function sortBars() {
             var rowNamesTemp = [];
-
+            var sortfun,sortfun1;
+            var sumsTemp = [];
             if (colSort == "0") {
+                // as is
+                xscale.domain(rowNames);
+                sortfun = function(a,b) { return a.index - b.index;};
+                sortfun1 = function(a,b) { return a[0][0].index - b[0][0].index;};
+
+            } else if (colSort == "1") {
+                // alphabetical
                 for (i = 0; i < rowNames.length; i++) {
                     rowNamesTemp.push(rowNames[i]);
                 }
-                rindices = sortWithIndices(rowNamesTemp);
+                rindices = sortWithIndices(rowNamesTemp,0);
                 xscale.domain(rowNames1);
+                sortfun = function(a,b) { return xscale(a.name) - xscale(b.name);};
+                sortfun1 = function(a,b) { return xscale(a[0][0].name) - xscale(b[0][0].name);};
 
-                plotArea.selectAll(".bar")
-                    .sort(function(a,b) { return xscale(a.name) - xscale(b.name);})
-                    .transition()
-                    .duration(duration)
-                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("y", function(d) { return yscale(d.value); })
-                    .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
 
-                plotArea.selectAll(".plotAreaText")
-                    .sort(function(a,b) { return xscale(a.name) - xscale(b.name);})
-                    .transition()
-                    .duration(duration)
-                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
+            } else if (colSort == "2") {
+                // low to high
 
-               plotArea.selectAll(".ghostCircle")
-                    .sort(function(a,b) { return xscale(a.name) - xscale(b.name);})
-                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("cy", function(d) { return yscale(d.value); });
-
-                plotArea.selectAll(".leaf")
-                    .sort(function(a,b) { return xscale(a[0][0].name) - xscale(b[0][0].name);})
-                    .transition()
-                    .duration(duration)
-                    .attr("transform", function(d,i) {
-                        return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
-                    });
-
-            } else if (colSort == "1") {
-
-                var sumsTemp = [];
                 for (i = 0; i < rowNames.length; i++) {
                     sumsTemp.push(sums[i]);
                 }
-                rindices = sortWithIndices(sumsTemp);
+                rindices = sortWithIndices(sumsTemp,0);
                 rowNames2 = sortFromIndices(rowNames, rindices);
                 xscale.domain(rowNames2);
+                sortfun = function(a,b) { return a.value - b.value;};
+                sortfun1 = function(a,b) { return a[0][0].value - b[0][0].value;};
 
-                plotArea.selectAll(".bar")
-                    .sort(function(a,b) { return a.value - b.value;})
+            } else if (colSort == "3") {
+                // high to low
+                for (i = 0; i < rowNames.length; i++) {
+                    sumsTemp.push(sums[i]);
+                }
+                rindices = sortWithIndices(sumsTemp,1);
+                rowNames2 = sortFromIndices(rowNames, rindices);
+                xscale.domain(rowNames2);
+                sortfun = function(a,b) { return -(a.value - b.value);};
+                sortfun1 = function(a,b) { return -(a[0][0].value - b[0][0].value);};
+            }
+
+            plotArea.selectAll(".bar")
+                    .sort(sortfun)
                     .transition()
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
 
-                plotArea.selectAll(".plotAreaText")
-                    .sort(function(a,b) { return a.value - b.value;})
+            plotArea.selectAll(".plotAreaText")
+                    .sort(sortfun)
                     .transition()
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
 
-                plotArea.selectAll(".ghostCircle")
-                    .sort(function(a,b) { return a.value - b.value;})
+            plotArea.selectAll(".ghostCircle")
+                    .sort(sortfun)
                     .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("cy", function(d) { return yscale(d.value); });
 
-                plotArea.selectAll(".leaf")
-                    .sort(function(a,b) { return a[0][0].value - b[0][0].value;})
+            plotArea.selectAll(".leaf")
+                    .sort(sortfun1)
                     .transition()
                     .duration(duration)
                     .attr("transform", function(d,i) {
                         return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
                     });
-            }
         }
 
         // update plot when something is clicked
@@ -433,32 +442,32 @@ function PalmPlot() {
 
             maxSum = d3.max(sums);
 
-            for (i = 0; i < rowNames.length; i++) {
+            /* for (i = 0; i < rowNames.length; i++) {
                 sums[i] = sums[i]/maxSum;
-            }
+            }*/
 
             for (i = 0; i < rowNames.length; i++) {
-                barData[i] = {name: rowNames[i], value: sums[i]};
-                textData[i] = {name: rowNames[i], value: sums[i], offset: leafRmax[i]};
+                barData[i] = {name: rowNames[i], value: sums[i], index: i};
+                textData[i] = {name: rowNames[i], value: sums[i], index: i, offset: leafRmax[i]};
             }
 
             if(settings.tooltips){
                 for (i = 0; i < rowNames.length; i++) {
-                    tipData[i] = {name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i]};
+                    tipData[i] = {name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i], index: i};
                 }
             }
 
             for (i = 0; i < rowNames.length; i++) {
                 for (j = 0; j < colNames.length; j++) {
                     if (selectedCol[j] < 0.5) {
-                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
                                             {x:radialScale(normData[i][j]), y:0},
                                             {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
                                             {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
                     } else {
-                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
                                             {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                             {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                             {x:radialScale(normData[i][j]), y:0},
@@ -655,7 +664,7 @@ function PalmPlot() {
                                 .on("click", clickReset);
 
         // Sort control
-        var sortText = ["Alphabetically", "By rank"];
+        var sortText = ["Default", "Alphabetical", "Lowest to Highest", "Highest to Lowest"];
         var sdBarSort = sideBar.append("g");
 
         sdBarSort.append("text")
@@ -725,9 +734,17 @@ function PalmPlot() {
         plotArea.append("text")
                 .attr("class", "plotAreaHeading")
                 .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.top + plotMargin.bottom*0.4)
+                .attr("y", plotHeight + plotMargin.bottom*0.9)
                 .text(settings.rowHeading)
                 .style("font-size", param.sdBarHdFontSize);
+
+        if (settings.suffix) {
+            plotArea.append("text")
+                    .attr("class", "suffixText")
+                    .attr("x", -plotMargin.left)
+                    .attr("y", -plotMargin.top*0.5)
+                    .text("(" + settings.suffix[0] + ")");
+        }
 
         // work on tooltip
         var tip = {};
@@ -735,7 +752,7 @@ function PalmPlot() {
         if(settings.tooltips){
 
             for (i = 0; i < rowNames.length; i++) {
-                tipData.push({name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i]});
+                tipData.push({name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i], index: i});
             }
 
             tip = d3.tip()
@@ -783,7 +800,7 @@ function PalmPlot() {
         maxVal = 0;
         minVal = 1;
         for (i = 0; i < rowNames.length; i++) {
-            sums[i] = sums[i]/maxSum;
+            // sums[i] = sums[i]/maxSum;
             tempNorm = [];
             for (j = 0; j < colNames.length; j++) {
                 tempNorm.push(data[i][j]/maxSum);

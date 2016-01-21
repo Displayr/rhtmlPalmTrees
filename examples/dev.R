@@ -29,23 +29,23 @@ CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.191
                          dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'Diet Coke','Fanta','Lift','Pepsi'),
                                        Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshes', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
 set.seed(123)
-weights = runif(ncol(CSDperceptions))
-weights = weights/sum(weights)
+# weights = runif(ncol(CSDperceptions))
+# weights = weights/sum(weights)
 
+weights = rep(1,ncol(CSDperceptions))
 description = dimnames(CSDperceptions)
 row.names = description[[1]]
 col.names = description[[2]]
-rc.names = names(description)
-prefix = rep("", length(col.names))
-suffix = rep("%", length(col.names))
+prefix = rep("$", length(col.names))
+suffix = rep("per day", length(col.names))
 
 library(PalmTreePlot)
 PalmTreePlot(data = CSDperceptions,
              weights = weights,
-             row.names = description[[1]],
-             row.heading = rc.names[1],
-             col.names = description[[2]],
-             col.heading = rc.names[2],
+             row.names = row.names,
+             row.heading = "Brand",
+             col.names = col.names,
+             col.heading = "Attribute",
              prefix = prefix,
              suffix = suffix,
              tooltips = "Default",
