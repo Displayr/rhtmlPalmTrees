@@ -14,6 +14,9 @@ function PalmPlot() {
         sumIdx = [],
         leafData = [],
         leavesData = [],
+        barData = [],
+        textData = [],
+        tipData = [],
         leafRmean = [], // used to put tooltip dummy circle
         leafRmax = [],  // used to put text;
         i,
@@ -30,7 +33,18 @@ function PalmPlot() {
         rowNames,
         weights,
         colors,
-        ncol;
+        ncol,
+        xscale,
+        yscale,
+        radialScale,
+        xaxis,
+        yaxis,
+        line,
+        bars,
+        texts,
+        palms,
+        tips,
+        leaves;
 
     function setup_sizes(settings) {
 
@@ -91,12 +105,61 @@ function PalmPlot() {
     function resize_chart (el) {
         // recompute sizes
         setup_sizes(settings);
-
-        // resize main plot area
-
-        // resize side bar
-        console.log(param);
         var baseSvg = d3.select(el).select("svg");
+        baseSvg.select("g").attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
+        // resize scales and axis
+        xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
+        yscale.range([plotHeight, 0]);
+        yAxis.scale(yscale);
+        baseSvg.select(".yaxis").call(yAxis);
+        // update leaf size
+        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
+        radialScale.range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
+        for (i = 0; i < rowNames.length; i++) {
+            for (j = 0; j < colNames.length; j++) {
+                if (selectedCol[j] < 0.5) {
+                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
+                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
+                                        {x:radialScale(normData[i][j]), y:0},
+                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
+                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
+                } else {
+                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i]},
+                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
+                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
+                                        {x:radialScale(normData[i][j]), y:0},
+                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
+                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
+                }
+            }
+        }
+
+        palms.data(leavesData);
+        leaves.data(function(d) { return d;});
+
+        baseSvg.selectAll(".bar")
+                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("y", function(d) { return yscale(d.value); })
+                .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
+        baseSvg.selectAll(".plotAreaText")
+                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); })
+                .style("font-size", param.sdBarFontSize);
+        baseSvg.selectAll(".plotAreaHeading")
+                .attr("x", plotWidth/2)
+                .attr("y", plotHeight + plotMargin.top + plotMargin.bottom*0.4)
+                .style("font-size", param.sdBarHdFontSize);
+        baseSvg.selectAll(".ghostCircle")
+                .attr("r", function(d) { return radialScale(d.r)})
+                .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("cy", function(d) { return yscale(d.value); });
+        baseSvg.selectAll(".leaf")
+                .attr("transform", function(d) {
+                    return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
+                });
+        leaves.attr("d", line);
+        // resize side bar
         baseSvg.selectAll(".sideBar")
                 .attr("x", param.sdBarX)
                 .attr("y", param.sdBarY)
@@ -151,32 +214,30 @@ function PalmPlot() {
                 .style("font-size", param.sdBarFontSize);
     }
 
-    function chart(el){
+    function chart(selection){
 
-        var ymax = d3.max(sums);
-        var ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
+        param.ymax = d3.max(sums);
+        param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
 
-        var baseSvg = el.select("svg");
-
-        // create the bars
-
-        var xscale = d3.scale.ordinal()
+        xscale = d3.scale.ordinal()
                     .domain(rowNames)
                     .rangeRoundBands([0, plotWidth], 0.1, 0.3);
 
-        var yscale = d3.scale.linear()
-                    .domain([ymin, ymax])
+        yscale = d3.scale.linear()
+                    .domain([param.ymin, param.ymax])
                     .range([plotHeight, 0]);
 
-        var xAxis = d3.svg.axis()
+        xAxis = d3.svg.axis()
                     .scale(xscale)
                     .orient("bottom");
 
-        var yAxis = d3.svg.axis()
+        yAxis = d3.svg.axis()
                     .scale(yscale)
                     .orient("left")
                     .ticks(nticks);
 
+        // create the bars
+        var baseSvg = selection.select("svg");
         var plotArea = baseSvg.append("g")
                         .attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
 
@@ -184,10 +245,10 @@ function PalmPlot() {
                 .attr("class", "yaxis")
                 .call(yAxis);
 
-        var maxLeafWidth = Math.min(plotMargin.top,Math.floor((xscale(rowNames[1]) - xscale(rowNames[0]))/1.4));
-        var radialScale = d3.scale.linear()
-                            .domain([minVal, maxVal])
-                            .range([Math.floor(maxLeafWidth/3), maxLeafWidth]);
+        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
+        radialScale = d3.scale.linear()
+                        .domain([minVal, maxVal])
+                        .range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
 
         for (i = 0; i < rowNames.length; i++) {
             leafData = [];
@@ -204,16 +265,14 @@ function PalmPlot() {
             leavesData.push(leafData);
         }
 
-        var barData = [];
-        var textData = [];
         for (i = 0; i < rowNames.length; i++) {
             barData.push({name: rowNames[i], value: sums[i]});
             textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
         }
 
         // vertical bars
-        var bars = plotArea.selectAll(".g")
-                    .data(barData);
+        bars = plotArea.selectAll(".g")
+                        .data(barData);
         var barsEnter = bars.enter();
 
         barsEnter.append("rect")
@@ -224,15 +283,15 @@ function PalmPlot() {
                 .attr("height", function(d) { return viewerHeight*0.1; });
 
         // leaves
-        var line = d3.svg.line()
+        line = d3.svg.line()
                     .interpolate("cardinal-closed")
                     .x(function(d) { return d.x; })
                     .y(function(d) { return d.y; });
 
-        var palms = plotArea.selectAll(".g")
+        palms = plotArea.selectAll(".g")
                     .data(leavesData);
         var palmEnter = palms.enter();
-        var leaves = palmEnter.append("g")
+        leaves = palmEnter.append("g")
                     .attr("class", "leaf")
                     .selectAll("path")
                     .data(function(d) { return d;});
@@ -378,13 +437,15 @@ function PalmPlot() {
                 sums[i] = sums[i]/maxSum;
             }
 
-            barData = [];
-            textData = [];
-            tipData = [];
             for (i = 0; i < rowNames.length; i++) {
-                barData.push({name: rowNames[i], value: sums[i]});
-                textData.push({name: rowNames[i], value: sums[i], offset: leafRmax[i]});
-                tipData.push({name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i]});
+                barData[i] = {name: rowNames[i], value: sums[i]};
+                textData[i] = {name: rowNames[i], value: sums[i], offset: leafRmax[i]};
+            }
+
+            if(settings.tooltips){
+                for (i = 0; i < rowNames.length; i++) {
+                    tipData[i] = {name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i]};
+                }
             }
 
             for (i = 0; i < rowNames.length; i++) {
@@ -407,17 +468,13 @@ function PalmPlot() {
                 }
             }
 
-            ymax = d3.max(sums);
-            ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
+            param.ymax = d3.max(sums);
+            param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
 
-            yscale = d3.scale.linear()
-                    .domain([ymin, ymax])
+            yscale.domain([param.ymin, param.ymax])
                     .range([plotHeight, 0]);
 
-            yAxis = d3.svg.axis()
-                    .scale(yscale)
-                    .orient("left")
-                    .ticks(nticks);
+            yAxis.scale(yscale);
 
             plotArea.select(".yaxis")
                     .transition()
@@ -674,8 +731,7 @@ function PalmPlot() {
 
         // work on tooltip
         var tip = {};
-        var tipData = [];
-        var tips, tipsEnter;
+        var tipsEnter;
         if(settings.tooltips){
 
             for (i = 0; i < rowNames.length; i++) {
