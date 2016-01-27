@@ -8,6 +8,25 @@
 .tree {
 }
 
+table {
+    border-collapse: collapse;
+}
+table, th, td {
+    border: 0;
+}
+
+th {
+    font-size: 16px;
+    padding: 4px;
+}
+
+td {
+    font-size: 12px;
+    padding: 3px;
+    background-color: white;
+    color: #000;
+}
+
 .plotAreaHeading {
     font-family:sans-serif;
     font-weight: bold;
