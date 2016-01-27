@@ -241,7 +241,7 @@ function PalmPlot() {
                     .scale(yscale)
                     .orient("left")
                     .ticks(nticks)
-                    .tickFormat(function(d) { return settings.prefix[0] + commasFormatter(d); });
+                    .tickFormat(function(d) { return settings.prefix + commasFormatter(d); });
 
         // create the bars
         var baseSvg = selection.select("svg");
@@ -317,6 +317,74 @@ function PalmPlot() {
         });
 
         leaves.style("fill", function(d,i) { return colors[i];});
+
+        //function round(value, decimals) {
+        //    return Number(Math.round(value +'e'+ decimals) +'e-'+ decimals).toFixed(decimals);
+        //}
+
+        function make_tip_data() {
+
+            tipData = [];
+            var tb_len, k, aligntext, val;
+            if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
+            for (i = 0; i < rowNames.length; i++) {
+                var atip = "";
+                atip = "<table style='margin:0;border-spacing:2px 0;vertical-align:middle;padding:0'>";
+                atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i] + "</th>";
+
+                for (j = 0; j < colNames.length; j++) {
+                    atip = atip + "<tr>";
+                    // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(2) : 0;
+                    val = data[i][j].toFixed(2);
+                    if (selectedCol[j] == 1) {
+                        atip = atip + "<td style='text-align:center'>";
+                        atip = atip + "<div style='width:12px;height:12px;background-color:" + colors[j] + "'></div>" + "</td>";
+                        atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
+
+                        atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                        if (settings.suffix) {
+                            atip = atip + "<td style='text-align:left'>"+ settings.suffix + "</td>";
+                        }
+                    } else {
+                        atip = atip + "<td style='text-align:center'>";
+                        atip = atip + "<div style='width:12px;height:12px;background-color:#ccc'></div>" + "</td>";
+                        atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
+                        atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
+                        if (settings.suffix) {
+                            atip = atip + "<td style='text-align:left'><font color=#ccc>" + settings.suffix + "</font></td>";
+                        }
+                    }
+
+                    atip = atip + "</tr>";
+                }
+                atip = atip + "</table>";
+                tipData.push({name: rowNames[i], value: sums[i], tip: atip.toString(), r: leafRmean[i], index: i});
+            }
+
+        }
+
+        // work on tooltip
+        var tip = {};
+        var tipsEnter;
+        if(settings.tooltips){
+
+            make_tip_data();
+            tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(function(d) { return d.tip; })
+                    .direction("s");
+
+            plotArea.call(tip);
+            tips = plotArea.selectAll(".gtx")
+                            .data(tipData);
+
+            tipsEnter = tips.enter();
+            tipsEnter.append("circle")
+                    .attr("class", "ghostCircle")
+                    .attr("r", function(d) { return radialScale(d.r)})
+                    .on('mouseover', tip.show)
+                    .on('mouseout', tip.hide);
+        }
 
         // sort and return sort indices
         function sortWithIndices(toSort, mode) {
@@ -451,11 +519,7 @@ function PalmPlot() {
                 textData[i] = {name: rowNames[i], value: sums[i], index: i, offset: leafRmax[i]};
             }
 
-            if(settings.tooltips){
-                for (i = 0; i < rowNames.length; i++) {
-                    tipData[i] = {name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i], index: i};
-                }
-            }
+            make_tip_data();
 
             for (i = 0; i < rowNames.length; i++) {
                 for (j = 0; j < colNames.length; j++) {
@@ -743,34 +807,9 @@ function PalmPlot() {
                     .attr("class", "suffixText")
                     .attr("x", -plotMargin.left)
                     .attr("y", -plotMargin.top*0.5)
-                    .text("(" + settings.suffix[0] + ")");
+                    .text("(" + settings.suffix + ")");
         }
 
-        // work on tooltip
-        var tip = {};
-        var tipsEnter;
-        if(settings.tooltips){
-
-            for (i = 0; i < rowNames.length; i++) {
-                tipData.push({name: rowNames[i], value: sums[i], tip: settings.tooltips[i], r: leafRmean[i], index: i});
-            }
-
-            tip = d3.tip()
-                    .attr('class', 'd3-tip')
-                    .html(function(d) { return d.tip; })
-                    .direction("s");
-
-            plotArea.call(tip);
-            tips = plotArea.selectAll(".gtx")
-                            .data(tipData);
-
-            tipsEnter = tips.enter();
-            tipsEnter.append("circle")
-                    .attr("class", "ghostCircle")
-                    .attr("r", function(d) { return radialScale(d.r)})
-                    .on('mouseover', tip.show)
-                    .on('mouseout', tip.hide);
-        }
 
         updatePlot(duration);
 

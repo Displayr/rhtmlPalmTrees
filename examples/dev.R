@@ -36,11 +36,11 @@ weights = rep(1,ncol(CSDperceptions))
 description = dimnames(CSDperceptions)
 row.names = description[[1]]
 col.names = description[[2]]
-prefix = rep("$", length(col.names))
-suffix = rep("per day", length(col.names))
+prefix = "$"
+suffix = "per day"
 
-library(PalmTreePlot)
-PalmTreePlot(data = CSDperceptions,
+
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
              weights = weights,
              row.names = row.names,
              row.heading = "Brand",
