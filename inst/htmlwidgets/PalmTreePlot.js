@@ -334,7 +334,7 @@ function PalmPlot() {
                 });
 
         leaves.attr("transform", function(d,i) {
-            return "rotate(" + (i*360/ncol) + ")";
+            return "rotate(" + (i*360/ncol - 90) + ")";
         });
 
         leaves.style("fill", function(d,i) { return colors[i];});
