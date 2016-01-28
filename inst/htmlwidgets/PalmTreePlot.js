@@ -248,6 +248,7 @@ function PalmPlot() {
 
         yscale = d3.scale.linear()
                     .domain([param.ymin, param.ymax])
+                    .nice(nticks)
                     .range([plotHeight, 0]);
 
         xAxis = d3.svg.axis()
@@ -568,6 +569,7 @@ function PalmPlot() {
             // param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
 
             yscale.domain([param.ymin, param.ymax])
+                    .nice(nticks)
                     .range([plotHeight, 0]);
 
             yAxis.scale(yscale);

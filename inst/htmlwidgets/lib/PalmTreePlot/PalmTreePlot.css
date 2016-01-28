@@ -49,29 +49,23 @@ td {
 
 .axis {
   font: 12px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
   shape-rendering: crispEdges;
-}
-
-.xaxis path {
-  display: none;
-}
-
-.xaxis {
-    font: 12px sans-serif;
 }
 
 .yaxis {
     font: 12px sans-serif;
 }
 
+.yaxis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1px;
+}
+
 .yaxis path {
-  display: none;
+    fill: none;
+    stroke: #000;
+    display: none;
 }
 
 
