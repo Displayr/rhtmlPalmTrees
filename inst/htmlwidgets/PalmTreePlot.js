@@ -647,7 +647,14 @@ function PalmPlot() {
                 .attr("dy", "0.35em")
                 .attr("fill", "white")
                 .text(settings.colHeading)
-                .style("font-size", param.sdBarHdFontSize);
+                .style("font-size", param.sdBarHdFontSize)
+                .style("font-size", function(d) {
+                    var L = param.sdBarElemW - 2*param.sdBarTextPadding;
+                    if (this.getComputedTextLength() > L)
+                        return L/settings.colHeading.length*1.4;
+                    else
+                        return param.sdBarHdFontSize;
+                });
 
         // container elements (white rectangles)
         sdBarElemEnter.append("rect")
