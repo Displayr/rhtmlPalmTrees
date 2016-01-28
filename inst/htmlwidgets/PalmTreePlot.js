@@ -3,6 +3,8 @@ function PalmPlot() {
         viewerHeight = 600, // default height
         plotWidth = 400,
         plotHeight = 400,
+        left_margin = 35,
+        yaxisFormat = 0,
         data = [],
         settings = {},
         plotMargin = {},
@@ -46,10 +48,11 @@ function PalmPlot() {
         tips,
         leaves;
     var commasFormatter = d3.format(",.1f");
+    var commasFormatterE = d3.format(",.1e");
 
     function setup_sizes(settings) {
 
-        plotMargin = {top: viewerHeight*0.1, right: 20, bottom: viewerHeight*0.2, left: 35};
+        plotMargin = {top: viewerHeight*0.1, right: 20, bottom: viewerHeight*0.2, left: left_margin};
         plotWidth = viewerWidth * 0.8 - plotMargin.left - plotMargin.right;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
@@ -142,14 +145,14 @@ function PalmPlot() {
         baseSvg.selectAll(".bar")
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("y", function(d) { return yscale(d.value); })
-                .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
+                .attr("height", function(d) { return plotHeight - yscale(d.value); });
         baseSvg.selectAll(".plotAreaText")
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); })
                 .style("font-size", param.sdBarFontSize);
         baseSvg.selectAll(".plotAreaHeading")
                 .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.bottom*0.9)
+                .attr("y", plotHeight + plotMargin.bottom*0.8)
                 .style("font-size", param.sdBarHdFontSize);
         baseSvg.selectAll(".ghostCircle")
                 .attr("r", function(d) { return radialScale(d.r)})
@@ -220,10 +223,24 @@ function PalmPlot() {
                 .style("font-size", param.sdBarFontSize);
     }
 
+    function set_left_margin(ymax) {
+
+        if (ymax >= 10000) {
+            yaxisFormat = 1;
+            left_margin = 55;
+        } else {
+            yaxisFormat = 0;
+            left_margin = (Math.floor(ymax)).toString().length*7 + 30;
+        }
+    }
+
     function chart(selection){
 
         param.ymax = d3.max(sums);
-        param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
+        param.ymin = 0;
+        set_left_margin(param.ymax);
+        setup_sizes(settings);
+        // param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
 
         xscale = d3.scale.ordinal()
                     .domain(rowNames)
@@ -241,7 +258,12 @@ function PalmPlot() {
                     .scale(yscale)
                     .orient("left")
                     .ticks(nticks)
-                    .tickFormat(function(d) { return settings.prefix + commasFormatter(d); });
+                    .tickFormat(function(d) {
+                        if (yaxisFormat === 0)
+                            return settings.prefix + commasFormatter(d);
+                        else if (yaxisFormat === 1)
+                            return settings.prefix + commasFormatterE(d);
+                    });
 
         // create the bars
         var baseSvg = selection.select("svg");
@@ -287,7 +309,7 @@ function PalmPlot() {
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("width", 1)
                 .attr("y", function(d) { return plotHeight; })
-                .attr("height", function(d) { return viewerHeight*0.1; });
+                .attr("height", function(d) { return 0; });
 
         // leaves
         line = d3.svg.line()
@@ -372,7 +394,7 @@ function PalmPlot() {
             tip = d3.tip()
                     .attr('class', 'd3-tip')
                     .html(function(d) { return d.tip; })
-                    .direction("s");
+                    .direction('s');
 
             plotArea.call(tip);
             tips = plotArea.selectAll(".gtx")
@@ -469,7 +491,7 @@ function PalmPlot() {
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("y", function(d) { return yscale(d.value); })
-                    .attr("height", function(d) { return plotHeight - yscale(d.value) + viewerHeight*0.1; });
+                    .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
             plotArea.selectAll(".plotAreaText")
                     .sort(sortfun)
@@ -542,7 +564,8 @@ function PalmPlot() {
             }
 
             param.ymax = d3.max(sums);
-            param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
+            param.ymin = 0;
+            // param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
 
             yscale.domain([param.ymin, param.ymax])
                     .range([plotHeight, 0]);
@@ -559,6 +582,11 @@ function PalmPlot() {
             palms.data(leavesData);
             tips.data(tipData);
             leaves.data(function(d) { return d;});
+
+            plotArea.select(".plotAreaHeading")
+                    .transition()
+                    .duration(duration)
+                    .attr("y", plotHeight + plotMargin.bottom*0.8);
 
             plotArea.selectAll(".leaf")
                     .transition()
@@ -798,7 +826,7 @@ function PalmPlot() {
         plotArea.append("text")
                 .attr("class", "plotAreaHeading")
                 .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.bottom*0.9)
+                .attr("y", viewerHeight)
                 .text(settings.rowHeading)
                 .style("font-size", param.sdBarHdFontSize);
 
@@ -871,7 +899,7 @@ function PalmPlot() {
             param.sdBarMaxTxtL = Math.max(param.sdBarMaxTxtL, colNames[i].length);
         }
 
-        setup_sizes(settings);
+
         return chart;
     };
 
