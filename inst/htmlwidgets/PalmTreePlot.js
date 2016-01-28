@@ -148,12 +148,10 @@ function PalmPlot() {
                 .attr("height", function(d) { return plotHeight - yscale(d.value); });
         baseSvg.selectAll(".plotAreaText")
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); })
-                .style("font-size", param.sdBarFontSize);
+                .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
         baseSvg.selectAll(".plotAreaHeading")
                 .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.bottom*0.8)
-                .style("font-size", param.sdBarHdFontSize);
+                .attr("y", plotHeight + plotMargin.bottom*0.8);
         baseSvg.selectAll(".ghostCircle")
                 .attr("r", function(d) { return radialScale(d.r)})
                 .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
@@ -829,15 +827,13 @@ function PalmPlot() {
                 .attr("class", "plotAreaText")
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("y", function(d) { return plotHeight; })
-                .text(function(d) { return d.name;})
-                .style("font-size", param.sdBarFontSize);
+                .text(function(d) { return d.name;});
 
         plotArea.append("text")
                 .attr("class", "plotAreaHeading")
                 .attr("x", plotWidth/2)
                 .attr("y", viewerHeight)
-                .text(settings.rowHeading)
-                .style("font-size", param.sdBarHdFontSize);
+                .text(settings.rowHeading);
 
         if (settings.suffix) {
             plotArea.append("text")

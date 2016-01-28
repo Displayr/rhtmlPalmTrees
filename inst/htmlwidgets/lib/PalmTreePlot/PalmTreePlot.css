@@ -29,11 +29,13 @@ td {
 }
 
 .plotAreaHeading {
+    font-size: 14px;
     font-family:sans-serif;
     font-weight: bold;
 }
 
 .plotAreaText {
+    font-size: 12px;
     font-family:sans-serif;
     writing-mode: tb;
 }
