@@ -28,6 +28,28 @@ td {
     color: #000;
 }
 
+.northTip {
+	width: 0;
+	height: 0;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+	border-top: 10px solid steelblue;
+	font-size: 0;
+	line-height: 0;
+	position: absolute;
+}
+
+.southTip {
+	width: 0;
+	height: 0;
+	border-left: 7px solid transparent;  /* left arrow slant */
+	border-right: 7px solid transparent; /* right arrow slant */
+	border-bottom: 10px solid steelblue; /* bottom, add background color here */
+	font-size: 0;
+	line-height: 0;
+	position: absolute;
+}
+
 .plotAreaHeading {
     font-size: 14px;
     font-family:sans-serif;

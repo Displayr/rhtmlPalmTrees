@@ -46,6 +46,7 @@ function PalmPlot() {
         texts,
         palms,
         tips,
+        tip,
         leaves;
     var commasFormatter = d3.format(",.1f");
     var commasFormatterE = d3.format(",.1e");
@@ -116,6 +117,7 @@ function PalmPlot() {
         yscale.range([plotHeight, 0]);
         yAxis.scale(yscale);
         baseSvg.select(".yaxis").call(yAxis);
+
         // update leaf size
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
         radialScale.range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
@@ -139,6 +141,48 @@ function PalmPlot() {
             }
         }
 
+        if(settings.tooltips){
+            tip.destroy();
+            tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(function(d) { return d.tip; });
+
+            baseSvg.call(tip);
+            baseSvg.selectAll(".ghostCircle")
+                    .attr("r", function(d) { return radialScale(d.r)})
+                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("cy", function(d) { return yscale(d.value); })
+                    .on('mouseover', function(d) {
+                        var this_tip = tip.show(d);
+                        if (plotMargin.top + yscale(d.value) >
+                            viewerHeight * 0.5) {
+                            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
+                            d3.select("#littleTriangle")
+                            .attr("class", "northTip")
+                            .style("visibility", "visible")
+                            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.r)) + "px")
+                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+                        } else {
+                            this_tip = this_tip.direction("s").offset([5,0]).show(d);
+                            d3.select("#littleTriangle")
+                            .attr("class", "southTip")
+                            .style("visibility", "visible")
+                            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.r)) + "px")
+                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+                        }
+
+                        if (parseFloat(this_tip.style("left")) < 0) {
+                            this_tip.style("left", "5px");
+                        } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
+                            this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
+                        }
+                    })
+                    .on('mouseout', function(d) {
+                        tip.hide(d);
+                        d3.select("#littleTriangle").style("visibility", "hidden");
+                    });
+        }
+
         palms.data(leavesData);
         leaves.data(function(d) { return d;});
 
@@ -152,10 +196,7 @@ function PalmPlot() {
         baseSvg.selectAll(".plotAreaHeading")
                 .attr("x", plotWidth/2)
                 .attr("y", plotHeight + plotMargin.bottom*0.8);
-        baseSvg.selectAll(".ghostCircle")
-                .attr("r", function(d) { return radialScale(d.r)})
-                .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                .attr("cy", function(d) { return yscale(d.value); });
+
         baseSvg.selectAll(".leaf")
                 .attr("transform", function(d) {
                     return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
@@ -379,32 +420,64 @@ function PalmPlot() {
                     atip = atip + "</tr>";
                 }
                 atip = atip + "</table>";
+
                 tipData.push({name: rowNames[i], value: sums[i], tip: atip.toString(), r: leafRmean[i], index: i});
+
             }
 
         }
 
         // work on tooltip
-        var tip = {};
         var tipsEnter;
         if(settings.tooltips){
 
             make_tip_data();
             tip = d3.tip()
                     .attr('class', 'd3-tip')
-                    .html(function(d) { return d.tip; })
-                    .direction('s');
+                    .html(function(d) { return d.tip; });
 
-            plotArea.call(tip);
+            baseSvg.call(tip);
             tips = plotArea.selectAll(".gtx")
                             .data(tipData);
+
+            var tipTriangle = d3.select("body")
+                            .append("div")
+                            .attr("id", "littleTriangle")
+                            .style("visibility", "hidden");
 
             tipsEnter = tips.enter();
             tipsEnter.append("circle")
                     .attr("class", "ghostCircle")
                     .attr("r", function(d) { return radialScale(d.r)})
-                    .on('mouseover', tip.show)
-                    .on('mouseout', tip.hide);
+                    .on('mouseover', function(d) {
+                        var this_tip = tip.show(d);
+
+                        if (plotMargin.top + yscale(d.value) >
+                            viewerHeight * 0.5) {
+                            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
+                            tipTriangle
+                            .attr("class", "northTip")
+                            .style("visibility", "visible")
+                            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.r)) + "px")
+                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+                        } else {
+                            this_tip = this_tip.direction("s").offset([5,0]).show(d);
+                            tipTriangle
+                            .attr("class", "southTip")
+                            .style("visibility", "visible")
+                            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.r)) + "px")
+                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+                        }
+                        if (parseFloat(this_tip.style("left")) < 0) {
+                            this_tip.style("left", "5px");
+                        } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
+                            this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
+                        }
+                    })
+                    .on('mouseout', function(d) {
+                        tip.hide(d);
+                        tipTriangle.style("visibility", "hidden");
+                    });
         }
 
         // sort and return sort indices
