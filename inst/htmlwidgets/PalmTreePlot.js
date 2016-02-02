@@ -14,13 +14,8 @@ function PalmPlot() {
         selectedCol = [],
         sums = [],
         sumIdx = [],
-        leafData = [],
-        leavesData = [],
         barData = [],
-        textData = [],
-        tipData = [],
-        leafRmean = [], // used to put tooltip dummy circle
-        leafRmax = [],  // used to put text;
+        frondData = [],
         i,
         j,
         tempSum,
@@ -107,6 +102,108 @@ function PalmPlot() {
 
     }
 
+    function update_data() {
+
+        for (i = 0; i < rowNames.length; i++) {
+             barData[i].value = sums[i];
+             frondData[i].value = sums[i];
+            for (j = 0; j < colNames.length; j++) {
+                if (selectedCol[j] < 0.5) {
+                    frondData[i].leaves[j] =  [{x:0, y:0},
+                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.03},
+                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
+                                        {x:radialScale(normData[i][j]), y:0},
+                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
+                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
+                } else {
+                    frondData[i].leaves[j] =  [{x:0, y:0},
+                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
+                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
+                                        {x:radialScale(normData[i][j]), y:0},
+                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
+                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
+                }
+            }
+        }
+    }
+
+    function mouse_over_frond(d) {
+
+        var this_tip = tip.show(d);
+
+        if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
+
+            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
+            d3.select("#littleTriangle")
+            .attr("class", "northTip")
+            .style("visibility", "visible")
+            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipR)) + "px")
+            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+        } else {
+            this_tip = this_tip.direction("s").offset([5,0]).show(d);
+            d3.select("#littleTriangle")
+            .attr("class", "southTip")
+            .style("visibility", "visible")
+            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipR)) + "px")
+            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+        }
+
+        if (parseFloat(this_tip.style("left")) < 0) {
+            this_tip.style("left", "5px");
+        } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
+            this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
+        }
+
+        i = d.index;
+        var s = 1.1;
+        for (j = 0; j < colNames.length; j++) {
+            if (selectedCol[j] < 0.5) {
+                frondData[i].leaves[j] =  [{x:0, y:0},
+                                    {x:radialScale(normData[i][j])*0.25*s, y:-radialScale(normData[i][j])*0.03*s},
+                                    {x:radialScale(normData[i][j])*0.75*s, y:-radialScale(normData[i][j])*0.05*s},
+                                    {x:radialScale(normData[i][j])*s, y:0},
+                                    {x:radialScale(normData[i][j])*0.75*s, y:radialScale(normData[i][j])*0.05*s},
+                                    {x:radialScale(normData[i][j])*0.25*s, y:radialScale(normData[i][j])*0.03*s}];
+            } else {
+                frondData[i].leaves[j] =  [{x:0, y:0},
+                                    {x:radialScale(normData[i][j])*0.25*s, y:-radialScale(normData[i][j])*0.07*s},
+                                    {x:radialScale(normData[i][j])*0.75*s, y:-radialScale(normData[i][j])*0.13*s},
+                                    {x:radialScale(normData[i][j])*s, y:0},
+                                    {x:radialScale(normData[i][j])*0.75*s, y:radialScale(normData[i][j])*0.13*s},
+                                    {x:radialScale(normData[i][j])*0.25*s, y:radialScale(normData[i][j])*0.07*s}];
+            }
+        }
+        palms.data(frondData);
+        leaves.data(function(d) { return d.leaves;});
+        d3.select("#frond" + d.index).selectAll("path").transition().duration(300).attr("d", line);
+    }
+
+    function mouse_out_frond(d) {
+        tip.hide(d);
+        d3.select("#littleTriangle").style("visibility", "hidden");
+        i = d.index;
+        for (j = 0; j < colNames.length; j++) {
+            if (selectedCol[j] < 0.5) {
+                frondData[i].leaves[j] =  [{x:0, y:0},
+                                    {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
+                                    {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
+                                    {x:radialScale(normData[i][j]), y:0},
+                                    {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
+                                    {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
+            } else {
+                frondData[i].leaves[j] =  [{x:0, y:0},
+                                    {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
+                                    {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
+                                    {x:radialScale(normData[i][j]), y:0},
+                                    {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
+                                    {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
+            }
+        }
+        palms.data(frondData);
+        leaves.data(function(d) { return d.leaves;});
+        d3.select("#frond" + d.index).selectAll("path").transition().duration(300).attr("d", line);
+    }
+
     function resize_chart (el) {
         // recompute sizes
         setup_sizes(settings);
@@ -121,25 +218,27 @@ function PalmPlot() {
         // update leaf size
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
         radialScale.range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
-        for (i = 0; i < rowNames.length; i++) {
-            for (j = 0; j < colNames.length; j++) {
-                if (selectedCol[j] < 0.5) {
-                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
-                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
-                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
-                                        {x:radialScale(normData[i][j]), y:0},
-                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
-                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
-                } else {
-                    leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
-                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
-                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
-                                        {x:radialScale(normData[i][j]), y:0},
-                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
-                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
-                }
-            }
-        }
+        update_data();
+
+        palms.data(frondData);
+        leaves.data(function(d) { return d.leaves;});
+
+        baseSvg.selectAll(".bar")
+                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("y", function(d) { return yscale(d.value); })
+                .attr("height", function(d) { return plotHeight - yscale(d.value); });
+        /*baseSvg.selectAll(".plotAreaText")
+                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });*/
+        baseSvg.selectAll(".plotAreaHeading")
+                .attr("x", plotWidth/2)
+                .attr("y", plotHeight + plotMargin.bottom*0.8);
+
+        baseSvg.selectAll(".leaf")
+                .attr("transform", function(d) {
+                    return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
+                });
+        leaves.attr("d", line);
 
         if(settings.tooltips){
             tip.destroy();
@@ -149,59 +248,17 @@ function PalmPlot() {
 
             baseSvg.call(tip);
             baseSvg.selectAll(".ghostCircle")
-                    .attr("r", function(d) { return radialScale(d.r)})
+                    .attr("r", function(d) { return radialScale(d.tipR)})
                     .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("cy", function(d) { return yscale(d.value); })
                     .on('mouseover', function(d) {
-                        var this_tip = tip.show(d);
-                        if (plotMargin.top + yscale(d.value) >
-                            viewerHeight * 0.5) {
-                            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
-                            d3.select("#littleTriangle")
-                            .attr("class", "northTip")
-                            .style("visibility", "visible")
-                            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.r)) + "px")
-                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
-                        } else {
-                            this_tip = this_tip.direction("s").offset([5,0]).show(d);
-                            d3.select("#littleTriangle")
-                            .attr("class", "southTip")
-                            .style("visibility", "visible")
-                            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.r)) + "px")
-                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
-                        }
-
-                        if (parseFloat(this_tip.style("left")) < 0) {
-                            this_tip.style("left", "5px");
-                        } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
-                            this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
-                        }
+                        mouse_over_frond(d);
                     })
                     .on('mouseout', function(d) {
-                        tip.hide(d);
-                        d3.select("#littleTriangle").style("visibility", "hidden");
+                        mouse_out_frond(d);
                     });
         }
 
-        palms.data(leavesData);
-        leaves.data(function(d) { return d;});
-
-        baseSvg.selectAll(".bar")
-                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                .attr("y", function(d) { return yscale(d.value); })
-                .attr("height", function(d) { return plotHeight - yscale(d.value); });
-        baseSvg.selectAll(".plotAreaText")
-                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
-        baseSvg.selectAll(".plotAreaHeading")
-                .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.bottom*0.8);
-
-        baseSvg.selectAll(".leaf")
-                .attr("transform", function(d) {
-                    return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
-                });
-        leaves.attr("d", line);
         if (settings.suffix) {
             baseSvg.selectAll(".suffixText")
                     .attr("x", -plotMargin.left)
@@ -320,23 +377,22 @@ function PalmPlot() {
                         .range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
 
         for (i = 0; i < rowNames.length; i++) {
-            leafData = [];
-            leafRmean.push(d3.mean(normData[i]));
-            leafRmax.push(d3.max(normData[i]));
+            var frondDatum = {};
+            var leafData = [];
             for (j = 0; j < colNames.length; j++) {
-                leafData.push( [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
+                leafData.push( [{x:0, y:0},
                                 {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                 {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j]), y:0},
                                 {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
             }
-            leavesData.push(leafData);
+            frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i, tip: "s", tipR: d3.mean(normData[i])};
+            frondData.push(frondDatum);
         }
 
         for (i = 0; i < rowNames.length; i++) {
             barData.push({name: rowNames[i], value: sums[i], index: i});
-            textData.push({name: rowNames[i], value: sums[i], index: i, offset: leafRmax[i]});
         }
 
         // vertical bars
@@ -352,26 +408,28 @@ function PalmPlot() {
                 .attr("height", function(d) { return 0; });
 
         // leaves
+
+        palms = plotArea.selectAll(".g")
+                    .data(frondData);
+
+        var palmEnter = palms.enter();
+        leaves = palmEnter.append("g")
+                    .attr("class", "leaf")
+                    .attr("id", function(d) { return "frond" + d.index;})
+                    .selectAll("path")
+                    .data(function(d) { return d.leaves;});
+
+        leavesEnter = leaves.enter().append("path");
+
         line = d3.svg.line()
                     .interpolate("cardinal-closed")
                     .x(function(d) { return d.x; })
                     .y(function(d) { return d.y; });
-
-        palms = plotArea.selectAll(".g")
-                    .data(leavesData);
-        var palmEnter = palms.enter();
-        leaves = palmEnter.append("g")
-                    .attr("class", "leaf")
-                    .selectAll("path")
-                    .data(function(d) { return d;});
-
-        leavesEnter = leaves.enter().append("path");
-
         leavesEnter.attr("d", line);
 
         plotArea.selectAll(".leaf")
                 .attr("transform", function(d) {
-                    return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + plotHeight + ")";
+                    return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + plotHeight + ")";
                 });
 
         leaves.attr("transform", function(d,i) {
@@ -386,7 +444,6 @@ function PalmPlot() {
 
         function make_tip_data() {
 
-            tipData = [];
             var tb_len, k, aligntext, val;
             if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
             for (i = 0; i < rowNames.length; i++) {
@@ -421,14 +478,13 @@ function PalmPlot() {
                 }
                 atip = atip + "</table>";
 
-                tipData.push({name: rowNames[i], value: sums[i], tip: atip.toString(), r: leafRmean[i], index: i});
-
+                frondData[i].tip = atip;
             }
 
         }
 
         // work on tooltip
-        var tipsEnter;
+
         if(settings.tooltips){
 
             make_tip_data();
@@ -437,46 +493,20 @@ function PalmPlot() {
                     .html(function(d) { return d.tip; });
 
             baseSvg.call(tip);
-            tips = plotArea.selectAll(".gtx")
-                            .data(tipData);
 
             var tipTriangle = d3.select("body")
                             .append("div")
                             .attr("id", "littleTriangle")
                             .style("visibility", "hidden");
 
-            tipsEnter = tips.enter();
-            tipsEnter.append("circle")
+            palmEnter.append("circle")
                     .attr("class", "ghostCircle")
-                    .attr("r", function(d) { return radialScale(d.r)})
+                    .attr("r", function(d) { return radialScale(d.tipR)})
                     .on('mouseover', function(d) {
-                        var this_tip = tip.show(d);
-
-                        if (plotMargin.top + yscale(d.value) >
-                            viewerHeight * 0.5) {
-                            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
-                            tipTriangle
-                            .attr("class", "northTip")
-                            .style("visibility", "visible")
-                            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.r)) + "px")
-                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
-                        } else {
-                            this_tip = this_tip.direction("s").offset([5,0]).show(d);
-                            tipTriangle
-                            .attr("class", "southTip")
-                            .style("visibility", "visible")
-                            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.r)) + "px")
-                            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
-                        }
-                        if (parseFloat(this_tip.style("left")) < 0) {
-                            this_tip.style("left", "5px");
-                        } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
-                            this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
-                        }
+                        mouse_over_frond(d);
                     })
                     .on('mouseout', function(d) {
-                        tip.hide(d);
-                        tipTriangle.style("visibility", "hidden");
+                        mouse_out_frond(d);
                     });
         }
 
@@ -520,7 +550,7 @@ function PalmPlot() {
                 // as is
                 xscale.domain(rowNames);
                 sortfun = function(a,b) { return a.index - b.index;};
-                sortfun1 = function(a,b) { return a[0][0].index - b[0][0].index;};
+                sortfun1 = function(a,b) { return a.index - b.index;};
 
             } else if (colSort == "1") {
                 // alphabetical
@@ -530,7 +560,7 @@ function PalmPlot() {
                 rindices = sortWithIndices(rowNamesTemp,0);
                 xscale.domain(rowNames1);
                 sortfun = function(a,b) { return xscale(a.name) - xscale(b.name);};
-                sortfun1 = function(a,b) { return xscale(a[0][0].name) - xscale(b[0][0].name);};
+                sortfun1 = function(a,b) { return xscale(a.name) - xscale(b.name);};
 
 
             } else if (colSort == "2") {
@@ -543,7 +573,7 @@ function PalmPlot() {
                 rowNames2 = sortFromIndices(rowNames, rindices);
                 xscale.domain(rowNames2);
                 sortfun = function(a,b) { return a.value - b.value;};
-                sortfun1 = function(a,b) { return a[0][0].value - b[0][0].value;};
+                sortfun1 = function(a,b) { return a.value - b.value;};
 
             } else if (colSort == "3") {
                 // high to low
@@ -554,7 +584,7 @@ function PalmPlot() {
                 rowNames2 = sortFromIndices(rowNames, rindices);
                 xscale.domain(rowNames2);
                 sortfun = function(a,b) { return -(a.value - b.value);};
-                sortfun1 = function(a,b) { return -(a[0][0].value - b[0][0].value);};
+                sortfun1 = function(a,b) { return -(a.value - b.value);};
             }
 
             plotArea.selectAll(".bar")
@@ -565,12 +595,12 @@ function PalmPlot() {
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
-            plotArea.selectAll(".plotAreaText")
+     /*       plotArea.selectAll(".plotAreaText")
                     .sort(sortfun)
                     .transition()
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });
+                    .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });*/
 
             plotArea.selectAll(".ghostCircle")
                     .sort(sortfun)
@@ -581,8 +611,8 @@ function PalmPlot() {
                     .sort(sortfun1)
                     .transition()
                     .duration(duration)
-                    .attr("transform", function(d,i) {
-                        return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
+                    .attr("transform", function(d) {
+                        return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
                     });
         }
 
@@ -608,32 +638,8 @@ function PalmPlot() {
                 sums[i] = sums[i]/maxSum;
             }*/
 
-            for (i = 0; i < rowNames.length; i++) {
-                barData[i] = {name: rowNames[i], value: sums[i], index: i};
-                textData[i] = {name: rowNames[i], value: sums[i], index: i, offset: leafRmax[i]};
-            }
-
             make_tip_data();
-
-            for (i = 0; i < rowNames.length; i++) {
-                for (j = 0; j < colNames.length; j++) {
-                    if (selectedCol[j] < 0.5) {
-                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
-                                            {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
-                                            {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
-                                            {x:radialScale(normData[i][j]), y:0},
-                                            {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
-                                            {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
-                    } else {
-                        leavesData[i][j] =  [{x:0, y:0, name:rowNames[i], value:sums[i], index: i},
-                                            {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
-                                            {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
-                                            {x:radialScale(normData[i][j]), y:0},
-                                            {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
-                                            {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
-                    }
-                }
-            }
+            update_data();
 
             param.ymax = d3.max(sums);
             param.ymin = 0;
@@ -651,22 +657,20 @@ function PalmPlot() {
                     .call(yAxis);
 
             bars.data(barData);
-            texts.data(textData);
-            palms.data(leavesData);
-            tips.data(tipData);
-            leaves.data(function(d) { return d;});
+            palms.data(frondData);
+            leaves.data(function(d) { return d.leaves;});
 
             plotArea.select(".plotAreaHeading")
                     .transition()
                     .duration(duration)
                     .attr("y", plotHeight + plotMargin.bottom*0.8);
 
-            plotArea.selectAll(".leaf")
+            /*plotArea.selectAll(".leaf")
                     .transition()
                     .duration(duration)
                     .attr("transform", function(d) {
-                        return "translate(" + (xscale(d[0][0].name) + xscale.rangeBand()/2) + "," + yscale(d[0][0].value) + ")";
-                    });
+                        return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
+                    });*/
 
             leaves.transition()
                 .duration(duration)
@@ -892,7 +896,7 @@ function PalmPlot() {
         }
         rowNames1.sort();
 
-        var texts = plotArea.selectAll(".gt")
+        /*var texts = plotArea.selectAll(".gt")
                     .data(textData);
 
         var textsEnter = texts.enter();
@@ -900,7 +904,7 @@ function PalmPlot() {
                 .attr("class", "plotAreaText")
                 .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                 .attr("y", function(d) { return plotHeight; })
-                .text(function(d) { return d.name;});
+                .text(function(d) { return d.name;});*/
 
         plotArea.append("text")
                 .attr("class", "plotAreaHeading")
