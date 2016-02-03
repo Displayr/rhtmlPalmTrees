@@ -3,6 +3,7 @@
 }
 
 .leaf {
+    cursor: pointer;
 }
 
 .tree {
@@ -17,13 +18,13 @@ table, th, td {
 }
 
 th {
-    height: 22px;
-    font-size: 15px;
+    height: 17px;
+    font-size: 13px;
 }
 
 td {
-    font-size: 12px;
-    padding: 3px;
+    font-size: 11px;
+    padding: 2px;
     background-color: white;
     color: #000;
 }

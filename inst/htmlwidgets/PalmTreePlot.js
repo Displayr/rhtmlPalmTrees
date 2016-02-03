@@ -134,18 +134,18 @@ function PalmPlot() {
 
         if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
 
-            this_tip = this_tip.direction("n").offset([radialScale(d.tipR)-5-radialScale(d.tipOffset),0]).show(d);
+            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "northTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipOffset)) + "px")
+            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipR)) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         } else {
-            this_tip = this_tip.direction("s").offset([-radialScale(d.tipR)+5+radialScale(d.tipOffset),0]).show(d);
+            this_tip = this_tip.direction("s").offset([5,0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "southTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipOffset)) + "px")
+            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipR)) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         }
 
@@ -267,7 +267,7 @@ function PalmPlot() {
 
         if (settings.suffix) {
             baseSvg.selectAll(".suffixText")
-                    .attr("x", -plotMargin.left)
+                    .attr("x", -plotMargin.left*0.5)
                     .attr("y", -plotMargin.top*0.5);
         }
         // resize side bar
@@ -425,7 +425,7 @@ function PalmPlot() {
                                 {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
             }
             frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i,
-                            tip: "s", tipR: d3.max(normData[i]), tipOffset: d3.mean(normData[i])};
+                            tip: "s", tipR: d3.mean(normData[i])};
             frondData.push(frondDatum);
         }
 
@@ -486,7 +486,7 @@ function PalmPlot() {
             if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
             for (i = 0; i < rowNames.length; i++) {
                 var atip = "";
-                atip = "<table style='margin:0;border-spacing:2px 0;vertical-align:middle;padding:0'>";
+                atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
                 atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i] + "</th>";
 
                 for (j = 0; j < colNames.length; j++) {
@@ -495,7 +495,7 @@ function PalmPlot() {
                     val = data[i][j].toFixed(2);
                     if (selectedCol[j] == 1) {
                         atip = atip + "<td style='text-align:center'>";
-                        atip = atip + "<div style='width:12px;height:12px;background-color:" + colors[j] + "'></div>" + "</td>";
+                        atip = atip + "<div style='width:11px;height:11px;background-color:" + colors[j] + "'></div>" + "</td>";
                         atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
 
                         atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
@@ -504,7 +504,7 @@ function PalmPlot() {
                         }
                     } else {
                         atip = atip + "<td style='text-align:center'>";
-                        atip = atip + "<div style='width:12px;height:12px;background-color:#ccc'></div>" + "</td>";
+                        atip = atip + "<div style='width:11px;height:11px;background-color:#ccc'></div>" + "</td>";
                         atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
                         atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
                         if (settings.suffix) {
