@@ -42,6 +42,7 @@ function PalmPlot() {
         palms,
         tips,
         tip,
+        minLeafWidth = 10,
         leaves;
     var commasFormatter = d3.format(",.1f");
     var commasFormatterE = d3.format(",.1e");
@@ -133,18 +134,18 @@ function PalmPlot() {
 
         if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
 
-            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
+            this_tip = this_tip.direction("n").offset([radialScale(d.tipR)-5-radialScale(d.tipOffset),0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "northTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipR)) + "px")
+            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipOffset)) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         } else {
-            this_tip = this_tip.direction("s").offset([5,0]).show(d);
+            this_tip = this_tip.direction("s").offset([-radialScale(d.tipR)+5+radialScale(d.tipOffset),0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "southTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipR)) + "px")
+            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipOffset)) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         }
 
@@ -213,11 +214,16 @@ function PalmPlot() {
         xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
         yscale.range([plotHeight, 0]);
         yAxis.scale(yscale);
+        xAxis.scale(xscale);
         baseSvg.select(".yaxis").call(yAxis);
-
+        baseSvg.select(".xaxis")
+                .attr("transform", "translate(0," + plotHeight + ")")
+                .call(xAxis)
+                .selectAll(".tick text")
+                .call(wrap, xscale.rangeBand());
         // update leaf size
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
-        radialScale.range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
+        radialScale.range([minLeafWidth, param.maxLeafWidth]);
         update_data();
 
         palms.data(frondData);
@@ -330,6 +336,30 @@ function PalmPlot() {
         }
     }
 
+    function wrap(text, width) {
+        text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
+    }
+
     function chart(selection){
 
         param.ymax = d3.max(sums);
@@ -371,10 +401,17 @@ function PalmPlot() {
                 .attr("class", "yaxis")
                 .call(yAxis);
 
+        plotArea.append("g")
+                .attr("class", "xaxis")
+                .attr("transform", "translate(0," + plotHeight + ")")
+                .call(xAxis)
+                .selectAll(".tick text")
+                .call(wrap, xscale.rangeBand());
+
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
         radialScale = d3.scale.linear()
                         .domain([minVal, maxVal])
-                        .range([Math.floor(param.maxLeafWidth/3), param.maxLeafWidth]);
+                        .range([minLeafWidth, param.maxLeafWidth]);
 
         for (i = 0; i < rowNames.length; i++) {
             var frondDatum = {};
@@ -387,7 +424,8 @@ function PalmPlot() {
                                 {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
             }
-            frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i, tip: "s", tipR: d3.mean(normData[i])};
+            frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i,
+                            tip: "s", tipR: d3.max(normData[i]), tipOffset: d3.mean(normData[i])};
             frondData.push(frondDatum);
         }
 
@@ -594,6 +632,13 @@ function PalmPlot() {
                     .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value); });
+
+            plotArea.select(".xaxis")
+                    .transition()
+                    .duration(duration)
+                    .call(xAxis)
+                    .selectAll(".tick text")
+                    .call(wrap, xscale.rangeBand());
 
      /*       plotArea.selectAll(".plotAreaText")
                     .sort(sortfun)
@@ -912,14 +957,21 @@ function PalmPlot() {
                 .attr("y", viewerHeight)
                 .text(settings.rowHeading);
 
-        if (settings.suffix) {
-            plotArea.append("text")
+        if (settings.prefix || settings.suffix) {
+            if (!settings.suffix) {
+                plotArea.append("text")
                     .attr("class", "suffixText")
-                    .attr("x", -plotMargin.left)
+                    .attr("x", -plotMargin.left*0.5)
                     .attr("y", -plotMargin.top*0.5)
-                    .text("(" + settings.suffix + ")");
+                    .text(settings.prefix);
+            } else {
+                plotArea.append("text")
+                    .attr("class", "suffixText")
+                    .attr("x", -plotMargin.left*0.5)
+                    .attr("y", -plotMargin.top*0.5)
+                    .text(settings.suffix);
+            }
         }
-
 
         updatePlot(duration);
 

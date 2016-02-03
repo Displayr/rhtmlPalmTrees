@@ -51,3 +51,15 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
              tooltips = "Default",
              colors = colorVec)
 
+prefix = ""
+suffix = "%"
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+                           weights = weights,
+                           row.names = row.names,
+                           row.heading = "Brand",
+                           col.names = col.names,
+                           col.heading = "Attribute",
+                           prefix = prefix,
+                           suffix = suffix,
+                           tooltips = "Default",
+                           colors = colorVec)

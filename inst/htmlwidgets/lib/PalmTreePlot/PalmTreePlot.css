@@ -76,14 +76,32 @@ td {
   shape-rendering: crispEdges;
 }
 
+.xaxis {
+    font: 12px sans-serif;
+}
+
+.xaxis line { /* tick marks*/
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 1px;
+    display: none;
+}
+
+.xaxis path { /* tick line*/
+    fill: none;
+    stroke: #000;
+    display: none;
+}
+
 .yaxis {
     font: 12px sans-serif;
 }
 
 .yaxis line {
     fill: none;
-    stroke: #000;
+    stroke: #aaa;
     stroke-width: 1px;
+    display: none;
 }
 
 .yaxis path {
