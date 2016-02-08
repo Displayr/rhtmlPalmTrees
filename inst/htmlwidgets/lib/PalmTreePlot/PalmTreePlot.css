@@ -136,35 +136,40 @@ td {
 }
 
 .sideBar {
-    fill: steelblue;
-    stroke: steelblue;
-    stroke-width: 1.5px;
+    fill: white;
+    stroke: #000;
+    stroke-width: 1px;
 }
 
 .sdBarHeading{
-    fill: #fff;
+    fill: #000;
     font-weight: bold;
     font-family: sans-serif;
+    pointer-events: none;
 }
 
 .sideBarElemRect {
     fill: white;
-    stroke: steelblue;
+    stroke: #000;
     stroke-width: 1px;
+    cursor: pointer;
 }
 
 .sideBarElemSortRect{
     fill: white;
-    stroke: steelblue;
+    stroke: #000;
     stroke-width: 1px;
 }
 
 .sideBarColorBox {
-
+    cursor: pointer;
+    pointer-events: none;
 }
 
 .sideBarText {
     font-family:sans-serif;
+    cursor: pointer;
+    pointer-events: none;
 }
 
 .sideBarSwitchOff {
@@ -175,14 +180,33 @@ td {
     font-family:sans-serif;
 }
 
-.sdBarResetButton{
+.sdBarControl {
+
+}
+
+.sdBarAllRect {
+    fill: white;
+    stroke: #000;
+    stroke-width: 1px;
+    cursor: pointer;
+}
+
+.sdBarAllOn {
     fill: #000;
     cursor: pointer;
+    pointer-events: none;
+    font-family: sans-serif;
+}
+
+.sdBarAllOff{
+    fill: #000;
+    cursor: pointer;
+    pointer-events: none;
     font-family: sans-serif;
 }
 
 .sdBarSortHeading{
-    fill: #fff;
+    fill: #000;
     font-weight: bold;
     font-family: sans-serif;
 }
@@ -196,7 +220,7 @@ td {
 .sdBarSortBox {
     cursor: pointer;
     stroke: #ccc;
-    stroke-width: 1.5px;
+    stroke-width: 1px;
 }
 
 .ghostCircle {

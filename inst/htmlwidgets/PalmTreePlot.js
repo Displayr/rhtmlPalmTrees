@@ -23,7 +23,7 @@ function PalmPlot() {
         minVal,
         rindices,
         colSort = "0",
-        duration = 800,
+        duration = 600,
         maxSum = 0,
         nticks = 10,
         colNames,
@@ -54,16 +54,19 @@ function PalmPlot() {
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
         // sidebar parameters
-        param.sdBarWidth = viewerWidth*0.2;
-        param.sdBarHeight = viewerHeight;
-        param.sdBarX = viewerWidth - param.sdBarWidth;
-        param.sdBarY = 0;
+        param.sdBarMaxWidth = viewerWidth*0.2;
+        /*param.sdBarWidth = viewerWidth*0.2;
+        param.sdBarHeight = viewerHeight-5;
+        param.sdBarX = viewerWidth - param.sdBarWidth-5;
+        param.sdBarY = 5;
 
-        param.sdBarMargin = 3;
+        param.sdBarMargin = 0;
         param.sdBarTextPadding = 3;
         param.sdBarElemW = param.sdBarWidth - 2*param.sdBarMargin;
 
-        param.sdBarFontSize = param.sdBarElemW/param.sdBarMaxTxtL;
+        // param.sdBarFontSize = param.sdBarElemW/param.sdBarMaxTxtL;
+        param.sdBarMaxTextWidth = 0;
+        param.sdBarFontSize = 12;
         param.sdBarElemH = param.sdBarFontSize * 2;
 
         // heading
@@ -96,7 +99,7 @@ function PalmPlot() {
         param.sdBarTextY = param.sdBarElemY + param.sdBarElemH/2;
 
         param.sdBarSwitchX = param.sdBarElemX + param.sdBarElemW - param.sdBarTextPadding;
-        param.sdBarSwitchY = param.sdBarTextY;
+        param.sdBarSwitchY = param.sdBarTextY;*/
     }
 
     function setup_colors() {
@@ -134,18 +137,18 @@ function PalmPlot() {
 
         if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
 
-            this_tip = this_tip.direction("n").offset([-5,0]).show(d);
+            this_tip = this_tip.direction("n").offset([-15,0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "northTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipR)) + "px")
+            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipR) - 10) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         } else {
-            this_tip = this_tip.direction("s").offset([5,0]).show(d);
+            this_tip = this_tip.direction("s").offset([15,0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "southTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipR)) + "px")
+            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipR) + 10) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         }
 
@@ -205,7 +208,13 @@ function PalmPlot() {
         d3.select("#frond" + d.index).selectAll("path").transition().duration(300).attr("d", line);
     }
 
-    function resize_chart (el) {
+    function update_unit_position() {
+        d3.select(".suffixText")
+            .attr("x", -plotMargin.left*0.5)
+            .attr("y", -plotMargin.top*0.5);
+    }
+
+    function resize_chart(el) {
         // recompute sizes
         setup_sizes(settings);
         var baseSvg = d3.select(el).select("svg");
@@ -230,7 +239,7 @@ function PalmPlot() {
         leaves.data(function(d) { return d.leaves;});
 
         baseSvg.selectAll(".bar")
-                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                 .attr("y", function(d) { return yscale(d.value); })
                 .attr("height", function(d) { return plotHeight - yscale(d.value); });
         /*baseSvg.selectAll(".plotAreaText")
@@ -265,13 +274,11 @@ function PalmPlot() {
                     });
         }
 
-        if (settings.suffix) {
-            baseSvg.selectAll(".suffixText")
-                    .attr("x", -plotMargin.left*0.5)
-                    .attr("y", -plotMargin.top*0.5);
+        if (settings.prefix || settings.suffix) {
+            update_unit_position();
         }
         // resize side bar
-        baseSvg.selectAll(".sideBar")
+        /*baseSvg.selectAll(".sideBar")
                 .attr("x", param.sdBarX)
                 .attr("y", param.sdBarY)
                 .attr("width",param.sdBarWidth)
@@ -322,7 +329,7 @@ function PalmPlot() {
         baseSvg.selectAll(".sdBarSortText")
                 .attr("x", param.sdBarTextX)
                 .attr("y", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
-                .style("font-size", param.sdBarFontSize);
+                .style("font-size", param.sdBarFontSize);*/
     }
 
     function set_left_margin(ymax) {
@@ -440,7 +447,7 @@ function PalmPlot() {
 
         barsEnter.append("rect")
                 .attr("class", "bar")
-                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                 .attr("width", 1)
                 .attr("y", function(d) { return plotHeight; })
                 .attr("height", function(d) { return 0; });
@@ -629,7 +636,7 @@ function PalmPlot() {
                     .sort(sortfun)
                     .transition()
                     .duration(duration)
-                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
@@ -724,13 +731,13 @@ function PalmPlot() {
                     return selectedCol[i] === 0 ? "#ccc" : colors[i];
                 });
 
-            sdBarColorBars.transition()
+            baseSvg.selectAll(".sideBarColorBox").transition()
                 .duration(duration)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : colors[i];
                 });
 
-            sdBarText.transition()
+            baseSvg.selectAll(".sideBarText").transition()
                 .duration(duration)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : "#000";
@@ -741,95 +748,349 @@ function PalmPlot() {
         }
 
         // create the side bar
+        param.sdBarOuterMargin = 5;
+        param.sdBarPadding = 3;
+        param.sdBarHdivF = 2;   // ratio of height divided by font size
+        param.sdBarMaxTextWidth = 0;
+        param.sdBarY = param.sdBarOuterMargin + 0.5;
+
+        param.sdBarMaxWidth = Math.floor(viewerWidth*0.2);
+        param.sdBarMaxHeight = Math.floor(viewerHeight - 2*param.sdBarOuterMargin);
+
+        param.sdBarFontSize = 10;
+        param.sdBarHdFontSize = param.sdBarFontSize + 2;
+        param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
+        param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
+        param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarPadding;
+
+        param.sdBarHdY = param.sdBarHdH/2;
+        param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
+
         var sideBar = baseSvg.append("g");
-
-        // background
+        // container
         sideBar.append("rect")
-                .attr("x", param.sdBarX)
-                .attr("y", param.sdBarY)
-                .attr("rx", 7)
-                .attr("ry", 7)
-                .attr("width",param.sdBarWidth)
-                .attr("height",param.sdBarHeight)
-                .classed("sideBar", true);
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("class", "sideBar");
 
-        // containers
+        var sdBarCtrl = sideBar.append("g")
+                                .attr("class", "sdBarControl")
+                                .style("display", "none");
+
+        sdBarCtrl.selectAll("option")
+                .data([1,2])
+                .enter()
+                .append("rect")
+                .attr("class", "sdBarAllRect")
+                .attr("id", function(d,i) { return "sdAC" + i;});
+
+        sdBarCtrl.append("text")
+                .attr("class", "sdBarAllOn");
+        sdBarCtrl.append("text")
+                .attr("class", "sdBarAllOff");
+
         var sdBarElem = sideBar.selectAll("sdBar.g")
                         .data(colNames);
         var sdBarElemEnter = sdBarElem.enter()
                             .append("g");
 
-        // heading
-        sideBar.append("text")
-                .attr("class","sdBarHeading")
-                .attr("x", param.sdBarHdX)
-                .attr("y", param.sdBarHdY)
+        sdBarElemEnter.append("rect")
+                    .attr("class","sideBarElemRect")
+                    .attr("id", function(d,i) { return "sbRect" + i;});
+
+        sdBarElemEnter.append("rect")
+                .attr("class", "sideBarColorBox")
+                .attr("id", function(d,i) { return "sbColor" + i;});
+
+        sdBarElemEnter.append("text")
+                .attr("class", "sideBarText")
+                .attr("id", function(d,i) { return "sbTxt" + i;})
                 .attr("dy", "0.35em")
-                .attr("fill", "white")
-                .text(settings.colHeading)
-                .style("font-size", param.sdBarHdFontSize)
-                .style("font-size", function(d) {
-                    var L = param.sdBarElemW - 2*param.sdBarTextPadding;
-                    if (this.getComputedTextLength() > L)
-                        return L/settings.colHeading.length*1.4;
-                    else
-                        return param.sdBarHdFontSize;
+                .text(function(d) { return d;})
+                .style("font-size", param.sdBarFontSize + "px")
+                //.call(wrap, param.sdBarMaxWidth)
+                .each(function(d) {
+                    param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
                 });
 
-        // container elements (white rectangles)
-        sdBarElemEnter.append("rect")
-                        .classed("sideBarElemRect",true)
-                        .attr("x", param.sdBarElemX)
-                        .attr("y", function(d,i) { return param.sdBarElemY + i*param.sdBarElemH})
-                        .attr("width", param.sdBarElemW)
-                        .attr("height", param.sdBarElemH);
+        sideBar.append("text")
+                .attr("class","sdBarHeading");
 
-        // colors representing columns
-        var sdBarColorBars = sdBarElemEnter.append("rect")
-                            .attr("class", "sideBarColorBox")
-                            .attr("x", param.sdBarColorBarsX)
-                            .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH})
-                            .attr("width", param.sdBarColorBarsW)
-                            .attr("height", param.sdBarColorBarsW)
-                            .style("fill", function(d,i) { return colors[i];});
+        param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW);
+        param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
+
+        // adjusting font size to set width and height
+        while (param.sdBarFontSize > 1 &&
+            (param.sdBarWidth > param.sdBarMaxWidth || param.sdBarHeight > param.sdBarMaxHeight) ) {
+
+            param.sdBarFontSize = param.sdBarFontSize - 1;
+            param.sdBarHdFontSize = param.sdBarFontSize + 2;
+            param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
+            param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
+            param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarPadding;
+
+            param.sdBarHdY = param.sdBarHdH/2;
+            param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
+            param.sdBarMaxTextWidth = 0;
+
+            baseSvg.selectAll(".sideBarText")
+                .style("font-size", param.sdBarFontSize + "px")
+                .each(function(d) {
+                    param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
+                });
+
+            param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW);
+            param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
+        }
+
+        // set X location of legend
+        param.sdBarX = viewerWidth - param.sdBarOuterMargin - param.sdBarWidth - 0.5;
+        param.sdBarElemW = param.sdBarWidth;
+
+        // set font size on hover
+        param.sdBarMenuItems = 4;
+        param.sdBarHoverFontSize = param.sdBarFontSize;
+        param.sdBarHoverElemH = param.sdBarElemH;
+        param.sdBarHoverHeight = param.sdBarHeight;
+        while (param.sdBarHoverFontSize > 1 &&
+            (param.sdBarHoverHeight + param.sdBarHoverElemH*(param.sdBarMenuItems+2) > viewerHeight - 2*param.sdBarY)) {
+
+            param.sdBarHoverFontSize = param.sdBarHoverFontSize - 1;
+            param.sdBarHoverHdFontSize = param.sdBarHoverFontSize + 2;
+            param.sdBarHoverElemH = param.sdBarHoverFontSize * param.sdBarHdivF;
+            param.sdBarHoverColorBarsW = param.sdBarHoverElemH - 2*param.sdBarPadding;
+
+            param.sdBarHoverColorBarsY = param.sdBarHdH + param.sdBarPadding;
+            param.sdBarHoverHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarHoverElemH);
+        }
+
+        // transform the object into position
+        sideBar.attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
+        baseSvg.select(".sideBar")
+                .attr("width",param.sdBarWidth + "px")
+                .attr("height",param.sdBarHeight + "px");
 
         // column names
-        var sdBarText = sdBarElemEnter.append("text")
-                        .classed("sideBarText",true)
-                        .attr("x", param.sdBarTextX)
-                        .attr("y", function(d,i) { return param.sdBarTextY + i*param.sdBarElemH })
-                        .attr("dy", "0.35em")
-                        .text(function(d) { return d;})
-                        .style("font-size", param.sdBarFontSize)
-                        .style("cursor", "default");
+        baseSvg.selectAll(".sideBarText")
+                .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW)
+                .attr("y", function(d,i) {
+                    return param.sdBarHdH + i*param.sdBarElemH + param.sdBarElemH/2;
+                });
+        // heading
+        baseSvg.select(".sdBarHeading")
+                .attr("x", param.sdBarPadding)
+                .attr("y", param.sdBarHdY)
+                .attr("dy", "0.35em")
+                .text(settings.colHeading)
+                .style("font-size", param.sdBarHdFontSize )
+                .style("font-size", function(d) {
+                    var L = param.sdBarElemW - 2*param.sdBarPadding;
+                    if (this.getComputedTextLength() > L)
+                        return (L/settings.colHeading.length*1.4) + "px";
+                    else
+                        return param.sdBarHdFontSize + "px";
+                });
 
-        function clickText() {
+        // column colors
+        baseSvg.selectAll(".sideBarColorBox")
+                .attr("x", param.sdBarPadding + 0.5)
+                .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH + 0.5})
+                .attr("width", param.sdBarColorBarsW - 1)
+                .attr("height", param.sdBarColorBarsW - 1)
+                .style("fill", function(d,i) { return colors[i];});
+
+        function toggleColumn() {
             if (d3.event.defaultPrevented) return; // click suppressed
-            d3.select(this).style("display", "none");
-            var selector = "#c" + this.id.substring(1);
-            sideBar.select(selector).style("display", "inline");
-            selectedCol[Number(this.id.substring(1))] = 0;
+
+            var index = Number(this.id.substring(6));
+            if (selectedCol[index] === 0) {
+                selectedCol[index] = 1;
+            } else {
+                selectedCol[index] = 0;
+            }
             updatePlot(duration);
+            d3.event.stopPropagation();
         }
 
-        function clickHiddenText() {
+
+        baseSvg.selectAll(".sideBarElemRect")
+                .attr("x", 0)
+                .attr("y", function(d,i) {
+                    return param.sdBarHdH + i*param.sdBarElemH;
+                })
+                .attr("width", param.sdBarElemW + "px")
+                .attr("height", param.sdBarElemH + "px")
+                .on("mouseover", function() {
+                    d3.select(this).style("fill", "#eee");
+                    d3.event.stopPropagation();
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("fill", "white");
+                    d3.event.stopPropagation();
+                })
+                .on("click", toggleColumn);
+
+
+        function clickAllToggle() {
             if (d3.event.defaultPrevented) return; // click suppressed
-            d3.select(this).style("display", "none");
-            var selector = "#t" + this.id.substring(1);
-            sideBar.select(selector).style("display", "inline");
-            selectedCol[Number(this.id.substring(1))] = 1;
+            if (this.id.substring(4) == "0") {
+                selectedCol.forEach(function(d,i) {
+                    selectedCol[i] = 1;
+                });
+            } else {
+                selectedCol.forEach(function(d,i) {
+                    selectedCol[i] = 0;
+                });
+            }
             updatePlot(duration);
+            d3.event.stopPropagation();
         }
 
-        function clickReset() {
-            if (d3.event.defaultPrevented) return; // click suppressed
-            d3.selectAll(".sideBarSwitchOff").style("display", "none");
-            d3.selectAll(".sideBarSwitchOn").style("display", "inline");
-            selectedCol.forEach(function(d,i) {
-                selectedCol[i] = 1;
-            });
-            updatePlot(duration);
-        }
+
+        baseSvg.selectAll(".sdBarAllRect")
+                .attr("x", function(d,i) { return i === 0 ? 0 : Math.floor(param.sdBarElemW/2)})
+                .attr("y", param.sdBarHdH)
+                .attr("width", function(d,i) { return i === 0 ? Math.floor(param.sdBarElemW/2) : Math.ceil(param.sdBarElemW/2);})
+                .attr("height", param.sdBarHoverElemH)
+                .on("mouseover", function() {
+                    d3.select(this).style("fill", "#eee");
+                    d3.event.stopPropagation();
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("fill", "white");
+                    d3.event.stopPropagation();
+                })
+                .on("click", clickAllToggle);
+
+        var ctrlText = "All On All Off";
+        param.sdBarResetFontSize = param.sdBarHoverFontSize;
+        sdBarCtrl.append("text")
+                .text(ctrlText)
+                .style("font-size", param.sdBarResetFontSize )
+                .each(function(d) {
+                    var L = param.sdBarElemW - 2*param.sdBarPadding;
+                    if (this.getComputedTextLength() > L)
+                        param.sdBarResetFontSize = (L/ctrlText.length*1.4);
+                    else
+                        param.sdBarResetFontSize = param.sdBarHoverFontSize;
+                })
+                .remove();
+
+        baseSvg.select(".sdBarAllOn")
+                .attr("x", param.sdBarElemW/4)
+                .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .text("All On")
+                .style("font-size", param.sdBarResetFontSize + "px");
+
+        baseSvg.select(".sdBarAllOff")
+                .attr("x", param.sdBarElemW*3/4)
+                .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .text("All Off")
+                .style("font-size", param.sdBarResetFontSize + "px");
+
+        sideBar.on("mouseenter", function() {
+                    if (param.sdBarFontSize > 1 &&
+                        (param.sdBarHeight + param.sdBarElemH*(param.sdBarMenuItems+2) > viewerHeight - 2*param.sdBarY)) {
+
+                        baseSvg.selectAll(".sideBarElemRect")
+                        .transition()
+                        .duration(300)
+                        .attr("y", function(d,i) {
+                            return param.sdBarHdH + i*param.sdBarHoverElemH;
+                        })
+                        .attr("height", param.sdBarHoverElemH + "px");
+
+                        baseSvg.selectAll(".sideBarColorBox")
+                        .transition()
+                        .duration(300)
+                        .attr("y", function(d,i) { return param.sdBarHoverColorBarsY + i*param.sdBarHoverElemH + 0.5; })
+                        .attr("width", param.sdBarHoverColorBarsW - 1)
+                        .attr("height", param.sdBarHoverColorBarsW - 1);
+
+                        baseSvg.selectAll(".sideBarText")
+                        .transition()
+                        .duration(300)
+                        .attr("x", 2*param.sdBarPadding + param.sdBarHoverColorBarsW)
+                        .attr("y", function(d,i) {
+                            return param.sdBarHdH + i*param.sdBarHoverElemH + param.sdBarHoverElemH/2;
+                        })
+                        .style("font-size", param.sdBarHoverFontSize + "px");
+
+                        baseSvg.select(".sideBar")
+                        .transition()
+                        .duration(300)
+                        .attr("height", param.sdBarHoverHeight + param.sdBarHoverElemH*6);
+
+                        baseSvg.select(".sdBarControl")
+                        .transition()
+                        .duration(500)
+                        .style("display", "inline")
+                        .attr("transform", "translate(" + 0 + "," + ncol*param.sdBarHoverElemH + ")");
+
+                    } else {
+                        baseSvg.select(".sideBar")
+                        .transition()
+                        .duration(300)
+                        .attr("height", param.sdBarHeight + param.sdBarHoverElemH*6);
+
+                        baseSvg.select(".sdBarControl")
+                        .transition()
+                        .duration(500)
+                        .attr("transform", "translate(" + 0 + "," + ncol*param.sdBarElemH + ")")
+                        .style("display", "inline");
+                    }
+
+                })
+                .on("mouseleave", function() {
+                    if (param.sdBarFontSize > 1 &&
+                        (param.sdBarHeight + param.sdBarElemH*(param.sdBarMenuItems+2) > viewerHeight - 2*param.sdBarY)) {
+
+                        baseSvg.selectAll(".sideBarElemRect")
+                        .transition()
+                        .duration(300)
+                        .attr("y", function(d,i) {
+                            return param.sdBarHdH + i*param.sdBarElemH;
+                        })
+                        .attr("height", param.sdBarElemH + "px");
+
+                        baseSvg.selectAll(".sideBarColorBox")
+                        .transition()
+                        .duration(300)
+                        .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH + 0.5})
+                        .attr("width", param.sdBarColorBarsW - 1)
+                        .attr("height", param.sdBarColorBarsW - 1);
+
+                        baseSvg.selectAll(".sideBarText")
+                        .transition()
+                        .duration(300)
+                        .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW)
+                        .attr("y", function(d,i) {
+                            return param.sdBarHdH + i*param.sdBarElemH + param.sdBarElemH/2
+                        })
+                        .style("font-size", param.sdBarFontSize + "px");
+
+                    }
+
+                    baseSvg.select(".sdBarControl")
+                    .transition()
+                    .duration(500)
+                    .style("display", "none")
+                    .attr("transform", "translate(" + 0 + "," + 0 + ")");
+
+                    baseSvg.select(".sideBar")
+                    .transition()
+                    .duration(300)
+                    .attr("height", param.sdBarHeight);
+                });
+
+        // column names
+/*
+
+
 
         function clickSort() {
             if (d3.event.defaultPrevented) return; // click suppressed
@@ -847,31 +1108,6 @@ function PalmPlot() {
             }
         }
 
-        var sdBarSwitchOn = sdBarElemEnter.append("text")
-                            .attr("id", function(d,i) { return "t" + i;})
-                            .attr("x", param.sdBarSwitchX)
-                            .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH })
-                            .attr("dy", "0.35em")
-                            .attr("text-anchor", "end")
-                            .text("ON")
-                            .classed("sideBarSwitchOn",true)
-                            .style("font-size", param.sdBarFontSize)
-                            .style("cursor", "pointer")
-                            .on("click", clickText);
-
-        var sdBarSwitchOff = sdBarElemEnter.append("text")
-                            .attr("id", function(d,i) { return "c" + i;})
-                            .attr("x", param.sdBarSwitchX)
-                            .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH})
-                            .attr("dy", "0.35em")
-                            .attr("text-anchor", "end")
-                            .text("OFF")
-                            .classed("sideBarSwitchOff",true)
-                            .style("font-size", param.sdBarFontSize)
-                            .style("display", "none")
-                            .style("cursor", "pointer")
-                            .on("click", clickHiddenText);
-
         var sdBarReset = sideBar.append("g");
 
         var sdBarResetText = sdBarReset.append("text")
@@ -880,7 +1116,7 @@ function PalmPlot() {
                                 .attr("y", param.sdBarSwitchY + ncol*param.sdBarElemH)
                                 .attr("dy", "0.35em")
                                 .attr("text-anchor", "end")
-                                .text("Reset")
+                                .text("All On")
                                 .style("font-size", param.sdBarFontSize)
                                 .on("click", clickReset);
 
@@ -930,7 +1166,7 @@ function PalmPlot() {
 
         sdBarSort.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
         sdBarSort.select("#sortT0").style("fill", "#000");
-        sdBarSort.selectAll("g").on("click", clickSort);
+        sdBarSort.selectAll("g").on("click", clickSort);*/
 
 
         // additional stuff
@@ -961,16 +1197,13 @@ function PalmPlot() {
             if (!settings.suffix) {
                 plotArea.append("text")
                     .attr("class", "suffixText")
-                    .attr("x", -plotMargin.left*0.5)
-                    .attr("y", -plotMargin.top*0.5)
                     .text(settings.prefix);
             } else {
                 plotArea.append("text")
                     .attr("class", "suffixText")
-                    .attr("x", -plotMargin.left*0.5)
-                    .attr("y", -plotMargin.top*0.5)
                     .text(settings.suffix);
             }
+            update_unit_position();
         }
 
         updatePlot(duration);
@@ -1070,7 +1303,7 @@ HTMLWidgets.widget({
 
         d3.select(el)
             .append("svg")
-            .classed("svgContent", true)
+            .attr("class", "svgContent")
             .attr("width", width)
             .attr("height", height);
 
