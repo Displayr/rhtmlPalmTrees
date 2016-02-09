@@ -18,7 +18,7 @@ table, th, td {
 }
 
 th {
-    height: 17px;
+    padding: 2px;
     font-size: 13px;
 }
 
