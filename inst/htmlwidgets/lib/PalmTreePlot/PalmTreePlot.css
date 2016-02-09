@@ -155,11 +155,6 @@ td {
     cursor: pointer;
 }
 
-.sideBarElemSortRect{
-    fill: white;
-    stroke: #000;
-    stroke-width: 1px;
-}
 
 .sideBarColorBox {
     cursor: pointer;
@@ -211,14 +206,22 @@ td {
     font-family: sans-serif;
 }
 
+.sideBarElemSortRect{
+    fill: white;
+    stroke: #000;
+    stroke-width: 1px;
+    cursor: pointer;
+}
+
 .sdBarSortText{
     fill: #ccc;
-    cursor: pointer;
+    pointer-events: none;
     font-family: sans-serif;
 }
 
 .sdBarSortBox {
-    cursor: pointer;
+    fill: #fff;
+    pointer-events: none;
     stroke: #ccc;
     stroke-width: 1px;
 }
