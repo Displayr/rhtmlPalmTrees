@@ -692,7 +692,7 @@ function PalmPlot() {
             }
         }
         baseSvg.selectAll(".sdBarSortText")
-                .style("font-size", param.sdBarHoverFontSize/2 + "px")
+                .style("font-size", 2 + "px")
                 .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
 
         baseSvg.select(".sdBarSortHeading")
@@ -864,14 +864,14 @@ function PalmPlot() {
                     baseSvg.selectAll(".sdBarSortText")
                     .transition()
                     .duration(dur)
-                    .style("font-size", param.sdBarHoverFontSize/2 + "px")
+                    .style("font-size", 2 + "px")
                     .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
 
                     baseSvg.select("#g_sdBarControl")
                     .transition()
                     .duration(dur)
-                    .style("display", "none")
-                    .attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
+                    .attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")")
+                    .style("display", "none");
 
                     baseSvg.select("#g_sideBarDisp")
                     .transition()
