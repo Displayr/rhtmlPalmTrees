@@ -20,6 +20,7 @@ table, th, td {
 th {
     padding: 2px;
     font-size: 13px;
+    border-bottom: 1px solid #777;
 }
 
 td {

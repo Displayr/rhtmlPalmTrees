@@ -642,11 +642,11 @@ function PalmPlot() {
         // All on and all off buttons
         baseSvg.selectAll(".sdBarAllRect")
                 .attr("x", function(d,i) {
-                    return i === 0 ? 0 : Math.floor(param.sdBarHoverElemW/2);
+                    return i === 0 ? 0 : Math.floor(param.sdBarElemW/2);
                 })
                 .attr("y", param.sdBarHdH)
                 .attr("width", function(d,i) {
-                    return i === 0 ? Math.floor(param.sdBarHoverElemW/2) : Math.ceil(param.sdBarHoverElemW/2);
+                    return i === 0 ? Math.floor(param.sdBarElemW/2) : Math.ceil(param.sdBarElemW/2);
                 })
                 .attr("height", param.sdBarHoverElemH)
                 .on("mouseover", function() {
@@ -660,7 +660,7 @@ function PalmPlot() {
                 .on("click", clickAllToggle);
 
         baseSvg.select(".sdBarAllOn")
-                .attr("x", param.sdBarHoverElemW/4)
+                .attr("x", param.sdBarElemW/4)
                 .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2)
                 .attr("dy", "0.35em")
                 .attr("text-anchor", "middle")
@@ -668,7 +668,7 @@ function PalmPlot() {
                 .style("font-size", param.sdBarHoverFontSize + "px");
 
         baseSvg.select(".sdBarAllOff")
-                .attr("x", param.sdBarHoverElemW*3/4)
+                .attr("x", param.sdBarElemW*3/4)
                 .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2)
                 .attr("dy", "0.35em")
                 .attr("text-anchor", "middle")
@@ -691,6 +691,9 @@ function PalmPlot() {
                 sortBars();
             }
         }
+        baseSvg.selectAll(".sdBarSortText")
+                .style("font-size", param.sdBarHoverFontSize/2 + "px")
+                .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
 
         baseSvg.select(".sdBarSortHeading")
                 .attr("x", param.sdBarPadding)
@@ -705,7 +708,7 @@ function PalmPlot() {
                     return param.sdBarHdH + 2*param.sdBarHoverElemH + i*param.sdBarHoverElemH;
 
                 })
-                .attr("width", param.sdBarHoverElemW + "px")
+                .attr("width", param.sdBarElemW + "px")
                 .attr("height", param.sdBarHoverElemH + "px")
                 .on("mouseover", function() {
                     d3.select(this).style("fill", "#eee");
@@ -764,6 +767,37 @@ function PalmPlot() {
                     .attr("width", param.sdBarHoverWidth)
                     .attr("height", param.sdBarHoverHeight + param.sdBarHoverElemH*6);
 
+                    baseSvg.selectAll(".sdBarAllRect")
+                    .transition()
+                    .duration(dur)
+                    .attr("x", function(d,i) {
+                        return i === 0 ? 0 : Math.floor(param.sdBarHoverElemW/2);
+                    })
+                    .attr("width", function(d,i) {
+                        return i === 0 ? Math.floor(param.sdBarHoverElemW/2) : Math.ceil(param.sdBarHoverElemW/2);
+                    });
+
+                    baseSvg.select(".sdBarAllOn")
+                    .transition()
+                    .duration(dur)
+                    .attr("x", param.sdBarHoverElemW/4);
+
+                    baseSvg.select(".sdBarAllOff")
+                    .transition()
+                    .duration(dur)
+                    .attr("x", param.sdBarHoverElemW*3/4);
+
+                    baseSvg.selectAll(".sideBarElemSortRect")
+                    .transition()
+                    .duration(dur)
+                    .attr("width", param.sdBarHoverElemW + "px");
+
+                    baseSvg.selectAll(".sdBarSortText")
+                    .transition()
+                    .duration(dur)
+                    .style("font-size", param.sdBarHoverFontSize + "px")
+                    .attr("x", 2*param.sdBarPadding + param.sdBarHoverColorBarsW);
+
                     baseSvg.select("#g_sdBarControl")
                     .transition()
                     .duration(dur)
@@ -801,6 +835,37 @@ function PalmPlot() {
                         return param.sdBarHdH + i*param.sdBarElemH + param.sdBarElemH/2;
                     })
                     .style("font-size", param.sdBarFontSize + "px");
+
+                    baseSvg.selectAll(".sdBarAllRect")
+                    .transition()
+                    .duration(dur)
+                    .attr("x", function(d,i) {
+                        return i === 0 ? 0 : Math.floor(param.sdBarElemW/2);
+                    })
+                    .attr("width", function(d,i) {
+                        return i === 0 ? Math.floor(param.sdBarElemW/2) : Math.ceil(param.sdBarElemW/2);
+                    });
+
+                    baseSvg.select(".sdBarAllOn")
+                    .transition()
+                    .duration(dur)
+                    .attr("x", param.sdBarElemW/4);
+
+                    baseSvg.select(".sdBarAllOff")
+                    .transition()
+                    .duration(dur)
+                    .attr("x", param.sdBarElemW*3/4);
+
+                    baseSvg.selectAll(".sideBarElemSortRect")
+                    .transition()
+                    .duration(dur)
+                    .attr("width", param.sdBarElemW + "px");
+
+                    baseSvg.selectAll(".sdBarSortText")
+                    .transition()
+                    .duration(dur)
+                    .style("font-size", param.sdBarHoverFontSize/2 + "px")
+                    .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
 
                     baseSvg.select("#g_sdBarControl")
                     .transition()

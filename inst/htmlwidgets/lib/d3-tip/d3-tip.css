@@ -4,9 +4,9 @@
   font-family: sans-serif;
   font-size: 11px;
   padding: 0;
-  background: steelblue;
-  color: #fff;
+  background: white;
+  color: #000;
   border-radius: 2px;
-  border: 1px solid steelblue;
+  border: 1px solid #777;
   pointer-events: none;
 }
