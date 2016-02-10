@@ -402,6 +402,7 @@ function PalmPlot() {
 
         init_sidebar_param();
 
+        var plotArea = baseSvg.append("g").attr("id", "g_plotarea");
         var sideBar = baseSvg.append("g");
         sideBar.append("rect")
                 .attr("x", 0)
@@ -922,9 +923,7 @@ function PalmPlot() {
                             return settings.prefix + commasFormatterE(d);
                     });
 
-        var plotArea = baseSvg.append("g")
-                        .attr("id", "g_plotarea")
-                        .attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
+        plotArea.attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
 
         plotArea.append("g")
                 .attr("class", "yaxis")

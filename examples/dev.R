@@ -34,14 +34,26 @@ set.seed(123)
 
 weights = rep(1,ncol(CSDperceptions))
 description = dimnames(CSDperceptions)
+
+row.heading = "Brand"
+col.heading = "Attribute"
 row.names = description[[1]]
+col.names = description[[2]]
+
+### test cases
+### testing column names
 # test case 1: long column names, short heading
 col.names = description[[2]]
 # test case 2: short column names, long heading
 col.names = c("A","B","C","D","E","F","G","H","I","J","H")
-# test case 3: a different language
+
+### testing row and column names in a different language
+row.heading = "品牌"
+col.heading = "属性"
+row.names = c('可口可乐','V',"红牛","Lift Plus",'健怡可乐','芬达','Lift','百事')
 col.names = c("一","二","三","四","五","六","七","八","九","十","十一")
 
+### testing units
 # test case 1: both prefix and suffix
 prefix = "$"
 suffix = "per day"
@@ -55,9 +67,9 @@ suffix = "%"
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = row.names,
-                           row.heading = "Brand",
+                           row.heading = row.heading,
                            col.names = col.names,
-                           col.heading = "Attribute",
+                           col.heading = col.heading,
                            prefix = prefix,
                            suffix = suffix,
                            tooltips = "Default",
