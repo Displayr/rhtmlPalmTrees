@@ -39,13 +39,16 @@ row.names = description[[1]]
 col.names = description[[2]]
 # test case 2: short column names, long heading
 col.names = c("A","B","C","D","E","F","G","H","I","J","H")
-# test case 3: both prefix and suffix
+# test case 3: a different language
+col.names = c("一","二","三","四","五","六","七","八","九","十","十一")
+
+# test case 1: both prefix and suffix
 prefix = "$"
 suffix = "per day"
-# test case 4: both prefix and suffix
+# test case 2: both prefix and suffix
 prefix = "$"
-suffix = "/hour"
-# test case 5: no prefix, has suffix
+suffix = "/min"
+# test case 3: no prefix, has suffix
 prefix = ""
 suffix = "%"
 

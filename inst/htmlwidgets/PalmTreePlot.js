@@ -1193,19 +1193,12 @@ function PalmPlot() {
         // update plot when something is clicked
         function updatePlot(duration) {
 
-            if (d3.sum(selectedCol) === 0) {
-
-                // clear plot
-
-            } else {
-                for (i = 0; i < rowNames.length; i++) {
-                    sums[i] = 0;
-                    for (j = 0; j < colNames.length; j++) {
-                        sums[i] += selectedCol[j]*data[i][j];
-                    }
+            for (i = 0; i < rowNames.length; i++) {
+                sums[i] = 0;
+                for (j = 0; j < colNames.length; j++) {
+                    sums[i] += selectedCol[j]*data[i][j];
                 }
             }
-
             maxSum = d3.max(sums);
 
             /* for (i = 0; i < rowNames.length; i++) {
