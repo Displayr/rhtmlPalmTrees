@@ -177,7 +177,7 @@ function PalmPlot() {
         param.sdBarHdivF = 2;   // ratio of height divided by font size
         param.sdBarY = param.sdBarOuterMargin + 0.5;
 
-        param.sdBarMaxWidth = Math.floor(viewerWidth*0.2);
+        param.sdBarMaxWidth = Math.floor(viewerWidth*0.25);
         param.sdBarMaxHeight = Math.floor(viewerHeight - 2*param.sdBarOuterMargin);
 
         param.sdBarFontSize = 10;
@@ -231,7 +231,23 @@ function PalmPlot() {
                 });
 
         if (param.sdBarMaxTextWidth + 2*param.sdBarPadding > param.sdBarWidth) {
-            param.sdBarWidth = param.sdBarMaxTextWidth + 2*param.sdBarPadding;
+            param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 2*param.sdBarPadding);
+        }
+
+        while (param.sdBarWidth > param.sdBarMaxWidth) {
+            param.sdBarHdFontSize = param.sdBarHdFontSize - 1;
+            param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
+            param.sdBarHdY = param.sdBarHdH/2;
+            param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
+
+            param.sdBarMaxTextWidth = 0;
+            baseSvg.select(".sdBarHeading")
+                .style("font-size", param.sdBarHdFontSize + "px")
+                .each(function(d) {
+                    param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
+                });
+            param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 2*param.sdBarPadding);
+            param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
         }
 
         param.sdBarX = viewerWidth - param.sdBarOuterMargin - param.sdBarWidth - 0.5;
@@ -1096,7 +1112,6 @@ function PalmPlot() {
                 // as is
                 xscale.domain(rowNames);
                 sortfun = function(a,b) { return a.index - b.index;};
-                sortfun1 = function(a,b) { return a.index - b.index;};
 
             } else if (colSort == "1") {
                 // alphabetical
@@ -1106,7 +1121,6 @@ function PalmPlot() {
                 rindices = sortWithIndices(rowNamesTemp,0);
                 xscale.domain(rowNames1);
                 sortfun = function(a,b) { return xscale(a.name) - xscale(b.name);};
-                sortfun1 = function(a,b) { return xscale(a.name) - xscale(b.name);};
 
 
             } else if (colSort == "2") {
@@ -1119,10 +1133,10 @@ function PalmPlot() {
                 rowNames2 = sortFromIndices(rowNames, rindices);
                 xscale.domain(rowNames2);
                 sortfun = function(a,b) { return a.value - b.value;};
-                sortfun1 = function(a,b) { return a.value - b.value;};
 
             } else if (colSort == "3") {
                 // high to low
+
                 for (i = 0; i < rowNames.length; i++) {
                     sumsTemp.push(sums[i]);
                 }
@@ -1130,7 +1144,6 @@ function PalmPlot() {
                 rowNames2 = sortFromIndices(rowNames, rindices);
                 xscale.domain(rowNames2);
                 sortfun = function(a,b) { return -(a.value - b.value);};
-                sortfun1 = function(a,b) { return -(a.value - b.value);};
             }
 
             plotArea.selectAll(".bar")
@@ -1154,7 +1167,7 @@ function PalmPlot() {
                     .attr("cy", function(d) { return yscale(d.value); });
 
             plotArea.selectAll(".leaf")
-                    .sort(sortfun1)
+                    .sort(sortfun)
                     .transition()
                     .duration(duration)
                     .attr("transform", function(d) {
@@ -1230,8 +1243,27 @@ function PalmPlot() {
                     return selectedCol[i] === 0 ? "#ccc" : "#000";
                 });
 
-            sortBars();
+            if (d3.sum(selectedCol) === 0) {
+                plotArea.selectAll(".bar")
+                    .transition()
+                    .duration(duration)
+                    .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
+                    .attr("y", function(d) { return yscale(d.value); })
+                    .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
+                plotArea.selectAll(".ghostCircle")
+                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("cy", function(d) { return yscale(d.value); });
+
+                plotArea.selectAll(".leaf")
+                    .transition()
+                    .duration(duration)
+                    .attr("transform", function(d) {
+                        return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
+                    });
+            } else {
+                sortBars();
+            }
         }
 
         // additional stuff
