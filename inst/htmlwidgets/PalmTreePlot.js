@@ -35,6 +35,9 @@ function PalmPlot() {
         xscale,
         yscale,
         radialScale,
+        tipBarScale,
+        dataMax = 0,
+        dataMin = 100000000,
         xaxis,
         yaxis,
         line,
@@ -552,6 +555,7 @@ function PalmPlot() {
         init_sidebar_param();
         update_sidebar(baseSvg);
         // main plot area
+        plotMargin.top = viewerHeight*0.1;
         plotMargin.right = 10 + param.sdBarWidth;
         plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
@@ -848,7 +852,7 @@ function PalmPlot() {
             left_margin = left_margin + prefixLength;
         }
 
-        plotMargin = {top: 30, right: 10 + param.sdBarWidth,
+        plotMargin = {top: viewerHeight*0.1, right: 10 + param.sdBarWidth,
                     bottom: bottom_margin, left: left_margin};
         plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
@@ -1018,22 +1022,25 @@ function PalmPlot() {
                     // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(2) : 0;
                     val = data[i][j].toFixed(2);
                     if (selectedCol[j] == 1) {
-                        atip = atip + "<td style='text-align:center'>";
-                        atip = atip + "<div style='width:11px;height:11px;background-color:" + colors[j] + "'></div>" + "</td>";
-                        atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
 
                         atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
                         if (settings.suffix) {
                             atip = atip + "<td style='text-align:left'>"+ settings.suffix + "</td>";
                         }
-                    } else {
+                        atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
                         atip = atip + "<td style='text-align:center'>";
-                        atip = atip + "<div style='width:11px;height:11px;background-color:#ccc'></div>" + "</td>";
-                        atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
+                        atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:" + colors[j] + "'></div>" + "</td>";
+
+                    } else {
+
                         atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
                         if (settings.suffix) {
                             atip = atip + "<td style='text-align:left'><font color=#ccc>" + settings.suffix + "</font></td>";
                         }
+                        atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
+                        atip = atip + "<td style='text-align:center'>";
+                        atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
+
                     }
 
                     atip = atip + "</tr>";
@@ -1305,12 +1312,15 @@ function PalmPlot() {
                 data[i][j] = weights[j]*data[i][j];
                 tempSum += selectedCol[j]*data[i][j];
             }
+            dataMax = Math.max(dataMax, d3.max(data[i]));
+            dataMin = Math.min(dataMin, d3.min(data[i]));
             sums.push(tempSum);
             sumIdx.push(i);
         }
         maxSum = d3.max(sums);
         rindices = d3.range(rowNames.length);
 
+        tipBarScale = d3.scale.linear().domain([dataMin,dataMax]).range([2,30]);
         // normalize data
         maxVal = 0;
         minVal = 1;

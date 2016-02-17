@@ -19,7 +19,6 @@ table, th, td {
 th {
     padding: 2px;
     font-size: 13px;
-    border-bottom: 1px solid #777;
 }
 
 td {
@@ -34,7 +33,7 @@ td {
 	height: 0;
 	border-left: 7px solid transparent;
 	border-right: 7px solid transparent;
-	border-top: 10px solid #777;
+	border-top: 10px solid steelblue;
 	font-size: 0;
 	line-height: 0;
 	position: absolute;
@@ -45,7 +44,7 @@ td {
 	height: 0;
 	border-left: 7px solid transparent;  /* left arrow slant */
 	border-right: 7px solid transparent; /* right arrow slant */
-	border-bottom: 10px solid #777; /* bottom, add background color here */
+	border-bottom: 10px solid steelblue; /* bottom, add background color here */
 	font-size: 0;
 	line-height: 0;
 	position: absolute;
