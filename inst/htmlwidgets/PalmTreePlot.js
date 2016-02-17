@@ -4,6 +4,7 @@ function PalmPlot() {
         plotWidth = 400,
         plotHeight = 400,
         left_margin = 35,
+        bottom_margin = 20,
         yaxisFormat = 0,
         data = [],
         settings = {},
@@ -43,76 +44,13 @@ function PalmPlot() {
         tips,
         tip,
         minLeafWidth = 10,
+        maxXaxisLines = 1,
+        xFontSize = 12,
         leaves;
     var commasFormatter = d3.format(",.1f");
     var commasFormatterE = d3.format(",.1e");
 
-    function init_sidebar_param() {
 
-        param.sdBarOuterMargin = 5;
-        param.sdBarPadding = 3;
-        param.sdBarHdivF = 2;   // ratio of height divided by font size
-        param.sdBarY = param.sdBarOuterMargin + 0.5;
-
-        param.sdBarMaxWidth = Math.floor(viewerWidth*0.2);
-        param.sdBarMaxHeight = Math.floor(viewerHeight - 2*param.sdBarOuterMargin);
-
-        param.sdBarFontSize = 10;
-        param.sdBarHdFontSize = param.sdBarFontSize + 2;
-        param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
-        param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
-        param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarPadding;
-
-        param.sdBarHdY = param.sdBarHdH/2;
-        param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
-
-        // sidebar parameters
-        /*
-        param.sdBarHeight = viewerHeight-5;
-        param.sdBarX = viewerWidth - param.sdBarWidth-5;
-        param.sdBarY = 5;
-
-        param.sdBarMargin = 0;
-        param.sdBarTextPadding = 3;
-        param.sdBarElemW = param.sdBarWidth - 2*param.sdBarMargin;
-
-        // param.sdBarFontSize = param.sdBarElemW/param.sdBarMaxTxtL;
-        param.sdBarMaxTextWidth = 0;
-        param.sdBarFontSize = 12;
-        param.sdBarElemH = param.sdBarFontSize * 2;
-
-        // heading
-        param.sdBarHdFontSize = param.sdBarFontSize + 2,
-        param.sdBarHdH = param.sdBarHdFontSize * 2;
-        param.sdBarElemY = param.sdBarY + param.sdBarMargin + param.sdBarHdH;
-
-        var sortOptions = 4;
-        if (param.sdBarElemY + (ncol+2)*param.sdBarElemH + sortOptions*param.sdBarElemH > param.sdBarHeight - param.sdBarMargin) {
-            param.sdBarElemH = (param.sdBarHeight - 2*param.sdBarMargin)/(colNames.length + sortOptions + 1 + 1.1*2);
-            param.sdBarHdH = param.sdBarElemH*1.1;
-            param.sdBarHdFontSize = param.sdBarHdH/2;
-            param.sdBarFontSize = param.sdBarElemH/2;
-        }
-        // heading X,Y offset
-        param.sdBarHdX = param.sdBarX + param.sdBarMargin + param.sdBarTextPadding;
-        param.sdBarHdY = param.sdBarY + param.sdBarMargin + param.sdBarHdH/2;
-
-        // white container box X,Y offset
-        param.sdBarElemX = param.sdBarX + param.sdBarMargin;
-        param.sdBarElemY = param.sdBarY + param.sdBarMargin + param.sdBarHdH;
-
-        // color boxes
-        param.sdBarColorBarsX = param.sdBarElemX + param.sdBarTextPadding;
-        param.sdBarColorBarsY = param.sdBarElemY + param.sdBarTextPadding;
-        param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarTextPadding;
-
-        // Column name (text) X,Y offset
-        param.sdBarTextX = param.sdBarColorBarsX + param.sdBarColorBarsW + param.sdBarTextPadding;
-        param.sdBarTextY = param.sdBarElemY + param.sdBarElemH/2;
-
-        param.sdBarSwitchX = param.sdBarElemX + param.sdBarElemW - param.sdBarTextPadding;
-        param.sdBarSwitchY = param.sdBarTextY;*/
-    }
 
     function setup_colors() {
 
@@ -230,245 +168,29 @@ function PalmPlot() {
                 else
                     return -plotMargin.left;
             })
-            .attr("y", -plotMargin.top*0.5);
+            .attr("y", -12);
     }
 
-    function resize_chart(el) {
+    function init_sidebar_param() {
+        param.sdBarOuterMargin = 5;
+        param.sdBarPadding = 3;
+        param.sdBarHdivF = 2;   // ratio of height divided by font size
+        param.sdBarY = param.sdBarOuterMargin + 0.5;
 
-        var baseSvg = d3.select(el).select("svg");
+        param.sdBarMaxWidth = Math.floor(viewerWidth*0.2);
+        param.sdBarMaxHeight = Math.floor(viewerHeight - 2*param.sdBarOuterMargin);
 
-        // sidebar
+        param.sdBarFontSize = 10;
+        param.sdBarHdFontSize = param.sdBarFontSize + 2;
+        param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
+        param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
+        param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarPadding;
 
-        // main plot area
-        plotMargin = {top: viewerHeight*0.1, right: 20 + param.sdBarWidth,
-                    bottom: viewerHeight*0.2, left: left_margin};
-        plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
-        plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
-
-
-        baseSvg.select("#g_plotarea").attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
-        // resize scales and axis
-        xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
-        yscale.range([plotHeight, 0]);
-        yAxis.scale(yscale);
-        xAxis.scale(xscale);
-        baseSvg.select(".yaxis").call(yAxis);
-        baseSvg.select(".xaxis")
-                .attr("transform", "translate(0," + plotHeight + ")")
-                .call(xAxis)
-                .selectAll(".tick text")
-                .call(wrap, xscale.rangeBand());
-        // update leaf size
-        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
-        radialScale.range([minLeafWidth, param.maxLeafWidth]);
-        update_data();
-
-        palms.data(frondData);
-        leaves.data(function(d) { return d.leaves;});
-
-        baseSvg.selectAll(".bar")
-                .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
-                .attr("y", function(d) { return yscale(d.value); })
-                .attr("height", function(d) { return plotHeight - yscale(d.value); });
-        /*baseSvg.selectAll(".plotAreaText")
-                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });*/
-        baseSvg.selectAll(".plotAreaHeading")
-                .attr("x", plotWidth/2)
-                .attr("y", plotHeight + plotMargin.bottom*0.8);
-
-        baseSvg.selectAll(".leaf")
-                .attr("transform", function(d) {
-                    return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
-                });
-        leaves.attr("d", line);
-
-        if(settings.tooltips){
-            tip.destroy();
-            tip = d3.tip()
-                    .attr('class', 'd3-tip')
-                    .html(function(d) { return d.tip; });
-
-            baseSvg.call(tip);
-            baseSvg.selectAll(".ghostCircle")
-                    .attr("r", function(d) { return radialScale(d.tipR)})
-                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("cy", function(d) { return yscale(d.value); })
-                    .on('mouseover', function(d) {
-                        mouse_over_frond(d);
-                    })
-                    .on('mouseout', function(d) {
-                        mouse_out_frond(d);
-                    });
-        }
-
-        if (settings.prefix || settings.suffix) {
-            update_unit_position();
-        }
-        // resize side bar
-        /*baseSvg.selectAll(".sideBar")
-                .attr("x", param.sdBarX)
-                .attr("y", param.sdBarY)
-                .attr("width",param.sdBarWidth)
-                .attr("height",param.sdBarHeight);
-        baseSvg.selectAll(".sdBarHeading")
-                .attr("x", param.sdBarHdX)
-                .attr("y", param.sdBarHdY)
-                .style("font-size", param.sdBarHdFontSize);
-        baseSvg.selectAll(".sideBarElemRect")
-                .attr("x", param.sdBarElemX)
-                .attr("y", function(d,i) { return param.sdBarElemY + i*param.sdBarElemH})
-                .attr("width", param.sdBarElemW)
-                .attr("height", param.sdBarElemH);
-        baseSvg.selectAll(".sideBarColorBox")
-                .attr("x", param.sdBarColorBarsX)
-                .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH})
-                .attr("width", param.sdBarColorBarsW)
-                .attr("height", param.sdBarColorBarsW);
-        baseSvg.selectAll(".sideBarText")
-                .attr("x", param.sdBarTextX)
-                .attr("y", function(d,i) { return param.sdBarTextY + i*param.sdBarElemH })
-                .style("font-size", param.sdBarFontSize);
-        baseSvg.selectAll(".sideBarSwitchOn")
-                .attr("x", param.sdBarSwitchX)
-                .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH })
-                .style("font-size", param.sdBarFontSize);
-        baseSvg.selectAll(".sideBarSwitchOff")
-                .attr("x", param.sdBarSwitchX)
-                .attr("y", function(d,i) { return param.sdBarSwitchY + i*param.sdBarElemH})
-                .style("font-size", param.sdBarFontSize);
-        baseSvg.selectAll(".sdBarResetButton")
-                .attr("x", param.sdBarSwitchX)
-                .attr("y", param.sdBarSwitchY + ncol*param.sdBarElemH)
-                .style("font-size", param.sdBarFontSize);
-        baseSvg.selectAll(".sdBarSortHeading")
-                .attr("x", param.sdBarHdX)
-                .attr("y", param.sdBarTextY + (ncol+1)*param.sdBarElemH)
-                .style("font-size", param.sdBarHdFontSize);
-        baseSvg.selectAll(".sideBarElemSortRect")
-                .attr("x", param.sdBarElemX)
-                .attr("y", function(d,i) { return param.sdBarElemY + (ncol+2)*param.sdBarElemH + i*param.sdBarElemH})
-                .attr("width", param.sdBarElemW)
-                .attr("height", param.sdBarElemH);
-        baseSvg.selectAll(".sdBarSortBox")
-                .attr("cx", param.sdBarColorBarsX + param.sdBarColorBarsW*0.5)
-                .attr("cy", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
-                .attr("r", param.sdBarColorBarsW*0.35);
-        baseSvg.selectAll(".sdBarSortText")
-                .attr("x", param.sdBarTextX)
-                .attr("y", function(d,i) { return param.sdBarTextY + (ncol+2)*param.sdBarElemH + param.sdBarElemH*i})
-                .style("font-size", param.sdBarFontSize);*/
+        param.sdBarHdY = param.sdBarHdH/2;
+        param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
     }
 
-    function set_left_margin(ymax) {
-
-        if (ymax >= 10000) {
-            yaxisFormat = 1;
-            left_margin = 55;
-        } else {
-            yaxisFormat = 0;
-            left_margin = (Math.floor(ymax)).toString().length*7 + 30;
-        }
-    }
-
-    function wrap(text, width) {
-        text.each(function() {
-            var text = d3.select(this),
-                words = text.text().split(/\s+/).reverse(),
-                word,
-                line = [],
-                lineNumber = 0,
-                lineHeight = 1.1, // ems
-                y = text.attr("y"),
-                dy = parseFloat(text.attr("dy")),
-                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-            while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width) {
-                    line.pop();
-                    tspan.text(line.join(" "));
-                    line = [word];
-                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                }
-            }
-        });
-    }
-
-    function chart(selection){
-
-        var baseSvg = selection.select("svg");
-        // create the side bar
-
-        init_sidebar_param();
-
-        var plotArea = baseSvg.append("g").attr("id", "g_plotarea");
-        var sideBar = baseSvg.append("g");
-        sideBar.append("rect")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("class", "sideBar");
-        // container
-        var sdBarCtrl = sideBar.append("g").attr("id", "g_sdBarControl").style("display", "none");
-        var sdBarDisp = sideBar.append("g").attr("id", "g_sideBarDisp");
-
-        sdBarCtrl.selectAll("option")
-                .data([1,2])
-                .enter()
-                .append("rect")
-                .attr("class", "sdBarAllRect")
-                .attr("id", function(d,i) { return "sdAC" + i;});
-
-        sdBarCtrl.append("text")
-                .attr("class", "sdBarAllOn");
-        sdBarCtrl.append("text")
-                .attr("class", "sdBarAllOff");
-        sdBarCtrl.append("text")
-                .attr("class", "sdBarSortHeading");
-
-        var sortText = ["Default", "Alphabetical", "Lowest to Highest", "Highest to Lowest"];
-        var sdBarCtrlEnter = sdBarCtrl.selectAll("g.span")
-                .data(sortText)
-                .enter()
-                .append("g");
-
-        sdBarCtrlEnter.append("rect")
-                .attr("class","sideBarElemSortRect")
-                .attr("id", function(d,i) { return "s" + i;});
-
-        sdBarCtrlEnter.append("circle")
-                .attr("class","sdBarSortBox")
-                .attr("id", function(d,i) { return "sortC" + i;});
-
-        sdBarCtrlEnter.append("text")
-                .attr("class", "sdBarSortText")
-                .attr("id", function(d,i) { return "sortT" + i;});
-
-        sdBarDisp.append("text")
-                .attr("class","sdBarHeading")
-                .attr("dy", "0.35em")
-                .text(settings.colHeading);
-
-        var sdBarElem = sdBarDisp.selectAll("sdBar.g")
-                        .data(colNames);
-        var sdBarElemEnter = sdBarElem.enter()
-                            .append("g");
-
-        sdBarElemEnter.append("rect")
-                    .attr("class","sideBarElemRect")
-                    .attr("id", function(d,i) { return "sbRect" + i;});
-
-        sdBarElemEnter.append("rect")
-                .attr("class", "sideBarColorBox")
-                .attr("id", function(d,i) { return "sbColor" + i;});
-
-        sdBarElemEnter.append("text")
-                .attr("class", "sideBarText")
-                .attr("id", function(d,i) { return "sbTxt" + i;})
-                .attr("dy", "0.35em")
-                .text(function(d) { return d;});
-
-
+    function update_sidebar(baseSvg) {
         param.sdBarMaxTextWidth = 0;
         baseSvg.selectAll(".sideBarText")
                 .style("font-size", param.sdBarFontSize + "px")
@@ -479,7 +201,6 @@ function PalmPlot() {
         param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW);
         param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
 
-        // adjusting font size to set width and height
         while (param.sdBarFontSize > 1 &&
             (param.sdBarWidth > param.sdBarMaxWidth || param.sdBarHeight > param.sdBarMaxHeight) ) {
 
@@ -503,7 +224,6 @@ function PalmPlot() {
             param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
         }
 
-        // adjust font size based on the heading
         baseSvg.select(".sdBarHeading")
                 .style("font-size", param.sdBarHdFontSize + "px")
                 .each(function(d) {
@@ -518,8 +238,8 @@ function PalmPlot() {
         param.sdBarElemW = param.sdBarWidth;
 
         // transform the object into position
-        sdBarDisp.attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
-        sdBarCtrl.attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
+        baseSvg.select("#g_sideBarDisp").attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
+        baseSvg.select("#g_sdBarControl").attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
         // set attributes
         baseSvg.select(".sideBar")
                 .attr("x", param.sdBarX)
@@ -532,7 +252,11 @@ function PalmPlot() {
                 .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW)
                 .attr("y", function(d,i) {
                     return param.sdBarHdH + i*param.sdBarElemH + param.sdBarElemH/2;
+                })
+                .style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : "#000";
                 });
+
         // heading
         baseSvg.select(".sdBarHeading")
                 .attr("x", param.sdBarPadding)
@@ -545,54 +269,17 @@ function PalmPlot() {
                 .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH + 0.5})
                 .attr("width", param.sdBarColorBarsW - 1)
                 .attr("height", param.sdBarColorBarsW - 1)
-                .style("fill", function(d,i) { return colors[i];});
+                .style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : colors[i];
+                });
 
-        function toggleColumn() {
-            if (d3.event.defaultPrevented) return; // click suppressed
-
-            var index = Number(this.id.substring(6));
-            if (selectedCol[index] === 0) {
-                selectedCol[index] = 1;
-            } else {
-                selectedCol[index] = 0;
-            }
-            updatePlot(duration);
-            d3.event.stopPropagation();
-        }
-
-        // toggle columns
         baseSvg.selectAll(".sideBarElemRect")
                 .attr("x", 0)
                 .attr("y", function(d,i) {
                     return param.sdBarHdH + i*param.sdBarElemH;
                 })
                 .attr("width", param.sdBarElemW + "px")
-                .attr("height", param.sdBarElemH + "px")
-                .on("mouseover", function() {
-                    d3.select(this).style("fill", "#eee");
-                    d3.event.stopPropagation();
-                })
-                .on("mouseout", function() {
-                    d3.select(this).style("fill", "white");
-                    d3.event.stopPropagation();
-                })
-                .on("click", toggleColumn);
-
-
-        function clickAllToggle() {
-            if (d3.event.defaultPrevented) return; // click suppressed
-            if (this.id.substring(4) == "0") {
-                selectedCol.forEach(function(d,i) {
-                    selectedCol[i] = 1;
-                });
-            } else {
-                selectedCol.forEach(function(d,i) {
-                    selectedCol[i] = 0;
-                });
-            }
-            updatePlot(duration);
-            d3.event.stopPropagation();
-        }
+                .attr("height", param.sdBarElemH + "px");
 
         // set font size on hover: height
         param.sdBarMenuItems = 4;
@@ -625,8 +312,6 @@ function PalmPlot() {
                     return param.sdBarHdH + param.sdBarHoverElemH/2 +
                             2*param.sdBarHoverElemH + i*param.sdBarHoverElemH;
                 })
-                .attr("dy", "0.35em")
-                .text(function(d) {return d;})
                 .style("font-size", param.sdBarHoverFontSize + "px")
                 .each(function() {
                     param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
@@ -649,49 +334,18 @@ function PalmPlot() {
                 .attr("width", function(d,i) {
                     return i === 0 ? Math.floor(param.sdBarElemW/2) : Math.ceil(param.sdBarElemW/2);
                 })
-                .attr("height", param.sdBarHoverElemH)
-                .on("mouseover", function() {
-                    d3.select(this).style("fill", "#eee");
-                    d3.event.stopPropagation();
-                })
-                .on("mouseout", function() {
-                    d3.select(this).style("fill", "white");
-                    d3.event.stopPropagation();
-                })
-                .on("click", clickAllToggle);
+                .attr("height", param.sdBarHoverElemH);
 
         baseSvg.select(".sdBarAllOn")
                 .attr("x", param.sdBarElemW/4)
                 .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", "middle")
-                .text("All On")
                 .style("font-size", param.sdBarHoverFontSize + "px");
 
         baseSvg.select(".sdBarAllOff")
                 .attr("x", param.sdBarElemW*3/4)
                 .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", "middle")
-                .text("All Off")
                 .style("font-size", param.sdBarHoverFontSize + "px");
 
-        // sort rows
-        function clickSort() {
-            if (d3.event.defaultPrevented) return; // click suppressed
-            var thisid = this.id.substring(1);
-
-            if (thisid != colSort) {
-                colSort = thisid;
-                sdBarCtrl.selectAll(".sdBarSortBox").style("fill", "#fff").style("stroke","#ccc");
-                sdBarCtrl.selectAll(".sdBarSortText").style("fill", "#ccc");
-
-                sdBarCtrl.select("#sortC" + thisid).style("fill", "steelblue").style("stroke","steelblue");
-                sdBarCtrl.select("#sortT" + thisid).style("fill", "#000");
-
-                sortBars();
-            }
-        }
         baseSvg.selectAll(".sdBarSortText")
                 .style("font-size", 2 + "px")
                 .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
@@ -699,8 +353,6 @@ function PalmPlot() {
         baseSvg.select(".sdBarSortHeading")
                 .attr("x", param.sdBarPadding)
                 .attr("y", param.sdBarHdH + param.sdBarHoverElemH/2 + param.sdBarHoverElemH)
-                .attr("dy", "0.35em")
-                .text("Sort")
                 .style("font-size", param.sdBarHoverFontSize + "px");
 
         baseSvg.selectAll(".sideBarElemSortRect")
@@ -710,15 +362,7 @@ function PalmPlot() {
 
                 })
                 .attr("width", param.sdBarElemW + "px")
-                .attr("height", param.sdBarHoverElemH + "px")
-                .on("mouseover", function() {
-                    d3.select(this).style("fill", "#eee");
-                    d3.event.stopPropagation();
-                })
-                .on("mouseout", function() {
-                    d3.select(this).style("fill", "white");
-                    d3.event.stopPropagation();
-                });
+                .attr("height", param.sdBarHoverElemH + "px");
 
         baseSvg.selectAll(".sdBarSortBox")
                 .attr("cx", param.sdBarPadding + 0.5 + param.sdBarHoverColorBarsW*0.5)
@@ -728,13 +372,9 @@ function PalmPlot() {
                 })
                 .attr("r", param.sdBarHoverColorBarsW*0.35);
 
-        sdBarCtrl.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
-        sdBarCtrl.select("#sortT0").style("fill", "#000");
-        sdBarCtrl.selectAll(".sideBarElemSortRect").on("click", clickSort);
-
-        // menu animation
         var dur = 200;
-        sideBar.on("mouseenter", function() {
+        baseSvg.select("#g_sideBar")
+                .on("mouseenter", function() {
 
                     baseSvg.selectAll(".sideBarElemRect")
                     .transition()
@@ -886,31 +526,378 @@ function PalmPlot() {
                     .attr("width", param.sdBarWidth)
                     .attr("height", param.sdBarHeight);
                 });
+    }
 
+    function resize_chart(el) {
+
+        var baseSvg = d3.select(el).select("svg");
+
+        // sidebar
+        init_sidebar_param();
+        update_sidebar(baseSvg);
         // main plot area
-        param.ymax = d3.max(sums);
-        param.ymin = 0;
-        set_left_margin(param.ymax);
-
-        plotMargin = {top: viewerHeight*0.1, right: 20 + param.sdBarWidth,
-                    bottom: viewerHeight*0.2, left: left_margin};
+        plotMargin.right = 10 + param.sdBarWidth;
         plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
 
-        // param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums)-1/nticks*2 : 0;
+        baseSvg.select(".xaxis")
+                .attr("transform", "translate(0," + plotHeight + ")")
+                .call(xAxis)
+                .selectAll(".tick text")
+                .call(wrap, xscale.rangeBand());
+        plotMargin.bottom = bottom_margin + maxXaxisLines*xFontSize*1.1;
+        plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
+        baseSvg.select(".xaxis").attr("transform", "translate(0," + plotHeight + ")");
+        baseSvg.select("#g_plotArea").attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
+        // resize scales and axis
+        xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
+        yscale.range([plotHeight, 0]);
+        yAxis.scale(yscale);
+        xAxis.scale(xscale);
+        baseSvg.select(".yaxis").call(yAxis);
 
+        // update leaf size
+        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
+        radialScale.range([minLeafWidth, param.maxLeafWidth]);
+        update_data();
+
+        palms.data(frondData);
+        leaves.data(function(d) { return d.leaves;});
+
+        baseSvg.selectAll(".bar")
+                .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
+                .attr("y", function(d) { return yscale(d.value); })
+                .attr("height", function(d) { return plotHeight - yscale(d.value); });
+        baseSvg.selectAll(".plotAreaHeading")
+                .attr("x", plotWidth/2)
+                .attr("y", plotHeight + plotMargin.bottom - 10);
+        baseSvg.selectAll(".plotAreaYLab")
+                .attr("transform", "rotate(-90," + (-plotMargin.left + 20) + "," + (plotHeight/2) + ")")
+                .attr("x", -plotMargin.left + 20)
+                .attr("y", plotHeight/2);
+
+        baseSvg.selectAll(".leaf")
+                .attr("transform", function(d) {
+                    return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
+                });
+        leaves.attr("d", line);
+
+        if(settings.tooltips){
+            tip.destroy();
+            tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(function(d) { return d.tip; });
+
+            baseSvg.call(tip);
+            baseSvg.selectAll(".ghostCircle")
+                    .attr("r", function(d) { return radialScale(d.tipR)})
+                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+                    .attr("cy", function(d) { return yscale(d.value); })
+                    .on('mouseover', function(d) {
+                        mouse_over_frond(d);
+                    })
+                    .on('mouseout', function(d) {
+                        mouse_out_frond(d);
+                    });
+        }
+
+        if (settings.prefix || settings.suffix) {
+            update_unit_position();
+        }
+    }
+
+    function wrap(text, width) {
+        var lineNumbers = [];
+        text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+            lineNumbers.push(lineNumber + 1);
+        });
+        maxXaxisLines = d3.max(lineNumbers);
+    }
+
+    function chart(selection){
+
+        var baseSvg = selection.select("svg");
+
+        /* create the side bar */
+
+        init_sidebar_param();
+
+        var plotArea = baseSvg.append("g").attr("id", "g_plotArea");
+
+        var sideBar = baseSvg.append("g").attr("id", "g_sideBar");
+        sideBar.append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("class", "sideBar");
+        // container
+        var sdBarCtrl = sideBar.append("g").attr("id", "g_sdBarControl").style("display", "none");
+        var sdBarDisp = sideBar.append("g").attr("id", "g_sideBarDisp");
+
+        sdBarCtrl.selectAll("option")
+                .data([1,2])
+                .enter()
+                .append("rect")
+                .attr("class", "sdBarAllRect")
+                .attr("id", function(d,i) { return "sdAC" + i;});
+
+        sdBarCtrl.append("text")
+                .attr("class", "sdBarAllOn")
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .text("All On");
+
+        sdBarCtrl.append("text")
+                .attr("class", "sdBarAllOff")
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .text("All Off");
+
+        sdBarCtrl.append("text")
+                .attr("class", "sdBarSortHeading")
+                .attr("dy", "0.35em")
+                .text("Row Ordering");
+
+        var sortText = ["Original", "Alphabetical", "Lowest to Highest", "Highest to Lowest"];
+        var sdBarCtrlEnter = sdBarCtrl.selectAll("g.span")
+                .data(sortText)
+                .enter()
+                .append("g");
+
+        sdBarCtrlEnter.append("rect")
+                .attr("class","sideBarElemSortRect")
+                .attr("id", function(d,i) { return "s" + i;});
+
+        sdBarCtrlEnter.append("circle")
+                .attr("class","sdBarSortBox")
+                .attr("id", function(d,i) { return "sortC" + i;});
+
+        sdBarCtrlEnter.append("text")
+                .attr("class", "sdBarSortText")
+                .attr("id", function(d,i) { return "sortT" + i;})
+                .attr("dy", "0.35em")
+                .text(function(d) {return d;});
+
+        sdBarDisp.append("text")
+                .attr("class","sdBarHeading")
+                .attr("dy", "0.35em")
+                .text(settings.colHeading);
+
+        var sdBarElem = sdBarDisp.selectAll("sdBar.g")
+                        .data(colNames);
+        var sdBarElemEnter = sdBarElem.enter()
+                            .append("g");
+
+        sdBarElemEnter.append("rect")
+                    .attr("class","sideBarElemRect")
+                    .attr("id", function(d,i) { return "sbRect" + i;});
+
+        sdBarElemEnter.append("rect")
+                .attr("class", "sideBarColorBox")
+                .attr("id", function(d,i) { return "sbColor" + i;});
+
+        sdBarElemEnter.append("text")
+                .attr("class", "sideBarText")
+                .attr("id", function(d,i) { return "sbTxt" + i;})
+                .attr("dy", "0.35em")
+                .text(function(d) { return d;});
+
+        update_sidebar(baseSvg);
+
+        function toggleColumn() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+
+            var index = Number(this.id.substring(6));
+            if (selectedCol[index] === 0) {
+                selectedCol[index] = 1;
+            } else {
+                selectedCol[index] = 0;
+            }
+            updatePlot(duration);
+            d3.event.stopPropagation();
+        }
+
+        baseSvg.selectAll(".sideBarElemRect")
+                .on("mouseover", function() {
+                    d3.select(this).style("fill", "#eee");
+                    d3.event.stopPropagation();
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("fill", "white");
+                    d3.event.stopPropagation();
+                })
+                .on("click", toggleColumn);
+
+        function clickAllToggle() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            if (this.id.substring(4) == "0") {
+                selectedCol.forEach(function(d,i) {
+                    selectedCol[i] = 1;
+                });
+            } else {
+                selectedCol.forEach(function(d,i) {
+                    selectedCol[i] = 0;
+                });
+            }
+            updatePlot(duration);
+            d3.event.stopPropagation();
+        }
+
+
+        baseSvg.selectAll(".sdBarAllRect")
+                .on("mouseover", function() {
+                    d3.select(this).style("fill", "#eee");
+                    d3.event.stopPropagation();
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("fill", "white");
+                    d3.event.stopPropagation();
+                })
+                .on("click", clickAllToggle);
+
+        // sort rows
+        function clickSort() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            var thisid = this.id.substring(1);
+
+            if (thisid != colSort) {
+                colSort = thisid;
+                sdBarCtrl.selectAll(".sdBarSortBox").style("fill", "#fff").style("stroke","#ccc");
+                sdBarCtrl.selectAll(".sdBarSortText").style("fill", "#ccc");
+
+                sdBarCtrl.select("#sortC" + thisid).style("fill", "steelblue").style("stroke","steelblue");
+                sdBarCtrl.select("#sortT" + thisid).style("fill", "#000");
+
+                sortBars();
+            }
+        }
+
+        baseSvg.selectAll(".sideBarElemSortRect")
+                .on("mouseover", function() {
+                    d3.select(this).style("fill", "#eee");
+                    d3.event.stopPropagation();
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("fill", "white");
+                    d3.event.stopPropagation();
+                });
+
+        sdBarCtrl.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
+        sdBarCtrl.select("#sortT0").style("fill", "#000");
+        sdBarCtrl.selectAll(".sideBarElemSortRect").on("click", clickSort);
+
+
+        /* main plot area */
+
+        param.ymax = d3.max(sums);
+        param.ymin = 0;
+
+        // set left margin based on numbers, prefix and if there is ylabel
+        if (param.ymax >= 10000) {
+            yaxisFormat = 1;
+            left_margin = 55;
+        } else {
+            yaxisFormat = 0;
+            left_margin = (Math.floor(param.ymax)).toString().length*7 + 25;
+        }
+
+        if (settings.prefix) {
+            var prefixLength = 0;
+            plotArea.append("text")
+                    .style("font-size","12px")
+                    .style("font-family", "sans-serif")
+                    .text(settings.prefix)
+                    .each(function() {
+                        prefixLength = this.getComputedTextLength();
+                    })
+                    .remove();
+            left_margin = left_margin + prefixLength;
+        }
+
+        plotMargin = {top: 30, right: 10 + param.sdBarWidth,
+                    bottom: bottom_margin, left: left_margin};
+        plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
+        plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
+
+        // left
+        if (settings.ylab) {
+            left_margin = left_margin + 30;
+            plotMargin.left = left_margin;
+            plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
+        }
+
+        // bottom
+        if (settings.rowHeading) {
+            bottom_margin = bottom_margin + 20;
+            plotMargin.bottom = bottom_margin;
+            plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
+        }
+
+        // x axis
         xscale = d3.scale.ordinal()
                     .domain(rowNames)
                     .rangeRoundBands([0, plotWidth], 0.1, 0.3);
+
+        xAxis = d3.svg.axis()
+                    .scale(xscale)
+                    .orient("bottom");
+
+        plotArea.append("g")
+                .attr("class", "xaxis")
+                .call(xAxis)
+                .selectAll(".tick text")
+                .call(wrap, xscale.rangeBand());
+
+        // update bottom margin based on x axis
+        plotMargin.bottom = bottom_margin + maxXaxisLines*xFontSize*1.1;
+        plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
+
+        plotArea.select(".xaxis")
+                .attr("transform", "translate(0," + plotHeight + ")");
+
+        if (settings.rowHeading) {
+            plotArea.append("text")
+                    .attr("class", "plotAreaHeading")
+                    .attr("x", plotWidth/2)
+                    .attr("y", plotHeight + plotMargin.bottom - 10)
+                    .text(settings.rowHeading)
+                    .attr("text-anchor", "middle");
+        }
+
+        // y axis
+
+        if (settings.ylab) {
+            plotArea.append("text")
+                    .attr("class", "plotAreaYLab")
+                    .text(settings.ylab)
+                    .attr("transform", "rotate(-90," + (-plotMargin.left + 20) + "," + (plotHeight/2) + ")")
+                    .attr("x", -plotMargin.left + 20)
+                    .attr("y", plotHeight/2)
+                    .attr("text-anchor", "middle");
+        }
 
         yscale = d3.scale.linear()
                     .domain([param.ymin, param.ymax])
                     .nice(nticks)
                     .range([plotHeight, 0]);
-
-        xAxis = d3.svg.axis()
-                    .scale(xscale)
-                    .orient("bottom");
 
         yAxis = d3.svg.axis()
                     .scale(yscale)
@@ -928,13 +915,6 @@ function PalmPlot() {
         plotArea.append("g")
                 .attr("class", "yaxis")
                 .call(yAxis);
-
-        plotArea.append("g")
-                .attr("class", "xaxis")
-                .attr("transform", "translate(0," + plotHeight + ")")
-                .call(xAxis)
-                .selectAll(".tick text")
-                .call(wrap, xscale.rangeBand());
 
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
         radialScale = d3.scale.linear()
@@ -1168,13 +1148,6 @@ function PalmPlot() {
                     .selectAll(".tick text")
                     .call(wrap, xscale.rangeBand());
 
-     /*       plotArea.selectAll(".plotAreaText")
-                    .sort(sortfun)
-                    .transition()
-                    .duration(duration)
-                    .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("y", function(d) { return yscale(d.value) + radialScale(d.offset); });*/
-
             plotArea.selectAll(".ghostCircle")
                     .sort(sortfun)
                     .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
@@ -1226,12 +1199,12 @@ function PalmPlot() {
             palms.data(frondData);
             leaves.data(function(d) { return d.leaves;});
 
-            plotArea.select(".plotAreaHeading")
+            /*plotArea.select(".plotAreaHeading")
                     .transition()
                     .duration(duration)
                     .attr("y", plotHeight + plotMargin.bottom*0.8);
 
-            /*plotArea.selectAll(".leaf")
+            plotArea.selectAll(".leaf")
                     .transition()
                     .duration(duration)
                     .attr("transform", function(d) {
@@ -1268,22 +1241,6 @@ function PalmPlot() {
             rowNames1.push(rowNames[i]);
         }
         rowNames1.sort();
-
-        /*var texts = plotArea.selectAll(".gt")
-                    .data(textData);
-
-        var textsEnter = texts.enter();
-        textsEnter.append("text")
-                .attr("class", "plotAreaText")
-                .attr("x", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                .attr("y", function(d) { return plotHeight; })
-                .text(function(d) { return d.name;});*/
-
-        plotArea.append("text")
-                .attr("class", "plotAreaHeading")
-                .attr("x", plotWidth/2)
-                .attr("y", viewerHeight)
-                .text(settings.rowHeading);
 
         if (settings.prefix || settings.suffix) {
             if (!settings.suffix) {

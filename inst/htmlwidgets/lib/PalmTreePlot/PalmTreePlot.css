@@ -3,7 +3,6 @@
 }
 
 .leaf {
-    cursor: pointer;
 }
 
 .tree {
@@ -35,7 +34,7 @@ td {
 	height: 0;
 	border-left: 7px solid transparent;
 	border-right: 7px solid transparent;
-	border-top: 10px solid steelblue;
+	border-top: 10px solid #777;
 	font-size: 0;
 	line-height: 0;
 	position: absolute;
@@ -46,13 +45,14 @@ td {
 	height: 0;
 	border-left: 7px solid transparent;  /* left arrow slant */
 	border-right: 7px solid transparent; /* right arrow slant */
-	border-bottom: 10px solid steelblue; /* bottom, add background color here */
+	border-bottom: 10px solid #777; /* bottom, add background color here */
 	font-size: 0;
 	line-height: 0;
 	position: absolute;
 }
 
 .plotAreaHeading {
+    cursor: default;
     font-size: 14px;
     font-family:sans-serif;
     font-weight: bold;
@@ -64,9 +64,17 @@ td {
     writing-mode: tb;
 }
 
+.plotAreaYLab {
+    cursor: default;
+    font-size: 14px;
+    font-family:sans-serif;
+    font-weight: bold;
+}
+
 .suffixText {
     font-family: sans-serif;
     font-size: 12px;
+    cursor: default;
 }
 
 .title {
@@ -80,6 +88,7 @@ td {
 
 .xaxis {
     font: 12px sans-serif;
+    cursor: default;
 }
 
 .xaxis line { /* tick marks*/
@@ -97,6 +106,7 @@ td {
 
 .yaxis {
     font: 12px sans-serif;
+    cursor: default;
 }
 
 .yaxis line {
@@ -143,6 +153,7 @@ td {
 }
 
 .sdBarHeading{
+    cursor: default;
     fill: #000;
     font-weight: bold;
     font-family: sans-serif;
@@ -198,6 +209,7 @@ td {
 }
 
 .sdBarSortHeading{
+    cursor: default;
     fill: #000;
     font-weight: bold;
     font-family: sans-serif;
