@@ -86,6 +86,21 @@ suffix = "dog"
 prefix = "ill"
 suffix = "dog"
 
+
+
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+                           weights = weights,
+                           row.names = rownames(CSDperceptions),
+                           row.heading = names(dimnames(CSDperceptions))[1],
+                           col.names = colnames(CSDperceptions),
+                           col.heading = names(dimnames(CSDperceptions))[2],
+                           ylab = "Y label",
+                           prefix = prefix,
+                           suffix = suffix,
+                           tooltips = TRUE,
+                           colors = colorVec)
+
+# use 1 row of data as heights, y label defaults to the row name
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
@@ -94,43 +109,25 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            col.heading = names(dimnames(CSDperceptions))[2],
                            prefix = prefix,
                            suffix = suffix,
-                           tooltips = "Default",
-                           colors = colorVec)
+                           tooltips = TRUE,
+                           colors = colorVec,
+                           column.as.heights = 1)
 
+# use 1 row of data as heights, specifying y label
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
                            col.names = colnames(CSDperceptions),
                            col.heading = names(dimnames(CSDperceptions))[2],
-                           ylab = "Sum of Columns",
+                           ylab = "Sales",
                            prefix = prefix,
                            suffix = suffix,
-                           tooltips = "Default",
-                           colors = colorVec)
-
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
-                           weights = weights,
-                           row.names = NULL,
-                           row.heading = NULL,
-                           col.names = NULL,
-                           col.heading = "ddddddddddddddddddddd",
-                           ylab = "Sum of Columns",
-                           prefix = prefix,
-                           suffix = suffix,
-                           tooltips = "Default",
-                           colors = colorVec)
-
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
-                           weights = weights,
-                           row.names = dimnames(CSDperceptions)[[1]],
-                           row.heading = NULL,
-                           col.names = 1:10,
-                           col.heading = names(dimnames(CSDperceptions))[2],
-                           tooltips = "Default",
-                           colors = colorVec)
-
-
+                           tooltips = TRUE,
+                           colors = colorVec,
+                           column.as.heights = 1)
+# test cases
+# prefix suffix ylabel
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            colors = colorVec)
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,
@@ -147,12 +144,17 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,ylab = "Ylabel Text",suffix = s
                            colors = colorVec)
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,ylab = "Ylabel Text",prefix = prefix,suffix = suffix,
                            colors = colorVec)
+
 # row name col names y heading
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,suffix = suffix,row.names = rownames(CSDperceptions),
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,suffix = suffix,col.names = colnames(CSDperceptions),
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.heading = names(dimnames(CSDperceptions))[1],
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,suffix = suffix,ylab = "Ylabel Text",
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.names = colnames(CSDperceptions),
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,suffix = suffix,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.heading = names(dimnames(CSDperceptions))[2],
+                           colors = colorVec)
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
+                           colors = colorVec)
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
                            colors = colorVec)

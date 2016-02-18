@@ -15,8 +15,9 @@ PalmTreePlot <- function(
     ylab = NULL,
     prefix = NULL,
     suffix = NULL,
-    tooltips = "default",
+    tooltips = TRUE,
     colors = NULL,
+    column.as.heights = NULL,
     width = NULL,
     height = NULL) {
 
@@ -56,6 +57,23 @@ PalmTreePlot <- function(
         colors = a[1,]
     }
 
+    if (!is.null(column.as.heights)) {
+        if (!is.vector(data)) {
+            bar.heights = data[,column.as.heights]
+            names(bar.heights) = NULL
+            if (nc == length(col.names)) {
+                if (is.null(ylab))
+                    ylab = col.names[column.as.heights]
+                col.names = col.names[-column.as.heights]
+            }
+            data = data[,-column.as.heights]
+        } else {
+            stop("Input data must have > 1 columns to use as fixed trees")
+        }
+    } else {
+        bar.heights = NULL
+    }
+
     # create a list that contains the settings
     settings <- list(
         weights = weights,
@@ -66,6 +84,7 @@ PalmTreePlot <- function(
         ylab = ylab,
         tooltips = tooltips,
         colors = colors,
+        barHeights = bar.heights,
         prefix = prefix,
         suffix = suffix
     )

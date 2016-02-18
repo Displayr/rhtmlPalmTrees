@@ -14,7 +14,6 @@ function PalmPlot() {
         normData = [],
         selectedCol = [],
         sums = [],
-        sumIdx = [],
         barData = [],
         frondData = [],
         i,
@@ -1207,19 +1206,17 @@ function PalmPlot() {
                 for (j = 0; j < colNames.length; j++) {
                     sums[i] += selectedCol[j]*data[i][j];
                 }
+                if (settings.barHeights) {
+                    sums[i] = settings.barHeights[i];
+                }
             }
             maxSum = d3.max(sums);
-
-            /* for (i = 0; i < rowNames.length; i++) {
-                sums[i] = sums[i]/maxSum;
-            }*/
 
             make_tip_data();
             update_data();
 
             param.ymax = d3.max(sums);
             param.ymin = 0;
-            // param.ymin = d3.min(sums) > 1/nticks*2 ? d3.min(sums) - 1/nticks*2 : 0;
 
             yscale.domain([param.ymin, param.ymax])
                     .nice(nticks)
@@ -1332,8 +1329,12 @@ function PalmPlot() {
             dataMax = Math.max(dataMax, d3.max(data[i]));
             dataMin = Math.min(dataMin, d3.min(data[i]));
             sums.push(tempSum);
-            sumIdx.push(i);
+            if (settings.barHeights) {
+                sums[i] = settings.barHeights[i];
+            }
         }
+        console.log(settings.barHeights);
+
         maxSum = d3.max(sums);
         rindices = d3.range(rowNames.length);
 
@@ -1342,7 +1343,6 @@ function PalmPlot() {
         maxVal = 0;
         minVal = 1;
         for (i = 0; i < rowNames.length; i++) {
-            // sums[i] = sums[i]/maxSum;
             tempNorm = [];
             for (j = 0; j < colNames.length; j++) {
                 tempNorm.push(data[i][j]/maxSum);
