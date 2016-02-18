@@ -44,3 +44,31 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            suffix = suffix,
                            tooltips = TRUE,
                            colors = colorVec)
+
+# plot mode 2: constant height
+# use 1 column of data as heights, specifying y label
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+                           weights = weights,
+                           row.names = rownames(CSDperceptions),
+                           row.heading = names(dimnames(CSDperceptions))[1],
+                           col.names = colnames(CSDperceptions),
+                           col.heading = names(dimnames(CSDperceptions))[2],
+                           ylab = "Sales",
+                           prefix = prefix,
+                           suffix = suffix,
+                           tooltips = TRUE,
+                           colors = colorVec,
+                           column.as.heights = 1)
+
+# use 1 column of data as heights, y label defaults to the column name
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+                           weights = weights,
+                           row.names = rownames(CSDperceptions),
+                           row.heading = names(dimnames(CSDperceptions))[1],
+                           col.names = colnames(CSDperceptions),
+                           col.heading = names(dimnames(CSDperceptions))[2],
+                           prefix = prefix,
+                           suffix = suffix,
+                           tooltips = TRUE,
+                           colors = colorVec,
+                           column.as.heights = 1)
