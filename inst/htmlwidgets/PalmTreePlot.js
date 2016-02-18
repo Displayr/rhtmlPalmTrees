@@ -839,7 +839,7 @@ function PalmPlot() {
             left_margin = (Math.floor(param.ymax)).toString().length*7 + 25;
         }
 
-        if (settings.prefix) {
+        if (settings.prefix && settings.suffix) {
             var prefixLength = 0;
             plotArea.append("text")
                     .style("font-size","12px")
@@ -924,10 +924,19 @@ function PalmPlot() {
                     .orient("left")
                     .ticks(nticks)
                     .tickFormat(function(d) {
-                        if (yaxisFormat === 0)
-                            return settings.prefix + commasFormatter(d);
-                        else if (yaxisFormat === 1)
-                            return settings.prefix + commasFormatterE(d);
+                        if (yaxisFormat === 0) {
+                            if (settings.prefix && settings.suffix) {
+                                return settings.prefix + commasFormatter(d);
+                            } else {
+                                return commasFormatter(d);
+                            }
+                        } else if (yaxisFormat === 1) {
+                            if (settings.prefix && settings.suffix) {
+                                return settings.prefix + commasFormatterE(d);
+                            } else {
+                                return commasFormatterE(d);
+                            }
+                        }
                     });
 
         plotArea.attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
@@ -1022,8 +1031,12 @@ function PalmPlot() {
                     // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(2) : 0;
                     val = data[i][j].toFixed(2);
                     if (selectedCol[j] == 1) {
+                        if (settings.prefix) {
+                            atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                        } else {
+                            atip = atip + "<td style='text-align:right'>" + val + "</td>";
+                        }
 
-                        atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
                         if (settings.suffix) {
                             atip = atip + "<td style='text-align:left'>"+ settings.suffix + "</td>";
                         }
@@ -1032,8 +1045,12 @@ function PalmPlot() {
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:" + colors[j] + "'></div>" + "</td>";
 
                     } else {
+                        if (settings.prefix) {
+                            atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
+                        } else {
+                            atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + "</font></td>";
+                        }
 
-                        atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
                         if (settings.suffix) {
                             atip = atip + "<td style='text-align:left'><font color=#ccc>" + settings.suffix + "</font></td>";
                         }

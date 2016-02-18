@@ -27,6 +27,9 @@ PalmTreePlot <- function(
     nr = nrow(data);
     nc = ncol(data);
 
+    if (is.null(weights))
+        weights = rep(1,nc)
+
     if (is.null(col.names))
         col.names = paste0("column", 1:nc)
     else if (length(col.names) > nc)
