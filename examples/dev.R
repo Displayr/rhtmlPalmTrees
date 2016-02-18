@@ -100,20 +100,7 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            tooltips = TRUE,
                            colors = colorVec)
 
-# use 1 row of data as heights, y label defaults to the row name
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
-                           weights = weights,
-                           row.names = rownames(CSDperceptions),
-                           row.heading = names(dimnames(CSDperceptions))[1],
-                           col.names = colnames(CSDperceptions),
-                           col.heading = names(dimnames(CSDperceptions))[2],
-                           prefix = prefix,
-                           suffix = suffix,
-                           tooltips = TRUE,
-                           colors = colorVec,
-                           column.as.heights = 1)
-
-# use 1 row of data as heights, specifying y label
+# use 1 column of data as heights, specifying y label
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
@@ -126,6 +113,20 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            tooltips = TRUE,
                            colors = colorVec,
                            column.as.heights = 1)
+
+# use 1 column of data as heights, y label defaults to the column name
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+                           weights = weights,
+                           row.names = rownames(CSDperceptions),
+                           row.heading = names(dimnames(CSDperceptions))[1],
+                           col.names = colnames(CSDperceptions),
+                           col.heading = names(dimnames(CSDperceptions))[2],
+                           prefix = prefix,
+                           suffix = suffix,
+                           tooltips = TRUE,
+                           colors = colorVec,
+                           column.as.heights = 1)
+
 # test cases
 # prefix suffix ylabel
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
