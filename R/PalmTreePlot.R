@@ -1,8 +1,22 @@
 #' Create a palm tree
 #'
-#' @param data Input data
-#' @param weights vector specifying weights
-
+#' @param data numeric matrix or data frame
+#' @param weights numeric vector specifying weights
+#' @param row.names character vector specifying x ticks
+#' @param row.heading character, used as x label
+#' @param col.names character vector specifying the legend
+#' @param col.heading character vector specifying the heading
+#' @param tooltips logical, whether to attach tooltips on mouseover, default true.
+#' @param prefix prefix of numbers in the tooltips. If column.as.heights is NULL, the y axis will have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.
+#' @param suffix suffix of numbers in the tooltips. If column.as.heights is NULL, the y axis will have the same suffix.
+#' @param column.as.heights Integer to specify which column can be used as tree heights.
+#' @param y.lab y axis label
+#' @param y.prefix prefix of y axis ticks when column.as.heights is not NULL. This argument is ignored when column.as.heights is NULL.
+#' @param y.suffix suffix of y axis ticks when column.as.heights is not NULL. This argument is ignored when column.as.heights is NULL.
+#' @param colors colors of the leaves  (should be optional but now it must be provided)
+#' @param width
+#' @param height
+#'
 #' @import htmlwidgets
 #' @export
 PalmTreePlot <- function(
@@ -12,12 +26,14 @@ PalmTreePlot <- function(
     row.heading = NULL,
     col.names = NULL,
     col.heading = NULL,
-    ylab = NULL,
+    tooltips = TRUE,
     prefix = NULL,
     suffix = NULL,
-    tooltips = TRUE,
-    colors = NULL,
     column.as.heights = NULL,
+    y.lab = NULL,
+    y.prefix = NULL,
+    y.suffix = NULL,
+    colors = NULL,
     width = NULL,
     height = NULL) {
 
@@ -62,8 +78,8 @@ PalmTreePlot <- function(
             bar.heights = data[,column.as.heights]
             names(bar.heights) = NULL
             if (nc == length(col.names)) {
-                if (is.null(ylab))
-                    ylab = col.names[column.as.heights]
+                if (is.null(y.lab))
+                    y.lab = col.names[column.as.heights]
                 col.names = col.names[-column.as.heights]
             }
             data = data[,-column.as.heights]
@@ -81,7 +97,7 @@ PalmTreePlot <- function(
         colNames = col.names,
         rowHeading = row.heading,
         colHeading = col.heading,
-        ylab = ylab,
+        ylab = y.lab,
         tooltips = tooltips,
         colors = colors,
         barHeights = bar.heights,

@@ -48,6 +48,7 @@ function PalmPlot() {
         minLeafWidth = 10,
         maxXaxisLines = 1,
         xFontSize = 12,
+        initR = [],
         leaves;
     var commasFormatter = d3.format(",.1f");
     var commasFormatterE = d3.format(",.1e");
@@ -83,24 +84,27 @@ function PalmPlot() {
         }
     }
 
-    function mouse_over_frond(d) {
+    function mouse_over_frond(d, el) {
 
         var this_tip = tip.show(d);
+        var x = Number(d3.select(el).attr("x")),
+            y = Number(d3.select(el).attr("y")),
+            w = Number(d3.select(el).attr("width")),
+            h = Number(d3.select(el).attr("height"));
 
         if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
-
-            this_tip = this_tip.direction("n").offset([-15,0]).show(d);
+            this_tip = this_tip.direction("n").offset([-10,0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "northTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top - radialScale(d.tipR) - 10) + "px")
+            .style("top", (y - 5 + yscale(d.value) + plotMargin.top) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         } else {
-            this_tip = this_tip.direction("s").offset([15,0]).show(d);
+            this_tip = this_tip.direction("s").offset([10,0]).show(d);
             d3.select("#littleTriangle")
             .attr("class", "southTip")
             .style("visibility", "visible")
-            .style("top", (yscale(d.value) + plotMargin.top + radialScale(d.tipR) + 10) + "px")
+            .style("top", (y + h + 5 + yscale(d.value) + plotMargin.top) + "px")
             .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
         }
 
@@ -170,7 +174,7 @@ function PalmPlot() {
                 else
                     return -plotMargin.left;
             })
-            .attr("y", -12);
+            .attr("y", -plotMargin.top/2);
     }
 
     function init_sidebar_param() {
@@ -609,15 +613,26 @@ function PalmPlot() {
 
             baseSvg.call(tip);
             baseSvg.selectAll(".ghostCircle")
-                    .attr("r", function(d) { return radialScale(d.tipR)})
-                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("cy", function(d) { return yscale(d.value); })
+                    .attr("x", function(d) {
+                        return Number(d3.select(this).attr("x"))*radialScale(d.tipMaxR)/initR[d.index];
+                    })
+                    .attr("y", function(d) {
+                        return Number(d3.select(this).attr("y"))*radialScale(d.tipMaxR)/initR[d.index];
+                    })
+                    .attr("width", function(d) {
+                        return Number(d3.select(this).attr("width"))*radialScale(d.tipMaxR)/initR[d.index];
+                    })
+                    .attr("height", function(d) {
+                        return Number(d3.select(this).attr("height"))*radialScale(d.tipMaxR)/initR[d.index];
+                    })
                     .on('mouseover', function(d) {
-                        mouse_over_frond(d);
+                        mouse_over_frond(d,this);
                     })
                     .on('mouseout', function(d) {
                         mouse_out_frond(d);
-                    });
+                    })
+                    .each(function(d) {initR[d.index] = radialScale(d.tipMaxR)});
+
         }
 
         if (settings.prefix || settings.suffix) {
@@ -693,7 +708,7 @@ function PalmPlot() {
         sdBarCtrl.append("text")
                 .attr("class", "sdBarSortHeading")
                 .attr("dy", "0.35em")
-                .text("Row Ordering");
+                .text("Order");
 
         var sortText = ["Original", "Alphabetical", "Lowest to Highest", "Highest to Lowest"];
         var sdBarCtrlEnter = sdBarCtrl.selectAll("g.span")
@@ -961,7 +976,7 @@ function PalmPlot() {
                                 {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
             }
             frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i,
-                            tip: "s", tipR: d3.mean(normData[i])};
+                            tip: "s", tipR: d3.mean(normData[i]), tipMaxR: d3.max(normData[i])};
             frondData.push(frondDatum);
         }
 
@@ -986,9 +1001,8 @@ function PalmPlot() {
         palms = plotArea.selectAll(".g")
                     .data(frondData);
 
-        var palmEnter = palms.enter();
-        leaves = palmEnter.append("g")
-                    .attr("class", "leaf")
+        var palmEnter = palms.enter().append("g");
+        leaves = palmEnter.attr("class", "leaf")
                     .attr("id", function(d) { return "frond" + d.index;})
                     .selectAll("path")
                     .data(function(d) { return d.leaves;});
@@ -1012,6 +1026,11 @@ function PalmPlot() {
 
         leaves.style("fill", function(d,i) { return colors[i];});
 
+        //plotArea.selectAll(".leaf")
+        //        .each(function() {
+        //            console.log(this.getBoundingClientRect());
+        //        });
+
         //function round(value, decimals) {
         //    return Number(Math.round(value +'e'+ decimals) +'e-'+ decimals).toFixed(decimals);
         //}
@@ -1019,7 +1038,8 @@ function PalmPlot() {
         function make_tip_data() {
 
             var tb_len, k, aligntext, val;
-            if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
+            tb_len = 3;
+            //if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
             for (i = 0; i < rowNames.length; i++) {
                 var atip = "";
                 atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
@@ -1031,13 +1051,17 @@ function PalmPlot() {
                     val = data[i][j].toFixed(2);
                     if (selectedCol[j] == 1) {
                         if (settings.prefix) {
-                            atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                            if (settings.suffix) {
+                                atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                            } else {
+                                atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                            }
                         } else {
-                            atip = atip + "<td style='text-align:right'>" + val + "</td>";
-                        }
-
-                        if (settings.suffix) {
-                            atip = atip + "<td style='text-align:left'>"+ settings.suffix + "</td>";
+                            if (settings.suffix) {
+                                atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
+                            } else {
+                                atip = atip + "<td style='text-align:right'>" + val + "</td>";
+                            }
                         }
                         atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
                         atip = atip + "<td style='text-align:center'>";
@@ -1045,18 +1069,21 @@ function PalmPlot() {
 
                     } else {
                         if (settings.prefix) {
-                            atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
+                            if (settings.suffix) {
+                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + settings.suffix + "</font></td>";
+                            } else {
+                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
+                            }
                         } else {
-                            atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + "</font></td>";
-                        }
-
-                        if (settings.suffix) {
-                            atip = atip + "<td style='text-align:left'><font color=#ccc>" + settings.suffix + "</font></td>";
+                            if (settings.suffix) {
+                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + settings.suffix + "</font></td>";
+                            } else {
+                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + "</font></td>";
+                            }
                         }
                         atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
                         atip = atip + "<td style='text-align:center'>";
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
-
                     }
 
                     atip = atip + "</tr>";
@@ -1084,15 +1111,27 @@ function PalmPlot() {
                             .attr("id", "littleTriangle")
                             .style("visibility", "hidden");
 
-            palmEnter.append("circle")
+            palmEnter.append("rect")
                     .attr("class", "ghostCircle")
-                    .attr("r", function(d) { return radialScale(d.tipR)})
+                    .attr("id", function(d,i) { return "ghost" + i;})
+                    .attr("x", function(d) {
+                        return this.parentNode.getBoundingClientRect().left - 5 -
+                        (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left);
+                    })
+                    .attr("y", function(d) {
+                        return this.parentNode.getBoundingClientRect().top - 5 -
+                        (plotHeight + plotMargin.top);
+                    })
+                    .attr("width", function(d) {return this.parentNode.getBoundingClientRect().width;})
+                    .attr("height", function(d) {return this.parentNode.getBoundingClientRect().height;})
+                    //.attr("r", function(d) { return radialScale(d.tipR)})
                     .on('mouseover', function(d) {
-                        mouse_over_frond(d);
+                        mouse_over_frond(d,this);
                     })
                     .on('mouseout', function(d) {
                         mouse_out_frond(d);
-                    });
+                    })
+                    .each(function(d) {initR.push(radialScale(d.tipMaxR))});
         }
 
         // sort and return sort indices
@@ -1184,10 +1223,10 @@ function PalmPlot() {
                     .selectAll(".tick text")
                     .call(wrap, xscale.rangeBand());
 
-            plotArea.selectAll(".ghostCircle")
-                    .sort(sortfun)
-                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("cy", function(d) { return yscale(d.value); });
+            //plotArea.selectAll(".ghostCircle")
+            //        .sort(sortfun);
+            //        .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+            //        .attr("cy", function(d) { return yscale(d.value); });
 
             plotArea.selectAll(".leaf")
                     .sort(sortfun)
@@ -1272,9 +1311,9 @@ function PalmPlot() {
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
-                plotArea.selectAll(".ghostCircle")
-                    .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
-                    .attr("cy", function(d) { return yscale(d.value); });
+//                plotArea.selectAll(".ghostCircle")
+  //                  .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })
+    //                .attr("cy", function(d) { return yscale(d.value); });
 
                 plotArea.selectAll(".leaf")
                     .transition()
@@ -1333,7 +1372,6 @@ function PalmPlot() {
                 sums[i] = settings.barHeights[i];
             }
         }
-        console.log(settings.barHeights);
 
         maxSum = d3.max(sums);
         rindices = d3.range(rowNames.length);
