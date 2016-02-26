@@ -4,7 +4,7 @@ function PalmPlot() {
         plotWidth = 400,
         plotHeight = 400,
         left_margin = 35,
-        bottom_margin = 20,
+        bottom_margin = 30,
         yaxisFormat = 0,
         data = [],
         settings = {},
@@ -562,6 +562,13 @@ function PalmPlot() {
         plotMargin.right = 10 + param.sdBarWidth;
         plotWidth = viewerWidth - plotMargin.left - plotMargin.right;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
+        xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
+        // update leaf size
+        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4), 60);
+        radialScale.range([minLeafWidth, param.maxLeafWidth]);
+        update_data();
+        palms.data(frondData);
+        leaves.data(function(d) { return d.leaves;});
 
         baseSvg.select(".xaxis")
                 .attr("transform", "translate(0," + plotHeight + ")")
@@ -573,19 +580,24 @@ function PalmPlot() {
         baseSvg.select(".xaxis").attr("transform", "translate(0," + plotHeight + ")");
         baseSvg.select("#g_plotArea").attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
         // resize scales and axis
-        xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
+
+        baseSvg.selectAll(".xtickBg")
+                .attr("x", function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().left - plotMargin.left - 5;
+                })
+                .attr("y", function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().top - plotMargin.top - 5;
+                })
+                .attr("width", function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().width;
+                })
+                .attr("height",  function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().height;
+                });
         yscale.range([plotHeight, 0]);
         yAxis.scale(yscale);
         xAxis.scale(xscale);
         baseSvg.select(".yaxis").call(yAxis);
-
-        // update leaf size
-        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
-        radialScale.range([minLeafWidth, param.maxLeafWidth]);
-        update_data();
-
-        palms.data(frondData);
-        leaves.data(function(d) { return d.leaves;});
 
         baseSvg.selectAll(".bar")
                 .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
@@ -890,6 +902,45 @@ function PalmPlot() {
                     .domain(rowNames)
                     .rangeRoundBands([0, plotWidth], 0.1, 0.3);
 
+        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4), 60);
+        radialScale = d3.scale.linear()
+                        .domain([minVal, maxVal])
+                        .range([minLeafWidth, param.maxLeafWidth]);
+
+        for (i = 0; i < rowNames.length; i++) {
+            var frondDatum = {};
+            var leafData = [];
+            for (j = 0; j < colNames.length; j++) {
+                leafData.push( [{x:0, y:0},
+                                {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
+                                {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
+                                {x:radialScale(normData[i][j]), y:0},
+                                {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
+                                {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
+            }
+            frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i,
+                            tip: "s", tipR: d3.mean(normData[i]), tipMaxR: d3.max(normData[i])};
+            frondData.push(frondDatum);
+        }
+
+        for (i = 0; i < rowNames.length; i++) {
+            barData.push({name: rowNames[i], value: sums[i], index: i});
+        }
+
+
+        bars = plotArea.selectAll(".vbar")
+                        .data(barData);
+        var barsEnter = bars.enter();
+        var barRect = barsEnter.append("rect");
+
+        palms = plotArea.selectAll(".palm")
+                    .data(frondData);
+
+        var palmEnter = palms.enter().append("g");
+
+        var xtickRect = barsEnter.append("rect")
+                                .attr("class", "xtickBg");
+
         xAxis = d3.svg.axis()
                     .scale(xscale)
                     .orient("bottom");
@@ -898,14 +949,28 @@ function PalmPlot() {
                 .attr("class", "xaxis")
                 .call(xAxis)
                 .selectAll(".tick text")
+                .attr("id", function(d,i) { return "tickTxt" + i})
                 .call(wrap, xscale.rangeBand());
 
         // update bottom margin based on x axis
         plotMargin.bottom = bottom_margin + maxXaxisLines*xFontSize*1.1;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
-
         plotArea.select(".xaxis")
                 .attr("transform", "translate(0," + plotHeight + ")");
+
+        baseSvg.selectAll(".xtickBg")
+                .attr("x", function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().left - 5;
+                })
+                .attr("y", function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().top - 5;
+                })
+                .attr("width", function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().width;
+                })
+                .attr("height",  function(d,i) {
+                    return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().height;
+                });
 
         if (settings.rowHeading) {
             plotArea.append("text")
@@ -959,38 +1024,10 @@ function PalmPlot() {
                 .attr("class", "yaxis")
                 .call(yAxis);
 
-        param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4));
-        radialScale = d3.scale.linear()
-                        .domain([minVal, maxVal])
-                        .range([minLeafWidth, param.maxLeafWidth]);
-
-        for (i = 0; i < rowNames.length; i++) {
-            var frondDatum = {};
-            var leafData = [];
-            for (j = 0; j < colNames.length; j++) {
-                leafData.push( [{x:0, y:0},
-                                {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
-                                {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
-                                {x:radialScale(normData[i][j]), y:0},
-                                {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
-                                {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
-            }
-            frondDatum = {leaves: leafData, name: rowNames[i], value: sums[i], index: i,
-                            tip: "s", tipR: d3.mean(normData[i]), tipMaxR: d3.max(normData[i])};
-            frondData.push(frondDatum);
-        }
-
-        for (i = 0; i < rowNames.length; i++) {
-            barData.push({name: rowNames[i], value: sums[i], index: i});
-        }
 
         // vertical bars
-        bars = plotArea.selectAll(".g")
-                        .data(barData);
-        var barsEnter = bars.enter();
 
-        barsEnter.append("rect")
-                .attr("class", "bar")
+        barRect.attr("class", "bar")
                 .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                 .attr("width", 1)
                 .attr("y", function(d) { return plotHeight; })
@@ -998,10 +1035,6 @@ function PalmPlot() {
 
         // leaves
 
-        palms = plotArea.selectAll(".g")
-                    .data(frondData);
-
-        var palmEnter = palms.enter().append("g");
         leaves = palmEnter.attr("class", "leaf")
                     .attr("id", function(d) { return "frond" + d.index;})
                     .selectAll("path")
@@ -1223,6 +1256,13 @@ function PalmPlot() {
                     .selectAll(".tick text")
                     .call(wrap, xscale.rangeBand());
 
+            plotArea.selectAll(".xtickBg")
+                    .sort(sortfun)
+                    .transition()
+                    .duration(duration)
+                    .attr("x", function(d,i) {
+                        return -Number(d3.select(this).attr("width"))/2 + xscale(d.name) + xscale.rangeBand()/2;
+                    });
             //plotArea.selectAll(".ghostCircle")
             //        .sort(sortfun);
             //        .attr("cx", function(d) { return xscale(d.name) + xscale.rangeBand()/2; })

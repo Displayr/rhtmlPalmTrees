@@ -1,5 +1,10 @@
 .bar {
-  fill: #bbb;
+    fill: #bbb;
+}
+
+.xtickBg{
+    fill: white;
+    opacity: 0.5;
 }
 
 .leaf {

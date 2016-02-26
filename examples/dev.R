@@ -46,25 +46,19 @@ set.seed(123)
 # weights = weights/sum(weights)
 
 weights = rep(1,ncol(CSDperceptions))
-description = dimnames(CSDperceptions)
-
-row.heading = "Brand"
-col.heading = "Attribute"
-row.names = description[[1]]
-col.names = description[[2]]
 
 ### test cases
 ### testing column names
 # test case 1: long column names, short heading
-col.names = description[[2]]
+# col.names = description[[2]]
 # test case 2: short column names, long heading
-col.names = c("A","B","C","D","E","F","G","H","I","J","H")
+# col.names = c("A","B","C","D","E","F","G","H","I","J","H")
 
 ### testing row and column names in a different language
-row.heading = "品牌"
-col.heading = "属性"
-row.names = c('可口可乐','V',"红牛","Lift Plus",'健怡可乐','芬达','Lift','百事')
-col.names = c("一","二","三","四","五","六","七","八","九","十","十一")
+# row.heading = "品牌"
+# col.heading = "属性"
+# row.names = c('可口可乐','V',"红牛","Lift Plus",'健怡可乐','芬达','Lift','百事')
+# col.names = c("一","二","三","四","五","六","七","八","九","十","十一")
 
 ### testing units
 # test case 1: both prefix and suffix
@@ -73,18 +67,18 @@ suffix = "per day day"
 # test case 2: both prefix and suffix
 prefix = "A$"
 suffix = "/min"
-# test case 4: no prefix, has suffix
-prefix = "$$$"
-suffix = "dog"
+# # test case 4: no prefix, has suffix
+# prefix = "$$$"
+# suffix = "dog"
 # test case 3: no prefix, has suffix
-prefix = ""
-suffix = "%"
-# test case 4: no prefix, has suffix
-prefix = "@#$"
-suffix = "dog"
-
-prefix = "ill"
-suffix = "dog"
+# prefix = ""
+# suffix = "%"
+# # test case 4: no prefix, has suffix
+# prefix = "@#$"
+# suffix = "dog"
+#
+# prefix = "ill"
+# suffix = "dog"
 
 
 
@@ -94,7 +88,7 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            row.heading = names(dimnames(CSDperceptions))[1],
                            col.names = colnames(CSDperceptions),
                            col.heading = names(dimnames(CSDperceptions))[2],
-                           ylab = "Y label",
+                           y.lab = "Y label",
                            prefix = prefix,
                            suffix = suffix,
                            tooltips = TRUE,
@@ -107,7 +101,7 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            row.heading = names(dimnames(CSDperceptions))[1],
                            col.names = colnames(CSDperceptions),
                            col.heading = names(dimnames(CSDperceptions))[2],
-                           ylab = "Sales",
+                           y.lab = "Sales",
                            prefix = prefix,
                            suffix = suffix,
                            tooltips = TRUE,
