@@ -49,6 +49,7 @@ function PalmPlot() {
         maxXaxisLines = 1,
         xFontSize = 12,
         initR = [],
+        yPrefixText = "",
         leaves;
     var commasFormatter = d3.format(",.1f");
     var commasFormatterE = d3.format(",.1e");
@@ -647,9 +648,16 @@ function PalmPlot() {
 
         }
 
-        if (settings.prefix || settings.suffix) {
-            update_unit_position();
+        if (settings.barHeights) {
+            if (settings.yprefix || settings.ysuffix) {
+                update_unit_position();
+            }
+        } else {
+            if (settings.prefix || settings.suffix) {
+                update_unit_position();
+            }
         }
+
     }
 
     function wrap(text, width) {
@@ -865,17 +873,34 @@ function PalmPlot() {
             left_margin = (Math.floor(param.ymax)).toString().length*7 + 25;
         }
 
-        if (settings.prefix && settings.suffix) {
-            var prefixLength = 0;
-            plotArea.append("text")
-                    .style("font-size","12px")
-                    .style("font-family", "sans-serif")
-                    .text(settings.prefix)
-                    .each(function() {
-                        prefixLength = this.getComputedTextLength();
-                    })
-                    .remove();
-            left_margin = left_margin + prefixLength;
+        if (settings.barHeights) {
+            if (settings.yprefix && settings.ysuffix) {
+                yPrefixText = settings.yprefix;
+                var prefixLength = 0;
+                plotArea.append("text")
+                        .style("font-size","12px")
+                        .style("font-family", "sans-serif")
+                        .text(settings.yprefix)
+                        .each(function() {
+                            prefixLength = this.getComputedTextLength();
+                        })
+                        .remove();
+                left_margin = left_margin + prefixLength;
+            }
+        } else {
+            if (settings.prefix && settings.suffix) {
+                yPrefixText = settings.prefix;
+                var prefixLength = 0;
+                plotArea.append("text")
+                        .style("font-size","12px")
+                        .style("font-family", "sans-serif")
+                        .text(settings.prefix)
+                        .each(function() {
+                            prefixLength = this.getComputedTextLength();
+                        })
+                        .remove();
+                left_margin = left_margin + prefixLength;
+            }
         }
 
         plotMargin = {top: viewerHeight*0.1, right: 10 + param.sdBarWidth,
@@ -1004,17 +1029,19 @@ function PalmPlot() {
                     .ticks(nticks)
                     .tickFormat(function(d) {
                         if (yaxisFormat === 0) {
-                            if (settings.prefix && settings.suffix) {
+                            return yPrefixText + commasFormatter(d);
+                            /*if (settings.prefix && settings.suffix) {
                                 return settings.prefix + commasFormatter(d);
                             } else {
                                 return commasFormatter(d);
-                            }
+                            }*/
                         } else if (yaxisFormat === 1) {
-                            if (settings.prefix && settings.suffix) {
+                            return yPrefixText + commasFormatterE(d);
+                            /*if (settings.prefix && settings.suffix) {
                                 return settings.prefix + commasFormatterE(d);
                             } else {
                                 return commasFormatterE(d);
-                            }
+                            }*/
                         }
                     });
 
@@ -1076,8 +1103,33 @@ function PalmPlot() {
             for (i = 0; i < rowNames.length; i++) {
                 var atip = "";
                 atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
-                atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i] + "</th>";
-
+                atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
+                if (settings.barHeights) {
+                    atip = atip + " - " + settings.ylab + " ";
+                    if (settings.yprefix) {
+                        atip = atip + settings.yprefix + sums[i].toFixed(2);
+                    } else {
+                        atip = atip + sums[i].toFixed(2);
+                    }
+                    if (settings.ysuffix) {
+                        atip = atip + settings.ysuffix;
+                    }
+                } else {
+                    atip = atip + " -";
+                    if (settings.ylab) {
+                        atip = atip + " " + settings.ylab;
+                    }
+                    atip = atip + " ";
+                    if (settings.prefix) {
+                        atip = atip + settings.prefix + sums[i].toFixed(2);
+                    } else {
+                        atip = atip + sums[i].toFixed(2);
+                    }
+                    if (settings.suffix) {
+                        atip = atip + settings.suffix;
+                    }
+                }
+                atip = atip  + "</th>";
                 for (j = 0; j < colNames.length; j++) {
                     atip = atip + "<tr>";
                     // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(2) : 0;
@@ -1374,17 +1426,32 @@ function PalmPlot() {
         }
         rowNames1.sort();
 
-        if (settings.prefix || settings.suffix) {
-            if (!settings.suffix) {
-                plotArea.append("text")
-                    .attr("class", "suffixText")
-                    .text(settings.prefix);
-            } else {
-                plotArea.append("text")
-                    .attr("class", "suffixText")
-                    .text(settings.suffix);
+        if (settings.barHeights) {
+            if (settings.yprefix || settings.ysuffix) {
+                if (!settings.ysuffix) {
+                    plotArea.append("text")
+                        .attr("class", "suffixText")
+                        .text(settings.yprefix);
+                } else {
+                    plotArea.append("text")
+                        .attr("class", "suffixText")
+                        .text(settings.ysuffix);
+                }
+                update_unit_position();
             }
-            update_unit_position();
+        } else {
+            if (settings.prefix || settings.suffix) {
+                if (!settings.suffix) {
+                    plotArea.append("text")
+                        .attr("class", "suffixText")
+                        .text(settings.prefix);
+                } else {
+                    plotArea.append("text")
+                        .attr("class", "suffixText")
+                        .text(settings.suffix);
+                }
+                update_unit_position();
+            }
         }
 
         updatePlot(duration);

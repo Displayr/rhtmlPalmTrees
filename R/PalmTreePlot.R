@@ -98,6 +98,8 @@ PalmTreePlot <- function(
         rowHeading = row.heading,
         colHeading = col.heading,
         ylab = y.lab,
+        yprefix = y.prefix,
+        ysuffix = y.suffix,
         tooltips = tooltips,
         colors = colors,
         barHeights = bar.heights,
