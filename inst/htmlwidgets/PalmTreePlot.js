@@ -472,7 +472,7 @@ function PalmPlot() {
                     baseSvg.selectAll(".sideBarText")
                     .transition()
                     .duration(dur)
-                    .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarColorBarsW)
+                    .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarHoverColorBarsW)
                     .attr("y", param.sdBarHoverElemH/2)
                     .style("font-size", param.sdBarHoverFontSize + "px");
 
@@ -565,7 +565,7 @@ function PalmPlot() {
                     .transition()
                     .duration(dur)
                     .attr("x", param.sdBarPadding + param.sdBarLeafR*2 + 0.5)
-                    .attr("width", param.sdBarHoverColorBarsW - 1)
+                    .attr("width", param.sdBarColorBarsW - 1)
                     .attr("height", param.sdBarColorBarsH - 1);
 
                     baseSvg.selectAll(".sideBarText")
