@@ -17,7 +17,7 @@ qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
              grDevices::rgb(255, 35, 35, 255, max = 255)) # red
 
 colorVec = substring(qColors,1,7)
-
+colorVec = rep("#000",11)
 CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.1916, 0.284, 0.3514, 0.2534, 0.2089,
                            c( 0.0198, 0.4604, 0.2151, 0.5235, 0.1151, 0.12, 0.5457, 0.3041, 0.06312, 0.384, 0.06064),
                            c( 0.01114, 0.4111, 0.1904, 0.4494, 0.06931, 0.1112, 0.4716, 0.2859, 0.0495, 0.3296, 0.03837),
@@ -38,7 +38,7 @@ CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.191
                            c( 0.06807, 0.1089, 0.06064, 0.0198, 0.1174, 0.04084, 0.01609, 0.01733, 0.03465, 0.01361, 0.03589),
                            c( 0.08168, 0.224, 0.1015, 0.04579, 0.04815, 0.04084, 0.03094, 0.05562, 0.05322, 0.04084, 0.02847)),nrow=8,byrow=TRUE,
                          dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'A very very long brand name','Fanta','Lift','Pepsi'),
-                                       Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshessssssssssssssssss', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
+                                       Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshesssssssssssssssssssssssss', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
 
 
 set.seed(123)
@@ -52,7 +52,7 @@ weights = rep(1,ncol(CSDperceptions))
 # test case 1: long column names, short heading
 # col.names = description[[2]]
 # test case 2: short column names, long heading
-# col.names = c("A","B","C","D","E","F","G","H","I","J","H")
+col.names = c("A","B","C","D","E","F","G","H","I","J","H")
 
 ### testing row and column names in a different language
 # row.heading = "品牌"
@@ -154,4 +154,7 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.heading = names(dimnames(CS
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
                            colors = colorVec)
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
+                           colors = colorVec)
+
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.names = col.names,
                            colors = colorVec)

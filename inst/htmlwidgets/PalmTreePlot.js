@@ -16,6 +16,7 @@ function PalmPlot() {
         sums = [],
         barData = [],
         frondData = [],
+        sdBarLeafData = [],
         i,
         j,
         tempSum,
@@ -50,7 +51,9 @@ function PalmPlot() {
         xFontSize = 12,
         initR = [],
         yPrefixText = "",
-        leaves;
+        leaves,
+        sdBarPalms,
+        sdBarLeaves;
     var commasFormatter = d3.format(",.1f");
     var commasFormatterE = d3.format(",.1e");
 
@@ -146,7 +149,7 @@ function PalmPlot() {
         for (j = 0; j < colNames.length; j++) {
             if (selectedCol[j] < 0.5) {
                 frondData[i].leaves[j] =  [{x:0, y:0},
-                                    {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.04},
+                                    {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.03},
                                     {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
                                     {x:radialScale(normData[i][j]), y:0},
                                     {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
@@ -191,7 +194,9 @@ function PalmPlot() {
         param.sdBarHdFontSize = param.sdBarFontSize + 2;
         param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
         param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
-        param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarPadding;
+        param.sdBarColorBarsH = param.sdBarElemH - 2*param.sdBarPadding;
+        param.sdBarColorBarsW = Math.round(param.sdBarColorBarsH*0.6);
+        param.sdBarLeafR = (param.sdBarElemH - 2)/2;
 
         param.sdBarHdY = param.sdBarHdH/2;
         param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
@@ -205,7 +210,7 @@ function PalmPlot() {
                     param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
                 });
 
-        param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW);
+        param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW + param.sdBarLeafR*2);
         param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
 
         while (param.sdBarFontSize > 1 &&
@@ -215,7 +220,8 @@ function PalmPlot() {
             param.sdBarHdFontSize = param.sdBarFontSize + 2;
             param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
             param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
-            param.sdBarColorBarsW = param.sdBarElemH - 2*param.sdBarPadding;
+            param.sdBarColorBarsH = param.sdBarElemH - 2*param.sdBarPadding;
+            param.sdBarColorBarsW = Math.round(param.sdBarColorBarsH*0.6);
 
             param.sdBarHdY = param.sdBarHdH/2;
             param.sdBarColorBarsY = param.sdBarHdH + param.sdBarPadding;
@@ -227,20 +233,23 @@ function PalmPlot() {
                     param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
                 });
 
-            param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW);
+            param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW + param.sdBarLeafR*2);
             param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
         }
 
+        // account for heading
         baseSvg.select(".sdBarHeading")
                 .style("font-size", param.sdBarHdFontSize + "px")
                 .each(function(d) {
                     param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), param.sdBarMaxTextWidth);
                 });
 
+        // if heading is too long
         if (param.sdBarMaxTextWidth + 2*param.sdBarPadding > param.sdBarWidth) {
             param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 2*param.sdBarPadding);
         }
 
+        // reduce heading font size
         while (param.sdBarWidth > param.sdBarMaxWidth) {
             param.sdBarHdFontSize = param.sdBarHdFontSize - 1;
             param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
@@ -259,7 +268,19 @@ function PalmPlot() {
 
         param.sdBarX = viewerWidth - param.sdBarOuterMargin - param.sdBarWidth - 0.5;
         param.sdBarElemW = param.sdBarWidth;
-
+        param.sdBarLeafR = (param.sdBarElemH - 2)/2;
+        for (i = 0; i < colNames.length; i++) {
+            for (j = 0; j < colNames.length; j++) {
+                sdBarLeafData[i].leaves[j] =  [{x:0, y:0, color:colors[i], index: i},
+                                {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
+                                {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
+                                {x:param.sdBarLeafR, y:0},
+                                {x:param.sdBarLeafR*0.75, y:param.sdBarLeafR*0.13},
+                                {x:param.sdBarLeafR*0.25, y:param.sdBarLeafR*0.07}];
+            }
+        }
+        sdBarPalms.data(sdBarLeafData);
+        sdBarLeaves.data(function(d) {return d.leaves;});
         // transform the object into position
         baseSvg.select("#g_sideBarDisp").attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
         baseSvg.select("#g_sdBarControl").attr("transform", "translate(" + param.sdBarX + "," + param.sdBarY + ")");
@@ -270,15 +291,6 @@ function PalmPlot() {
                 .attr("width",param.sdBarWidth + "px")
                 .attr("height",param.sdBarHeight + "px");
 
-        // column names
-        baseSvg.selectAll(".sideBarText")
-                .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW)
-                .attr("y", function(d,i) {
-                    return param.sdBarHdH + i*param.sdBarElemH + param.sdBarElemH/2;
-                })
-                .style("fill", function(d,i) {
-                    return selectedCol[i] === 0 ? "#ccc" : "#000";
-                });
 
         // heading
         baseSvg.select(".sdBarHeading")
@@ -286,21 +298,37 @@ function PalmPlot() {
                 .attr("y", param.sdBarHdY)
                 .style("font-size", param.sdBarHdFontSize );
 
+        baseSvg.selectAll(".sdBarElem")
+                .attr("transform", function(d,i) {
+                    return "translate(" + 0 + "," + (param.sdBarHdH + i*param.sdBarElemH) + ")";
+                });
+
+        // column names
+        baseSvg.selectAll(".sideBarText")
+                .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarColorBarsW)
+                .attr("y", param.sdBarElemH/2)
+                .style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : "#000";
+                });
+
+        baseSvg.selectAll(".sideBarFrond")
+                .attr("transform", "translate(" + param.sdBarElemH/2 + "," + param.sdBarElemH/2 + ")")
+                .selectAll("path")
+                .attr("d", line);
+
         // column colors
         baseSvg.selectAll(".sideBarColorBox")
-                .attr("x", param.sdBarPadding + 0.5)
-                .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH + 0.5})
+                .attr("x", param.sdBarPadding + param.sdBarLeafR*2 + 0.5)
+                .attr("y", param.sdBarPadding + 0.5)
                 .attr("width", param.sdBarColorBarsW - 1)
-                .attr("height", param.sdBarColorBarsW - 1)
+                .attr("height", param.sdBarColorBarsH - 1)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : colors[i];
                 });
 
         baseSvg.selectAll(".sideBarElemRect")
                 .attr("x", 0)
-                .attr("y", function(d,i) {
-                    return param.sdBarHdH + i*param.sdBarElemH;
-                })
+                .attr("y", 0)
                 .attr("width", param.sdBarElemW + "px")
                 .attr("height", param.sdBarElemH + "px");
 
@@ -309,6 +337,7 @@ function PalmPlot() {
         param.sdBarHoverFontSize = param.sdBarFontSize;
         param.sdBarHoverElemH = param.sdBarElemH;
         param.sdBarHoverColorBarsW = param.sdBarColorBarsW;
+        param.sdBarHoverColorBarsH = param.sdBarColorBarsH;
         param.sdBarHoverColorBarsY = param.sdBarColorBarsY;
         param.sdBarHoverHeight = param.sdBarHeight;
         while (param.sdBarHoverFontSize > 1 &&
@@ -316,7 +345,8 @@ function PalmPlot() {
 
             param.sdBarHoverFontSize = param.sdBarHoverFontSize - 1;
             param.sdBarHoverElemH = param.sdBarHoverFontSize * param.sdBarHdivF;
-            param.sdBarHoverColorBarsW = param.sdBarHoverElemH - 2*param.sdBarPadding;
+            param.sdBarHoverColorBarsH = param.sdBarHoverElemH - 2*param.sdBarPadding;
+            param.sdBarHoverColorBarsW = Math.round(param.sdBarHoverColorBarsH*0.6);
 
             param.sdBarHoverColorBarsY = param.sdBarHdH + param.sdBarPadding;
             param.sdBarHoverHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarHoverElemH);
@@ -398,30 +428,52 @@ function PalmPlot() {
         var dur = 200;
         baseSvg.select("#g_sideBar")
                 .on("mouseenter", function() {
+                    param.sdBarLeafR = (param.sdBarHoverElemH - 2)/2;
+                    for (i = 0; i < colNames.length; i++) {
+                        for (j = 0; j < colNames.length; j++) {
+                            sdBarLeafData[i].leaves[j] =  [{x:0, y:0, color:colors[i], index: i},
+                                            {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
+                                            {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
+                                            {x:param.sdBarLeafR, y:0},
+                                            {x:param.sdBarLeafR*0.75, y:param.sdBarLeafR*0.13},
+                                            {x:param.sdBarLeafR*0.25, y:param.sdBarLeafR*0.07}];
+                        }
+                    }
+                    sdBarPalms.data(sdBarLeafData);
+                    sdBarLeaves.data(function(d) {return d.leaves;});
+
+                    baseSvg.selectAll(".sdBarElem")
+                    .transition()
+                    .duration(dur)
+                    .attr("transform", function(d,i) {
+                        return "translate(" + 0 + "," + (param.sdBarHdH + i*param.sdBarHoverElemH) + ")";
+                    });
 
                     baseSvg.selectAll(".sideBarElemRect")
                     .transition()
                     .duration(dur)
-                    .attr("y", function(d,i) {
-                        return param.sdBarHdH + i*param.sdBarHoverElemH;
-                    })
                     .attr("width", param.sdBarHoverElemW + "px")
                     .attr("height", param.sdBarHoverElemH + "px");
+
+                    baseSvg.selectAll(".sideBarFrond")
+                    .transition()
+                    .duration(dur)
+                    .attr("transform", "translate(" + param.sdBarHoverElemH/2 + "," + param.sdBarHoverElemH/2 + ")")
+                    .selectAll("path")
+                    .attr("d", line);
 
                     baseSvg.selectAll(".sideBarColorBox")
                     .transition()
                     .duration(dur)
-                    .attr("y", function(d,i) { return param.sdBarHoverColorBarsY + i*param.sdBarHoverElemH + 0.5; })
+                    .attr("x", param.sdBarPadding + param.sdBarLeafR*2 + 0.5)
                     .attr("width", param.sdBarHoverColorBarsW - 1)
-                    .attr("height", param.sdBarHoverColorBarsW - 1);
+                    .attr("height", param.sdBarHoverColorBarsH - 1);
 
                     baseSvg.selectAll(".sideBarText")
                     .transition()
                     .duration(dur)
-                    .attr("x", 2*param.sdBarPadding + param.sdBarHoverColorBarsW)
-                    .attr("y", function(d,i) {
-                        return param.sdBarHdH + i*param.sdBarHoverElemH + param.sdBarHoverElemH/2;
-                    })
+                    .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarColorBarsW)
+                    .attr("y", param.sdBarHoverElemH/2)
                     .style("font-size", param.sdBarHoverFontSize + "px");
 
                     baseSvg.select(".sideBar")
@@ -475,29 +527,52 @@ function PalmPlot() {
                 })
                 .on("mouseleave", function() {
 
+                    param.sdBarLeafR = (param.sdBarElemH - 2)/2;
+                    for (i = 0; i < colNames.length; i++) {
+                        for (j = 0; j < colNames.length; j++) {
+                            sdBarLeafData[i].leaves[j] =  [{x:0, y:0, color:colors[i], index: i},
+                                            {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
+                                            {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
+                                            {x:param.sdBarLeafR, y:0},
+                                            {x:param.sdBarLeafR*0.75, y:param.sdBarLeafR*0.13},
+                                            {x:param.sdBarLeafR*0.25, y:param.sdBarLeafR*0.07}];
+                        }
+                    }
+                    sdBarPalms.data(sdBarLeafData);
+                    sdBarLeaves.data(function(d) {return d.leaves;});
+
+                    baseSvg.selectAll(".sdBarElem")
+                    .transition()
+                    .duration(dur)
+                    .attr("transform", function(d,i) {
+                        return "translate(" + 0 + "," + (param.sdBarHdH + i*param.sdBarElemH) + ")";
+                    });
+
                     baseSvg.selectAll(".sideBarElemRect")
                     .transition()
                     .duration(dur)
-                    .attr("y", function(d,i) {
-                        return param.sdBarHdH + i*param.sdBarElemH;
-                    })
                     .attr("width", param.sdBarElemW + "px")
                     .attr("height", param.sdBarElemH + "px");
+
+                    baseSvg.selectAll(".sideBarFrond")
+                    .transition()
+                    .duration(dur)
+                    .attr("transform", "translate(" + param.sdBarElemH/2 + "," + param.sdBarElemH/2 + ")")
+                    .selectAll("path")
+                    .attr("d", line);
 
                     baseSvg.selectAll(".sideBarColorBox")
                     .transition()
                     .duration(dur)
-                    .attr("y", function(d,i) { return param.sdBarColorBarsY + i*param.sdBarElemH + 0.5;})
-                    .attr("width", param.sdBarColorBarsW - 1)
-                    .attr("height", param.sdBarColorBarsW - 1);
+                    .attr("x", param.sdBarPadding + param.sdBarLeafR*2 + 0.5)
+                    .attr("width", param.sdBarHoverColorBarsW - 1)
+                    .attr("height", param.sdBarColorBarsH - 1);
 
                     baseSvg.selectAll(".sideBarText")
                     .transition()
                     .duration(dur)
-                    .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW)
-                    .attr("y", function(d,i) {
-                        return param.sdBarHdH + i*param.sdBarElemH + param.sdBarElemH/2;
-                    })
+                    .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarColorBarsW)
+                    .attr("y", param.sdBarElemH/2)
                     .style("font-size", param.sdBarFontSize + "px");
 
                     baseSvg.selectAll(".sdBarAllRect")
@@ -689,6 +764,11 @@ function PalmPlot() {
 
     function chart(selection){
 
+        line = d3.svg.line()
+                    .interpolate("cardinal-closed")
+                    .x(function(d) { return d.x; })
+                    .y(function(d) { return d.y; });
+
         var baseSvg = selection.select("svg");
 
         /* create the side bar */
@@ -755,14 +835,50 @@ function PalmPlot() {
                 .attr("dy", "0.35em")
                 .text(settings.colHeading);
 
-        var sdBarElem = sdBarDisp.selectAll("sdBar.g")
-                        .data(colNames);
-        var sdBarElemEnter = sdBarElem.enter()
-                            .append("g");
+        for (i = 0; i < colNames.length; i++) {
+            var sdBarLeafDatum = {};
+            var sdBarLeaf = [];
+            for (j = 0; j < colNames.length; j++) {
+                sdBarLeaf.push( [{x:0, y:0, color:colors[i], index: i},
+                                {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
+                                {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
+                                {x:param.sdBarLeafR, y:0},
+                                {x:param.sdBarLeafR*0.75, y:param.sdBarLeafR*0.13},
+                                {x:param.sdBarLeafR*0.25, y:param.sdBarLeafR*0.07}]);
+            }
+            sdBarLeafDatum = {leaves: sdBarLeaf, colName: colNames[i], color:colors[i], index: i};
+            sdBarLeafData.push(sdBarLeafDatum);
+        }
+
+        sdBarPalms = sdBarDisp.selectAll("sdBar.g")
+                        .data(sdBarLeafData);
+        var sdBarElemEnter = sdBarPalms.enter()
+                            .append("g")
+                            .attr("class", "sdBarElem");
 
         sdBarElemEnter.append("rect")
                     .attr("class","sideBarElemRect")
                     .attr("id", function(d,i) { return "sbRect" + i;});
+
+        sdBarLeaves = sdBarElemEnter.append("g")
+                    .attr("class", "sideBarFrond")
+                    .attr("id", function(d,i) { return "sbFrond" + i;})
+                    .selectAll(".le")
+                    .data(function(d) { return d.leaves});
+
+        sdBarLeaves.enter()
+                    .append("path")
+                    .attr("d", line)
+                    .attr("transform", function(d,i) {
+                        return "rotate(" + (i*360/ncol - 90) + ")";
+                    })
+                    .style("fill", function(d,i) {
+                        if (d[0].index == i) {
+                            return "#000";
+                        } else {
+                            return "#ccc";
+                        }
+                    });
 
         sdBarElemEnter.append("rect")
                 .attr("class", "sideBarColorBox")
@@ -772,7 +888,7 @@ function PalmPlot() {
                 .attr("class", "sideBarText")
                 .attr("id", function(d,i) { return "sbTxt" + i;})
                 .attr("dy", "0.35em")
-                .text(function(d) { return d;});
+                .text(function(d) { return d.colName;});
 
         update_sidebar(baseSvg);
 
@@ -928,7 +1044,7 @@ function PalmPlot() {
                     .rangeRoundBands([0, plotWidth], 0.1, 0.3);
 
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4), 60);
-        radialScale = d3.scale.linear()
+        radialScale = d3.scale.sqrt()
                         .domain([minVal, maxVal])
                         .range([minLeafWidth, param.maxLeafWidth]);
 
@@ -1069,10 +1185,6 @@ function PalmPlot() {
 
         leavesEnter = leaves.enter().append("path");
 
-        line = d3.svg.line()
-                    .interpolate("cardinal-closed")
-                    .x(function(d) { return d.x; })
-                    .y(function(d) { return d.y; });
         leavesEnter.attr("d", line);
 
         plotArea.selectAll(".leaf")

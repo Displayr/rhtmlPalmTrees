@@ -30,9 +30,10 @@ CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.191
 set.seed(123)
 weights = rep(1,ncol(CSDperceptions))
 
-prefix = "A$"
-suffix = "/min"
+prefix = "$"
+suffix = "million"
 
+# plot mode 1: sums as heights
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
@@ -45,32 +46,18 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            tooltips = TRUE,
                            colors = colorVec)
 
-# plot mode 2: constant height
-# use 1 column of data as heights, specifying y label
+# plot mode 2: constant heights
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
                            col.names = colnames(CSDperceptions),
                            col.heading = names(dimnames(CSDperceptions))[2],
-                           y.lab = "Market value",
+                           y.lab = "Market share",
                            prefix = prefix,
                            suffix = suffix,
-                           y.prefix = "$",
-                           y.suffix = "M",
-                           tooltips = TRUE,
-                           colors = colorVec,
-                           column.as.heights = 1)
-
-# use 1 column of data as heights, y label defaults to the column name
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
-                           weights = weights,
-                           row.names = rownames(CSDperceptions),
-                           row.heading = names(dimnames(CSDperceptions))[1],
-                           col.names = colnames(CSDperceptions),
-                           col.heading = names(dimnames(CSDperceptions))[2],
-                           prefix = prefix,
-                           suffix = suffix,
+                           y.prefix = "",
+                           y.suffix = "%",
                            tooltips = TRUE,
                            colors = colorVec,
                            column.as.heights = 1)
