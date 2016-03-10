@@ -22,14 +22,18 @@ table, th, td {
 }
 
 th {
+    background-color: steelblue;
     padding: 2px;
     font-size: 13px;
+}
+
+tr {
+    background-color: white;
 }
 
 td {
     font-size: 11px;
     padding: 2px;
-    background-color: white;
     color: #000;
 }
 
@@ -241,6 +245,7 @@ td {
 
 .ghostCircle {
     fill: transparent;
-    stroke: none;
-    cursor: pointer;
+    stroke: transparent;
+    stroke-width: 1px;
+    cursor: default;
 }
