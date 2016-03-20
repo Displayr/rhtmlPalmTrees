@@ -1811,14 +1811,14 @@ function PalmPlot() {
 
     chart.width = function(value) {
         // width getter/setter
-        if (!arguments.length) return width;
+        if (!arguments.length) return viewerWidth;
         viewerWidth = value;
         return chart;
     };
 
     // height getter/setter
     chart.height = function(value) {
-        if (!arguments.length) return height;
+        if (!arguments.length) return viewerHeight;
         viewerHeight = value;
         return chart;
     };
