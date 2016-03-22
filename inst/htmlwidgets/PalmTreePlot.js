@@ -17,14 +17,11 @@ function PalmPlot() {
         barData = [],
         frondData = [],
         sdBarLeafData = [],
-        i,
-        j,
-        jj,
         tempSum,
         maxVal,
         minVal,
         rindices,
-        colSort = "0",
+        colSort = "3",
         duration = 600,
         maxSum = 0,
         nticks = 10,
@@ -70,10 +67,10 @@ function PalmPlot() {
     // update date on resize, column toggle and initialization
     function update_data() {
 
-        for (i = 0; i < rowNames.length; i++) {
+        for (var i = 0; i < rowNames.length; i++) {
              barData[i].value = sums[i];
              frondData[i].value = sums[i];
-            for (j = 0; j < colNames.length; j++) {
+            for (var j = 0; j < colNames.length; j++) {
                 if (selectedCol[j] < 0.5) {
                     frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
                                         {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.03},
@@ -127,7 +124,7 @@ function PalmPlot() {
 
         i = d.index;
         var s = 1.1;
-        for (j = 0; j < colNames.length; j++) {
+        for (var j = 0; j < colNames.length; j++) {
             if (selectedCol[j] < 0.5) {
                 frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
                                     {x:radialScale(normData[i][j])*0.25*s, y:-radialScale(normData[i][j])*0.03*s},
@@ -153,7 +150,7 @@ function PalmPlot() {
         tip.hide(d);
         d3.select("#littleTriangle").style("visibility", "hidden");
         i = d.index;
-        for (j = 0; j < colNames.length; j++) {
+        for (var j = 0; j < colNames.length; j++) {
             if (selectedCol[j] < 0.5) {
                 frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
                                     {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.03},
@@ -301,8 +298,8 @@ function PalmPlot() {
         param.sdBarX = viewerWidth - param.sdBarOuterMargin - param.sdBarWidth - 0.5;
         param.sdBarElemW = param.sdBarWidth;
         param.sdBarLeafR = (param.sdBarElemH - 2)/2;
-        for (i = 0; i < colNames.length; i++) {
-            for (j = 0; j < colNames.length; j++) {
+        for (var i = 0; i < colNames.length; i++) {
+            for (var j = 0; j < colNames.length; j++) {
                 sdBarLeafData[i].leaves[j] =  [{x:0, y:0, color:colors[i], index: i},
                                 {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
                                 {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
@@ -461,8 +458,8 @@ function PalmPlot() {
         baseSvg.select("#g_sideBar")
                 .on("mouseenter", function() {
                     param.sdBarLeafR = (param.sdBarHoverElemH - 2)/2;
-                    for (i = 0; i < colNames.length; i++) {
-                        for (j = 0; j < colNames.length; j++) {
+                    for (var i = 0; i < colNames.length; i++) {
+                        for (var j = 0; j < colNames.length; j++) {
                             sdBarLeafData[i].leaves[j] =  [{x:0, y:0, color:colors[i], index: i},
                                             {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
                                             {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
@@ -560,8 +557,8 @@ function PalmPlot() {
                 .on("mouseleave", function() {
 
                     param.sdBarLeafR = (param.sdBarElemH - 2)/2;
-                    for (i = 0; i < colNames.length; i++) {
-                        for (j = 0; j < colNames.length; j++) {
+                    for (var i = 0; i < colNames.length; i++) {
+                        for (var j = 0; j < colNames.length; j++) {
                             sdBarLeafData[i].leaves[j] =  [{x:0, y:0, color:colors[i], index: i},
                                             {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
                                             {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
@@ -857,7 +854,7 @@ function PalmPlot() {
                 .attr("dy", "0.35em")
                 .text("Order");
 
-        var sortText = ["Original", "Alphabetical", "Lowest to Highest", "Highest to Lowest"];
+        var sortText = ["Original", "Alphabetical", "Ascending", "Descending"];
         var sdBarCtrlEnter = sdBarCtrl.selectAll("g.span")
                 .data(sortText)
                 .enter()
@@ -882,10 +879,10 @@ function PalmPlot() {
                 .attr("dy", "0.35em")
                 .text(settings.colHeading);
 
-        for (i = 0; i < colNames.length; i++) {
+        for (var i = 0; i < colNames.length; i++) {
             var sdBarLeafDatum = {};
             var sdBarLeaf = [];
-            for (j = 0; j < colNames.length; j++) {
+            for (var j = 0; j < colNames.length; j++) {
                 sdBarLeaf.push( [{x:0, y:0, color:colors[i], index: i},
                                 {x:param.sdBarLeafR*0.25, y:-param.sdBarLeafR*0.07},
                                 {x:param.sdBarLeafR*0.75, y:-param.sdBarLeafR*0.13},
@@ -974,7 +971,7 @@ function PalmPlot() {
             } else {
                 val = 0;
             }
-            for (i = 0; i < colNames.length; i++) {
+            for (var i = 0; i < colNames.length; i++) {
                 selectedCol[i] = val;
             }
             updatePlot(duration);
@@ -1046,8 +1043,22 @@ function PalmPlot() {
                     d3.event.stopPropagation();
                 });
 
-        sdBarCtrl.select("#sortC0").style("fill", "steelblue").style("stroke","steelblue");
-        sdBarCtrl.select("#sortT0").style("fill", "#000");
+        switch (settings.order) {
+            case "original":
+                colSort = "0";
+                break;
+            case "alphabetical":
+                colSort = "1";
+                break;
+            case "ascending":
+                colSort = "2";
+                break;
+            case "descending":
+                colSort = "3";
+                break;
+        }
+        sdBarCtrl.select("#sortC" + colSort).style("fill", "steelblue").style("stroke","steelblue");
+        sdBarCtrl.select("#sortT" + colSort).style("fill", "#000");
         sdBarCtrl.selectAll(".sideBarElemSortRect").on("click", clickSort);
 
 
@@ -1127,10 +1138,10 @@ function PalmPlot() {
                         .domain([minVal, maxVal])
                         .range([minLeafWidth, param.maxLeafWidth]);
 
-        for (i = 0; i < rowNames.length; i++) {
+        for (var i = 0; i < rowNames.length; i++) {
             var frondDatum = {};
             var leafData = [];
-            for (j = 0; j < colNames.length; j++) {
+            for (var j = 0; j < colNames.length; j++) {
                 leafData.push( [{x:0, y:0, i:i, j:j},
                                 {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
                                 {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
@@ -1143,7 +1154,7 @@ function PalmPlot() {
             frondData.push(frondDatum);
         }
 
-        for (i = 0; i < rowNames.length; i++) {
+        for (var i = 0; i < rowNames.length; i++) {
             barData.push({name: rowNames[i], value: sums[i], index: i});
         }
 
@@ -1277,7 +1288,7 @@ function PalmPlot() {
             var tb_len, k, aligntext, val;
             tb_len = 3;
             //if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
-            for (i = 0; i < rowNames.length; i++) {
+            for (var i = 0; i < rowNames.length; i++) {
                 var atip = "";
                 atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
                 atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
@@ -1307,7 +1318,7 @@ function PalmPlot() {
                     }
                 }
                 atip = atip  + "</th>";
-                for (j = 0; j < colNames.length; j++) {
+                for (var j = 0; j < colNames.length; j++) {
                     atip = atip + "<tr>";
                     // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(2) : 0;
                     val = data[i][j].toFixed(2);
@@ -1364,9 +1375,9 @@ function PalmPlot() {
             tb_len = 3;
             leafTips = [];
             //if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
-            for (i = 0; i < rowNames.length; i++) {
+            for (var i = 0; i < rowNames.length; i++) {
                 var tempTips = [];
-                for (jj = 0; jj < colNames.length; jj++) {
+                for (var jj = 0; jj < colNames.length; jj++) {
                     var atip = "";
                     atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
                     atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
@@ -1396,7 +1407,7 @@ function PalmPlot() {
                         }
                     }
                     atip = atip  + "</th>";
-                    for (j = 0; j < colNames.length; j++) {
+                    for (var j = 0; j < colNames.length; j++) {
                         if (j === jj) {
                             atip = atip + "<tr style ='background-color:#eee'>";
                         } else {
@@ -1550,7 +1561,7 @@ function PalmPlot() {
 
             } else if (colSort == "1") {
                 // alphabetical
-                for (i = 0; i < rowNames.length; i++) {
+                for (var i = 0; i < rowNames.length; i++) {
                     rowNamesTemp.push(rowNames[i]);
                 }
                 rindices = sortWithIndices(rowNamesTemp,0);
@@ -1561,7 +1572,7 @@ function PalmPlot() {
             } else if (colSort == "2") {
                 // low to high
 
-                for (i = 0; i < rowNames.length; i++) {
+                for (var i = 0; i < rowNames.length; i++) {
                     sumsTemp.push(sums[i]);
                 }
                 rindices = sortWithIndices(sumsTemp,0);
@@ -1572,7 +1583,7 @@ function PalmPlot() {
             } else if (colSort == "3") {
                 // high to low
 
-                for (i = 0; i < rowNames.length; i++) {
+                for (var i = 0; i < rowNames.length; i++) {
                     sumsTemp.push(sums[i]);
                 }
                 rindices = sortWithIndices(sumsTemp,1);
@@ -1616,9 +1627,9 @@ function PalmPlot() {
         // update plot when something is clicked
         function updatePlot(duration) {
 
-            for (i = 0; i < rowNames.length; i++) {
+            for (var i = 0; i < rowNames.length; i++) {
                 sums[i] = 0;
-                for (j = 0; j < colNames.length; j++) {
+                for (var j = 0; j < colNames.length; j++) {
                     sums[i] += selectedCol[j]*data[i][j];
                 }
                 if (settings.barHeights) {
@@ -1702,7 +1713,7 @@ function PalmPlot() {
         // additional stuff
         var rowNames1 = [];
         var rowNames2 = [];
-        for (i = 0; i < rowNames.length; i++) {
+        for (var i = 0; i < rowNames.length; i++) {
             rowNames1.push(rowNames[i]);
         }
         rowNames1.sort();
@@ -1744,12 +1755,12 @@ function PalmPlot() {
         if (!arguments.length) return data;
         data = value;
 
-        for (i = 0; i < colNames.length; i++) {
+        for (var i = 0; i < colNames.length; i++) {
             selectedCol.push(1);
         }
-        for (i = 0; i < rowNames.length; i++) {
+        for (var i = 0; i < rowNames.length; i++) {
             tempSum = 0;
-            for (j = 0; j < colNames.length; j++) {
+            for (var j = 0; j < colNames.length; j++) {
                 data[i][j] = weights[j]*data[i][j];
                 tempSum += selectedCol[j]*data[i][j];
             }
@@ -1768,9 +1779,9 @@ function PalmPlot() {
         // normalize data
         maxVal = 0;
         minVal = 1;
-        for (i = 0; i < rowNames.length; i++) {
+        for (var i = 0; i < rowNames.length; i++) {
             tempNorm = [];
-            for (j = 0; j < colNames.length; j++) {
+            for (var j = 0; j < colNames.length; j++) {
                 tempNorm.push(data[i][j]/maxSum);
             }
             normData.push(tempNorm);
@@ -1796,7 +1807,7 @@ function PalmPlot() {
         }
 
         param.sdBarMaxTxtL = 0;
-        for (i = 0; i < colNames.length; i++) {
+        for (var i = 0; i < colNames.length; i++) {
             param.sdBarMaxTxtL = Math.max(param.sdBarMaxTxtL, colNames[i].length);
         }
 

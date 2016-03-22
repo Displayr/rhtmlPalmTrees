@@ -14,6 +14,7 @@
 #' @param y.prefix prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.
 #' @param y.suffix suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.
 #' @param colors colors of the leaves  (should be optional but now it must be provided)
+#' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".
 #' @param width
 #' @param height
 #'
@@ -34,6 +35,7 @@ PalmTreePlot <- function(
     y.prefix = NULL,
     y.suffix = NULL,
     colors = NULL,
+    order = "descending",
     width = NULL,
     height = NULL) {
 
@@ -103,6 +105,7 @@ PalmTreePlot <- function(
         tooltips = tooltips,
         colors = colors,
         barHeights = bar.heights,
+        order = order,
         prefix = prefix,
         suffix = suffix
     )
