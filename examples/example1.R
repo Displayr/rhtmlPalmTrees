@@ -30,10 +30,22 @@ CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.191
 set.seed(123)
 weights = rep(1,ncol(CSDperceptions))
 
-prefix = "$"
-suffix = "million"
+prefix = ""
+suffix = "%"
 
 # plot mode 1: sums as heights
+PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+                           weights = weights,
+                           row.names = rownames(CSDperceptions),
+                           row.heading = "",
+                           col.names = colnames(CSDperceptions),
+                           col.heading = "",
+                           prefix = prefix,
+                           suffix = suffix,
+                           tooltips = TRUE,
+                           colors = colorVec)
+
+
 PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),

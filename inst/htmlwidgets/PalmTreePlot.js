@@ -4,7 +4,7 @@ function PalmPlot() {
         plotWidth = 400,
         plotHeight = 400,
         left_margin = 35,
-        bottom_margin = 30,
+        bottom_margin = 20,
         yaxisFormat = 0,
         data = [],
         settings = {},
@@ -47,7 +47,7 @@ function PalmPlot() {
         tip,
         minLeafWidth = 10,
         maxXaxisLines = 1,
-        xFontSize = 12,
+        xFontSize = 11,
         initR = [],
         yPrefixText = "",
         leaves,
@@ -59,9 +59,16 @@ function PalmPlot() {
     var commasFormatterE = d3.format(",.1e");
 
 
-    /* TODO: set up default colors */
+    // set up default colors
     function setup_colors() {
-
+        var _tempCol = d3.scale.category20().range();
+        if (colNames.length > _tempCol.length) {
+            var _l = _tempCol.length;
+            for (var i = 0; i < colNames.length - _l; i++) {
+                _tempCol.push(_tempCol[i]);
+            }
+        }
+        return _tempCol;
     }
 
     // update date on resize, column toggle and initialization
@@ -91,7 +98,7 @@ function PalmPlot() {
     }
 
     // create ghost rectangle tooltip
-    function mouse_over_frond(d, sel) {
+    function mouse_over_frond(d, el, sel) {
         var tipRect = sel.select("#ghost" + d.index)[0][0];
         var this_tip = tip.show(d, tipRect);
         var x = Number(sel.select("#ghost" + d.index).attr("x")),
@@ -99,7 +106,76 @@ function PalmPlot() {
             w = Number(sel.select("#ghost" + d.index).attr("width")),
             h = Number(sel.select("#ghost" + d.index).attr("height"));
 
-        if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
+        // height of the tip
+        var tipHeight = parseFloat(this_tip.style("height"));
+        // width of the tip
+        var tipWidth = parseFloat(this_tip.style("width"));
+        // southward and northward tip top y position
+        var tipSouth = y + h + 15 + yscale(d.value) + plotMargin.top;
+        var tipNorth = y - 15 + yscale(d.value) + plotMargin.top;
+
+        if (viewerHeight - tipSouth >= tipHeight) {
+            // southward tip
+            this_tip = this_tip.direction("s").offset([10,0]).show(d, tipRect);
+            d3.select("#littleTriangle")
+            .attr("class", "southTip")
+            .style("visibility", "visible")
+            .style("top", (y + h + 5 + yscale(d.value) + plotMargin.top) + "px")
+            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+
+            if (parseFloat(this_tip.style("left")) < 0) {
+                this_tip.style("left", "5px");
+            } else if (parseFloat(this_tip.style("left")) + tipWidth > param.sdBarX) {
+                this_tip.style("left", (param.sdBarX - 5 - tipWidth) + "px");
+            }
+
+        } else if (tipNorth - tipHeight >= 0) {
+            // northward tip
+            this_tip = this_tip.direction("n").offset([-10,0]).show(d, tipRect);
+            d3.select("#littleTriangle")
+            .attr("class", "northTip")
+            .style("visibility", "visible")
+            .style("top", (y - 5 + yscale(d.value) + plotMargin.top) + "px")
+            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+
+            if (parseFloat(this_tip.style("left")) < 0) {
+                this_tip.style("left", "5px");
+            } else if (parseFloat(this_tip.style("left")) + tipWidth > param.sdBarX) {
+                this_tip.style("left", (param.sdBarX - 5 - tipWidth) + "px");
+            }
+
+        } else if (xscale(d.name) + Math.round(xscale.rangeBand()/2) >= plotWidth * 0.5) {
+            // westward tip
+            this_tip = this_tip.direction("w").offset([0,-10]).show(d, tipRect);
+            d3.select("#littleTriangle")
+            .attr("class", "westTip")
+            .style("visibility", "visible")
+            .style("top", (yscale(d.value) + plotMargin.top) + "px")
+            .style("left", (x - 5 + xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+
+            if (parseFloat(this_tip.style("top")) < 0) {
+                this_tip.style("top", "5px");
+            } else if (parseFloat(this_tip.style("top")) + tipHeight > viewerHeight) {
+                this_tip.style("top", viewerHeight - tipHeight - 5 + "px");
+            }
+
+        } else {
+            // eastward tip
+            this_tip = this_tip.direction("e").offset([0,10]).show(d, tipRect);
+            d3.select("#littleTriangle")
+            .attr("class", "eastTip")
+            .style("visibility", "visible")
+            .style("top", (yscale(d.value) + plotMargin.top) + "px")
+            .style("left", (x + w + 5 + xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
+
+            if (parseFloat(this_tip.style("top")) < 0) {
+                this_tip.style("top", "5px");
+            } else if (parseFloat(this_tip.style("top")) + tipHeight > viewerHeight) {
+                this_tip.style("top", viewerHeight - tipHeight - 5 + "px");
+            }
+        }
+
+        /*if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
             this_tip = this_tip.direction("n").offset([-10,0]).show(d, tipRect);
             d3.select("#littleTriangle")
             .attr("class", "northTip")
@@ -119,7 +195,7 @@ function PalmPlot() {
             this_tip.style("left", "5px");
         } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
             this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
-        }
+        }*/
 
 
         i = d.index;
@@ -178,7 +254,60 @@ function PalmPlot() {
         var this_tip = leaf_tip.show(d, tipRect);
         var dPar = el.parentNode.__data__;  // data of parent node
 
-        if (plotMargin.top + yscale(dPar.value) > viewerHeight * 0.5) {
+        var x = Number(sel.select("#ghost" + d[0].i).attr("x")),
+            y = Number(sel.select("#ghost" + d[0].i).attr("y")),
+            w = Number(sel.select("#ghost" + d[0].i).attr("width")),
+            h = Number(sel.select("#ghost" + d[0].i).attr("height"));
+
+        // height of the tip
+        var tipHeight = parseFloat(this_tip.style("height"));
+        // width of the tip
+        var tipWidth = parseFloat(this_tip.style("width"));
+        // southward and northward tip top y position
+        var tipSouth = y + h + 15 + yscale(dPar.value) + plotMargin.top;
+        var tipNorth = y - 15 + yscale(dPar.value) + plotMargin.top;
+
+        if (viewerHeight - tipSouth >= tipHeight) {
+            // southward tip
+            this_tip = this_tip.direction("s").offset([10,0]).show(d, tipRect);
+
+            if (parseFloat(this_tip.style("left")) < 0) {
+                this_tip.style("left", "5px");
+            } else if (parseFloat(this_tip.style("left")) + tipWidth > param.sdBarX) {
+                this_tip.style("left", (param.sdBarX - 5 - tipWidth) + "px");
+            }
+
+        } else if (tipNorth - tipHeight >= 0) {
+            // northward tip
+            this_tip = this_tip.direction("n").offset([-10,0]).show(d, tipRect);
+
+            if (parseFloat(this_tip.style("left")) < 0) {
+                this_tip.style("left", "5px");
+            } else if (parseFloat(this_tip.style("left")) + tipWidth > param.sdBarX) {
+                this_tip.style("left", (param.sdBarX - 5 - tipWidth) + "px");
+            }
+
+        } else if (xscale(dPar.name) + Math.round(xscale.rangeBand()/2) >= plotWidth * 0.5) {
+            // westward tip
+            this_tip = this_tip.direction("w").offset([0,-10]).show(d, tipRect);
+            if (parseFloat(this_tip.style("top")) < 0) {
+                this_tip.style("top", "5px");
+            } else if (parseFloat(this_tip.style("top")) + tipHeight > viewerHeight) {
+                this_tip.style("top", viewerHeight - tipHeight - 5 + "px");
+            }
+
+        } else {
+            // eastward tip
+            this_tip = this_tip.direction("e").offset([0,10]).show(d, tipRect);
+
+            if (parseFloat(this_tip.style("top")) < 0) {
+                this_tip.style("top", "5px");
+            } else if (parseFloat(this_tip.style("top")) + tipHeight > viewerHeight) {
+                this_tip.style("top", viewerHeight - tipHeight - 5 + "px");
+            }
+        }
+
+        /*if (plotMargin.top + yscale(dPar.value) > viewerHeight * 0.5) {
             this_tip = this_tip.direction("n").offset([-10,0]).show(d, tipRect);
         } else {
             this_tip = this_tip.direction("s").offset([10,0]).show(d, tipRect);
@@ -188,7 +317,7 @@ function PalmPlot() {
             this_tip.style("left", "5px");
         } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
             this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
-        }
+        }*/
     }
 
     function mouse_out_leaf(d) {
@@ -750,10 +879,10 @@ function PalmPlot() {
                     .each(function(d) {initR[d.index] = linearRadialScale(d.tipMaxR)});
 
             baseSvg.selectAll(".leaf")
-                    .on('mouseenter', function(d) {
-                        mouse_over_frond(d,baseSvg);
+                    .on('mouseover', function(d) {
+                        mouse_over_frond(d,this,baseSvg);
                     })
-                    .on('mouseleave', function(d) {
+                    .on('mouseout', function(d) {
                         mouse_out_frond(d);
                     });
 
@@ -1081,7 +1210,7 @@ function PalmPlot() {
                 yPrefixText = settings.yprefix;
                 var prefixLength = 0;
                 plotArea.append("text")
-                        .style("font-size","12px")
+                        .style("font-size","11px")
                         .style("font-family", "sans-serif")
                         .text(settings.yprefix)
                         .each(function() {
@@ -1095,7 +1224,7 @@ function PalmPlot() {
                 yPrefixText = settings.prefix;
                 var prefixLength = 0;
                 plotArea.append("text")
-                        .style("font-size","12px")
+                        .style("font-size","11px")
                         .style("font-family", "sans-serif")
                         .text(settings.prefix)
                         .each(function() {
@@ -1290,7 +1419,7 @@ function PalmPlot() {
             //if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
             for (var i = 0; i < rowNames.length; i++) {
                 var atip = "";
-                atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
+                atip = "<table class='tipTable'>";
                 atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
                 if (settings.barHeights) {
                     atip = atip + " - " + settings.ylab + " ";
@@ -1379,7 +1508,7 @@ function PalmPlot() {
                 var tempTips = [];
                 for (var jj = 0; jj < colNames.length; jj++) {
                     var atip = "";
-                    atip = "<table style='margin:0;border-spacing:0px 0;vertical-align:middle;padding:0'>";
+                    atip = "<table class='tipTable'>";
                     atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
                     if (settings.barHeights) {
                         atip = atip + " - " + settings.ylab + " ";
@@ -1501,7 +1630,7 @@ function PalmPlot() {
 
             baseSvg.selectAll(".leaf")
                     .on('mouseover', function(d) {
-                        mouse_over_frond(d,baseSvg);
+                        mouse_over_frond(d,this,baseSvg);
                     })
                     .on('mouseout', function(d) {
                         mouse_out_frond(d);
