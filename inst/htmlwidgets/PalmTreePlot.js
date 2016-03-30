@@ -111,9 +111,9 @@ function PalmPlot() {
         // width of the tip
         var tipWidth = parseFloat(this_tip.style("width"));
         // southward and northward tip top y position
-        var tipSouth = y + h + 15 + yscale(d.value) + plotMargin.top;
-        var tipNorth = y - 15 + yscale(d.value) + plotMargin.top;
-
+        var tipSouth = y + h + 5 + yscale(d.value) + plotMargin.top;
+        var tipNorth = y - 5 + yscale(d.value) + plotMargin.top;
+        console.log(tipNorth);
         if (viewerHeight - tipSouth >= tipHeight) {
             // southward tip
             this_tip = this_tip.direction("s").offset([10,0]).show(d, tipRect);
@@ -264,8 +264,8 @@ function PalmPlot() {
         // width of the tip
         var tipWidth = parseFloat(this_tip.style("width"));
         // southward and northward tip top y position
-        var tipSouth = y + h + 15 + yscale(dPar.value) + plotMargin.top;
-        var tipNorth = y - 15 + yscale(dPar.value) + plotMargin.top;
+        var tipSouth = y + h + 5 + yscale(dPar.value) + plotMargin.top;
+        var tipNorth = y - 5 + yscale(dPar.value) + plotMargin.top;
 
         if (viewerHeight - tipSouth >= tipHeight) {
             // southward tip
