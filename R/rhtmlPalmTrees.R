@@ -20,7 +20,7 @@
 #'
 #' @import htmlwidgets
 #' @export
-rhtmlPalmTrees <- function(
+PalmTrees <- function(
     data = NULL,
     weights = NULL,
     row.names = NULL,

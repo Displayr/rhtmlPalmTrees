@@ -10,7 +10,7 @@ Usage
     weights = rep(1,ncol(CSDperceptions))
     prefix = ""
     suffix = "%"
-    rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
+    rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                                    weights = weights,
                                    row.names = rownames(CSDperceptions),
                                    row.heading = names(dimnames(CSDperceptions))[1],

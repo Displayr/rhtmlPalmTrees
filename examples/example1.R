@@ -34,7 +34,7 @@ prefix = ""
 suffix = "%"
 
 # plot mode 1: sums as heights
-rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
+rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = "",
@@ -47,7 +47,7 @@ rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
 
 
 # plot mode 2: constant heights
-rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
+rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
