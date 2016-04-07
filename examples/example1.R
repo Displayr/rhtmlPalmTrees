@@ -34,7 +34,7 @@ prefix = ""
 suffix = "%"
 
 # plot mode 1: sums as heights
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = "",
@@ -46,20 +46,8 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            colors = colorVec)
 
 
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
-                           weights = weights,
-                           row.names = rownames(CSDperceptions),
-                           row.heading = names(dimnames(CSDperceptions))[1],
-                           col.names = colnames(CSDperceptions),
-                           col.heading = names(dimnames(CSDperceptions))[2],
-                           y.lab = "Market value",
-                           prefix = prefix,
-                           suffix = suffix,
-                           tooltips = TRUE,
-                           colors = colorVec)
-
 # plot mode 2: constant heights
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],

@@ -1,6 +1,6 @@
 
 # library(devtools)
-# install_github("xtmwang/PalmTreePlot")
+# install_github("xtmwang/rhtmlPalmTrees")
 qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
              grDevices::rgb(237, 125, 49, 255, max = 255), # orange
              grDevices::rgb(165, 165, 165, 255, max = 255), # grey
@@ -82,7 +82,7 @@ suffix = "/min"
 
 
 
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
@@ -95,7 +95,7 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            colors = colorVec)
 
 # use 1 column of data as heights, specifying y label
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
@@ -111,7 +111,7 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
                            column.as.heights = 1)
 
 # use 1 column of data as heights, y label defaults to the column name
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            weights = weights,
                            row.names = rownames(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
@@ -125,36 +125,37 @@ PalmTreePlot::PalmTreePlot(data = CSDperceptions,
 
 # test cases
 # prefix suffix ylabel
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions)
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,prefix = prefix,
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,suffix = suffix,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,suffix = suffix,
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,prefix = prefix,suffix = suffix,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,prefix = prefix,suffix = suffix,
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,ylab = "Ylabel Text",
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,ylab = "Ylabel Text",
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,ylab = "Ylabel Text",prefix = prefix,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,ylab = "Ylabel Text",prefix = prefix,
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,ylab = "Ylabel Text",suffix = suffix,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,ylab = "Ylabel Text",suffix = suffix,
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,ylab = "Ylabel Text",prefix = prefix,suffix = suffix,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,ylab = "Ylabel Text",prefix = prefix,suffix = suffix,
                            colors = colorVec)
 
 # row name col names y heading
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,row.names = rownames(CSDperceptions),
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.heading = names(dimnames(CSDperceptions))[1],
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,row.heading = names(dimnames(CSDperceptions))[1],
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.names = colnames(CSDperceptions),
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,col.names = colnames(CSDperceptions),
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.heading = names(dimnames(CSDperceptions))[2],
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,col.heading = names(dimnames(CSDperceptions))[2],
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
                            colors = colorVec)
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,row.names = rownames(CSDperceptions),col.names = colnames(CSDperceptions),
                            colors = colorVec)
 
-PalmTreePlot::PalmTreePlot(data = CSDperceptions,col.names = col.names,
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,col.names = col.names,
                            colors = colorVec)
