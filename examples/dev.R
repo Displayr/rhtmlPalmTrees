@@ -15,6 +15,22 @@ qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
              grDevices::rgb(67, 104, 43, 255, max = 255), # darker green
              grDevices::rgb(255, 255, 255, 255, max = 255), # black
              grDevices::rgb(255, 35, 35, 255, max = 255)) # red
+# qColors = substring(qColors,1,7)
+# save(CSDperceptions, qColors, file = 'data/CSDperceptions.rda')
+data("CSDperceptions", package = "rhtmlPalmTrees")
+weights = rep(1,ncol(CSDperceptions))
+prefix = ""
+suffix = "%"
+rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
+                               weights = weights,
+                               row.names = rownames(CSDperceptions),
+                               row.heading = names(dimnames(CSDperceptions))[1],
+                               col.names = colnames(CSDperceptions),
+                               col.heading = names(dimnames(CSDperceptions))[2],
+                               prefix = prefix,
+                               suffix = suffix,
+                               tooltips = TRUE,
+                               colors = qColors)
 
 colorVec = substring(qColors,1,7)
 colorVec = rep("#000",11)
@@ -65,8 +81,8 @@ col.names = c("A","B","C","D","E","F","G","H","I","J","H")
 prefix = "$$$"
 suffix = "per day day"
 # test case 2: both prefix and suffix
-prefix = "A$"
-suffix = "/min"
+prefix = ""
+suffix = "%"
 # # test case 4: no prefix, has suffix
 # prefix = "$$$"
 # suffix = "dog"
