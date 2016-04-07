@@ -1,4 +1,4 @@
-#' Create a palm tree
+#' Create an rhtmlPalmTree plot
 #'
 #' @param data numeric matrix or data frame
 #' @param weights numeric vector specifying weights
@@ -20,7 +20,7 @@
 #'
 #' @import htmlwidgets
 #' @export
-PalmTreePlot <- function(
+rhtmlPalmTrees <- function(
     data = NULL,
     weights = NULL,
     row.names = NULL,
@@ -118,7 +118,7 @@ PalmTreePlot <- function(
 
     # create the widget
     htmlwidgets::createWidget(
-        name = "PalmTreePlot",
+        name = "rhtmlPalmTrees",
         x,
         width = width,
         height = height,
@@ -127,6 +127,6 @@ PalmTreePlot <- function(
             browser.fill = TRUE, # resizing will not work if FALSE
             viewer.fill = TRUE
         ),
-        package = "PalmTreePlot"
+        package = "rhtmlPalmTrees"
     )
 }

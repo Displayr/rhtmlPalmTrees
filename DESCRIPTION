@@ -1,10 +1,10 @@
-Package: PalmTreePlot
+Package: rhtmlPalmTrees
 Type: Package
 Title: R package that combines bar charts and radial plots to generate a palm tree plot
 Version: 0.1
 Date: 2015-12-22
 Author: Xiaoting Wang
 Maintainer: Xiaoting Wang <xtmwang@gmail.com>
-Description: 
-License: MIT
+Description:
+License:
 LazyData: TRUE

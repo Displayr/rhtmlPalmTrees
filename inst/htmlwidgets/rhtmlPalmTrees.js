@@ -1969,7 +1969,7 @@ function PalmPlot() {
 
 HTMLWidgets.widget({
 
-    name: "PalmTreePlot",
+    name: "rhtmlPalmTrees",
 
     type: "output",
 
