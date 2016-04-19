@@ -788,6 +788,14 @@ function PalmPlot() {
 
         var baseSvg = d3.select(el).select("svg");
 
+        if (viewerHeight < 100) {
+            return;
+        }
+
+        if (viewerWidth < 200) {
+            return;
+        }
+
         // sidebar
         init_sidebar_param();
         update_sidebar(baseSvg);
