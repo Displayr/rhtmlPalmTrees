@@ -558,7 +558,7 @@ function PalmPlot() {
                 .style("font-size", param.sdBarHoverFontSize + "px");
 
         baseSvg.selectAll(".sdBarSortText")
-                .style("font-size", 2 + "px")
+                .style("font-size", param.sdBarHoverFontSize + "px")
                 .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
 
         baseSvg.select(".sdBarSortHeading")
@@ -761,7 +761,7 @@ function PalmPlot() {
                     baseSvg.selectAll(".sdBarSortText")
                     .transition()
                     .duration(dur)
-                    .style("font-size", 2 + "px")
+                    .style("font-size", param.sdBarHoverFontSize + "px")
                     .attr("x", 2*param.sdBarPadding + param.sdBarColorBarsW);
 
                     baseSvg.select("#g_sdBarControl")
