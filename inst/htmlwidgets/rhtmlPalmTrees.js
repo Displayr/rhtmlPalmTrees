@@ -1427,8 +1427,8 @@ function PalmPlot() {
             //if (settings.suffix) {tb_len = 4;} else {tb_len = 3;}
             for (var i = 0; i < rowNames.length; i++) {
                 var atip = "";
-                atip = "<table class='tipTable'>";
-                atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
+
+                atip = atip + "<div class='tipHeading'>" + rowNames[i];
                 if (settings.barHeights) {
                     atip = atip + " - " + settings.ylab + " ";
                     if (settings.yprefix) {
@@ -1454,7 +1454,8 @@ function PalmPlot() {
                         atip = atip + settings.suffix;
                     }
                 }
-                atip = atip  + "</th>";
+                atip = atip  + "</div>";
+                atip = atip + "<div class='tipTableContainer'>" + "<table class='tipTable'>";
                 for (var j = 0; j < colNames.length; j++) {
                     atip = atip + "<tr>";
                     // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(2) : 0;
@@ -1499,6 +1500,7 @@ function PalmPlot() {
                     atip = atip + "</tr>";
                 }
                 atip = atip + "</table>";
+                atip = atip + "</div>";
 
                 frondData[i].tip = atip;
             }
@@ -1516,8 +1518,8 @@ function PalmPlot() {
                 var tempTips = [];
                 for (var jj = 0; jj < colNames.length; jj++) {
                     var atip = "";
-                    atip = "<table class='tipTable'>";
-                    atip = atip + "<th colspan='" + tb_len + "', style='text-align:left'>" + rowNames[i];
+
+                    atip = atip + "<div class='tipHeading'>" + rowNames[i];
                     if (settings.barHeights) {
                         atip = atip + " - " + settings.ylab + " ";
                         if (settings.yprefix) {
@@ -1543,7 +1545,8 @@ function PalmPlot() {
                             atip = atip + settings.suffix;
                         }
                     }
-                    atip = atip  + "</th>";
+                    atip = atip + "</div>";
+                    atip = atip + "<div class='tipTableContainer'>" + "<table class='tipTable'>";
                     for (var j = 0; j < colNames.length; j++) {
                         if (j === jj) {
                             atip = atip + "<tr style ='background-color:#eee'>";
@@ -1592,6 +1595,7 @@ function PalmPlot() {
                         atip = atip + "</tr>";
                     }
                     atip = atip + "</table>";
+                    atip = atip + "</div>";
                     tempTips.push(atip);
                 }
                 leafTips.push(tempTips);
