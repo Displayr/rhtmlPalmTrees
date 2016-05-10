@@ -2,7 +2,7 @@
 % Please edit documentation in R/rhtmlPalmTrees.R
 \name{PalmTrees}
 \alias{PalmTrees}
-\title{Create an rhtmlPalmTree plot}
+\title{Create a PalmTree plot}
 \usage{
 PalmTrees(data = NULL, weights = NULL, row.names = NULL,
   row.heading = NULL, col.names = NULL, col.heading = NULL,
@@ -47,7 +47,7 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 \item{height}{}
 }
 \description{
-Create an rhtmlPalmTree plot
+Create a PalmTree plot
 }
 \examples{
 data("CSDperceptions", package = "rhtmlPalmTrees")

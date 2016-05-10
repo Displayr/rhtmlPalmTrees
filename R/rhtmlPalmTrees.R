@@ -1,4 +1,4 @@
-#' Create an rhtmlPalmTree plot
+#' Create a PalmTree plot
 #'
 #' @param data numeric matrix or data frame
 #' @param weights numeric vector specifying weights
