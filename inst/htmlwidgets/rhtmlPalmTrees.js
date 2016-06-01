@@ -1985,10 +1985,13 @@ HTMLWidgets.widget({
 
     type: "output",
 
-    initialize: function(el, width, height) {
+    initialize: function(el, w, h) {
 
-        if (width < 200) { width = 200;}
-        if (height < 100) { height = 100;}
+        var width,
+            height;
+
+        width = w < 200 ? 200 : w;
+        height = h < 100 ? 100 : h;
 
         d3.select(el)
             .append("svg")
