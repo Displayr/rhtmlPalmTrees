@@ -466,7 +466,7 @@ function PalmPlot() {
                 .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarColorBarsW)
                 .attr("y", param.sdBarElemH/2)
                 .style("fill", function(d,i) {
-                    return selectedCol[i] === 0 ? "#999" : "#000";
+                    return selectedCol[i] === 0 ? "#aaa" : "#000";
                 });
 
         baseSvg.selectAll(".sideBarFrond")
@@ -1829,7 +1829,7 @@ function PalmPlot() {
             baseSvg.selectAll(".sideBarText").transition()
                 .duration(duration)
                 .style("fill", function(d,i) {
-                    return selectedCol[i] === 0 ? "#999" : "#000";
+                    return selectedCol[i] === 0 ? "#aaa" : "#000";
                 });
 
             if (d3.sum(selectedCol) === 0) {
