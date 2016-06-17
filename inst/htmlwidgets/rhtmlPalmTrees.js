@@ -466,7 +466,7 @@ function PalmPlot() {
                 .attr("x", 2*param.sdBarPadding + param.sdBarLeafR*2 + param.sdBarColorBarsW)
                 .attr("y", param.sdBarElemH/2)
                 .style("fill", function(d,i) {
-                    return selectedCol[i] === 0 ? "#ccc" : "#000";
+                    return selectedCol[i] === 0 ? "#999" : "#000";
                 });
 
         baseSvg.selectAll(".sideBarFrond")
@@ -1481,18 +1481,18 @@ function PalmPlot() {
                     } else {
                         if (settings.prefix) {
                             if (settings.suffix) {
-                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + settings.suffix + "</font></td>";
+                                atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
                             } else {
-                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
+                                atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
                             }
                         } else {
                             if (settings.suffix) {
-                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + settings.suffix + "</font></td>";
+                                atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
                             } else {
-                                atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + "</font></td>";
+                                atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
                             }
                         }
-                        atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
+                        atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
                         atip = atip + "<td style='text-align:center'>";
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
                     }
@@ -1576,18 +1576,18 @@ function PalmPlot() {
                         } else {
                             if (settings.prefix) {
                                 if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + settings.suffix + "</font></td>";
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
                                 } else {
-                                    atip = atip + "<td style='text-align:right'><font color=#ccc>" + settings.prefix + val + "</font></td>";
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
                                 }
                             } else {
                                 if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + settings.suffix + "</font></td>";
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
                                 } else {
-                                    atip = atip + "<td style='text-align:right'><font color=#ccc>" + val + "</font></td>";
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
                                 }
                             }
-                            atip = atip + "<td style='text-align:left'><font color=#ccc>" + colNames[j] + "</font></td>";
+                            atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
                             atip = atip + "<td style='text-align:center'>";
                             atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
                         }
@@ -1829,7 +1829,7 @@ function PalmPlot() {
             baseSvg.selectAll(".sideBarText").transition()
                 .duration(duration)
                 .style("fill", function(d,i) {
-                    return selectedCol[i] === 0 ? "#ccc" : "#000";
+                    return selectedCol[i] === 0 ? "#999" : "#000";
                 });
 
             if (d3.sum(selectedCol) === 0) {
