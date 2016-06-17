@@ -113,7 +113,7 @@ function PalmPlot() {
         // southward and northward tip top y position
         var tipSouth = y + h + 5 + yscale(d.value) + plotMargin.top;
         var tipNorth = y - 5 + yscale(d.value) + plotMargin.top;
-        console.log(tipNorth);
+
         if (viewerHeight - tipSouth >= tipHeight) {
             // southward tip
             this_tip = this_tip.direction("s").offset([10,0]).show(d, tipRect);
@@ -1160,8 +1160,8 @@ function PalmPlot() {
 
             if (thisid != colSort) {
                 colSort = thisid;
-                sdBarCtrl.selectAll(".sdBarSortBox").style("fill", "#fff").style("stroke","#ccc");
-                sdBarCtrl.selectAll(".sdBarSortText").style("fill", "#ccc");
+                sdBarCtrl.selectAll(".sdBarSortBox").style("fill", "#fff").style("stroke","#999");
+                sdBarCtrl.selectAll(".sdBarSortText").style("fill", "#999");
 
                 sdBarCtrl.select("#sortC" + thisid).style("fill", "steelblue").style("stroke","steelblue");
                 sdBarCtrl.select("#sortT" + thisid).style("fill", "#000");
