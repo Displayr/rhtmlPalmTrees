@@ -45,7 +45,7 @@ function PalmPlot() {
         palms,
         tips,
         tip,
-        minLeafWidth = 10,
+        minLeafWidth = 5,
         maxXaxisLines = 1,
         xFontSize = 11,
         initR = [],
@@ -824,7 +824,7 @@ function PalmPlot() {
         baseSvg.select("#g_plotArea").attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
         // resize scales and axis
 
-        baseSvg.selectAll(".xtickBg")
+        /*baseSvg.selectAll(".xtickBg")
                 .attr("x", function(d,i) {
                     return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().left - plotMargin.left - 5;
                 })
@@ -836,7 +836,7 @@ function PalmPlot() {
                 })
                 .attr("height",  function(d,i) {
                     return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().height;
-                });
+                });*/
         yscale.range([plotHeight, 0]);
         yAxis.scale(yscale);
         xAxis.scale(xscale);
@@ -1306,8 +1306,8 @@ function PalmPlot() {
 
         var palmEnter = palms.enter().append("g");
 
-        var xtickRect = barsEnter.append("rect")
-                                .attr("class", "xtickBg");
+        //var xtickRect = barsEnter.append("rect")
+        //                        .attr("class", "xtickBg");
 
         xAxis = d3.svg.axis()
                     .scale(xscale)
@@ -1326,7 +1326,7 @@ function PalmPlot() {
         plotArea.select(".xaxis")
                 .attr("transform", "translate(0," + plotHeight + ")");
 
-        baseSvg.selectAll(".xtickBg")
+        /*baseSvg.selectAll(".xtickBg")
                 .attr("x", function(d,i) {
                     return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().left - 5;
                 })
@@ -1338,7 +1338,7 @@ function PalmPlot() {
                 })
                 .attr("height",  function(d,i) {
                     return d3.select("#tickTxt" + i)[0][0].getBoundingClientRect().height;
-                });
+                });*/
 
         if (settings.rowHeading) {
             plotArea.append("text")
@@ -1748,13 +1748,13 @@ function PalmPlot() {
                     .selectAll(".tick text")
                     .call(wrap, xscale.rangeBand());
 
-            plotArea.selectAll(".xtickBg")
+            /*plotArea.selectAll(".xtickBg")
                     .sort(sortfun)
                     .transition()
                     .duration(duration)
                     .attr("x", function(d,i) {
                         return -Number(d3.select(this).attr("width"))/2 + xscale(d.name) + xscale.rangeBand()/2;
-                    });
+                    });*/
 
             plotArea.selectAll(".leaf")
                     .sort(sortfun)

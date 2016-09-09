@@ -59,10 +59,30 @@ PalmTrees <- function(
     width = NULL,
     height = NULL) {
 
+
+    if (class(data) == "data.frame") {
+
+        for (i in 1:ncol(data))
+            data[,i] <- as.numeric(data[, i])
+        data = as.matrix(data)
+
+    } else if (class(data) == "matrix") {
+
+        for (i in 1:ncol(data))
+            data[,i] <- as.numeric(data[, i])
+
+    } else {
+        stop("Input data must be a matrix or a data frame.")
+    }
+
+    if (sum(is.na(data)) > 0) {
+        data[is.na(data)] = 0
+        warning("Missing values are coerced to 0.")
+    }
+
     if (sum(data < 0) > 0) {
         stop("Input data must not contain negative numbers.")
     }
-
 
     nr = nrow(data);
     nc = ncol(data);
@@ -96,7 +116,7 @@ PalmTrees <- function(
     if (is.null(row.heading))
         row.heading = "Rows"
 
-    data = as.matrix(data)
+
 
     # recycle colors
     if (!is.null(colors) && length(colors) < length(col.names)) {
