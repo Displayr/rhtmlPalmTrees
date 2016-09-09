@@ -45,7 +45,7 @@ function PalmPlot() {
         palms,
         tips,
         tip,
-        minLeafWidth = 5,
+        minLeafWidth = 8,
         maxXaxisLines = 1,
         xFontSize = 11,
         initR = [],
@@ -919,7 +919,7 @@ function PalmPlot() {
         var lineNumbers = [];
         text.each(function() {
             var text = d3.select(this),
-                words = text.text().split(/\s+/).reverse(),
+                words = text.text().split(/[\s-]+/).reverse(),
                 word,
                 line = [],
                 lineNumber = 0,
