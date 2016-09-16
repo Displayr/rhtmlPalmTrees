@@ -218,7 +218,7 @@ function PalmPlot() {
         }
         palms.data(frondData);
         leaves.data(function(d) { return d.leaves;});
-        d3.select("#frond" + d.index).selectAll("path").transition().duration(duration).attr("d", line);
+        d3.select("#frond" + d.index).selectAll("path").transition("leafSize").duration(duration/2).attr("d", line);
     }
 
     function mouse_out_frond(d) {
@@ -244,7 +244,7 @@ function PalmPlot() {
         }
         palms.data(frondData);
         leaves.data(function(d) { return d.leaves;});
-        d3.select("#frond" + d.index).selectAll("path").transition().duration(duration).attr("d", line);
+        d3.select("#frond" + d.index).selectAll("path").transition("leafSize").duration(duration/2).attr("d", line);
     }
 
     // create leaf tooltip, which overlaps ghost rect tip to simulate selection effect
@@ -1734,14 +1734,14 @@ function PalmPlot() {
 
             plotArea.selectAll(".bar")
                     .sort(sortfun)
-                    .transition()
+                    .transition("barHeight")
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
             plotArea.select(".xaxis")
-                    .transition()
+                    .transition("xtickLocation")
                     .duration(duration)
                     .call(xAxis)
                     .selectAll(".tick text")
@@ -1757,7 +1757,7 @@ function PalmPlot() {
 
             plotArea.selectAll(".leaf")
                     .sort(sortfun)
-                    .transition()
+                    .transition("leafHeight")
                     .duration(duration)
                     .attr("transform", function(d) {
                         return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
@@ -1813,20 +1813,20 @@ function PalmPlot() {
                         return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
                     });*/
 
-            leaves.transition()
+            leaves.transition("leafColor")
                 .duration(duration)
                 .attr("d", line)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : colors[i];
                 });
 
-            baseSvg.selectAll(".sideBarColorBox").transition()
+            baseSvg.selectAll(".sideBarColorBox").transition("boxColor")
                 .duration(duration)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#ccc" : colors[i];
                 });
 
-            baseSvg.selectAll(".sideBarText").transition()
+            baseSvg.selectAll(".sideBarText").transition("textColor")
                 .duration(duration)
                 .style("fill", function(d,i) {
                     return selectedCol[i] === 0 ? "#aaa" : "#000";
@@ -1834,14 +1834,14 @@ function PalmPlot() {
 
             if (d3.sum(selectedCol) === 0) {
                 plotArea.selectAll(".bar")
-                    .transition()
+                    .transition("barHeight")
                     .duration(duration)
                     .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                     .attr("y", function(d) { return yscale(d.value); })
                     .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
                 plotArea.selectAll(".leaf")
-                    .transition()
+                    .transition("leafHeight")
                     .duration(duration)
                     .attr("transform", function(d) {
                         return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
