@@ -175,3 +175,31 @@ rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,row.names = rownames(CSDper
 
 rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,col.names = col.names,
                            colors = colorVec)
+
+library(flipData)
+x = GetTidyTwoDimensionalArray()
+
+CSD <- matrix(c(0.06, 0.02, 0.09, 0.65, 0.23, 0.26, 0.09, 0.92, 0.01,
+                           c( 0.57, 0.59, 0.23, 0.22, 0.09, 0.05, 0.24, 0.15, 0.76),
+                           c( 0.22, 0.55, 0.13, 0.05, 0.52, 0.31, 0.09, 0.03, 0.65),
+                           c( 0.09, 0.02, 0.1, 0.38, 0.16, 0.18, 0.14, 0.54, 0.0),
+                           c( 0.61, 0.58, 0.43, 0.09, 0.16, 0.04, 0.3, 0.03, 0.76),
+                           c( 0.1, 0.31, 0.07, 0.06, 0.5, 0.45, 0.06, 0.04, 0.41),
+                           c( 0.1, 0.17, 0.3, 0.09, 0.12, 0.16, 0.39, 0.03, 0.06)),nrow=7,byrow=TRUE,
+                         dimnames=list(Brand=c('Coke','Diet Coke',"Coke Zero","Pepsi",'Diet Pepsi','Pepsi Max','None of these'),
+                                       Attribute=c('Feminine', 'Health-conscious', "Innocent", 'Older', 'Open to new experiences', 'Rebellious', 'Sleepy', 'Traditional', 'Weight-conscious')))
+n.col = ncol(CSD)
+CSD = CSD*100
+CSD = CSD / n.col
+rowSums(CSD)
+
+rhtmlPalmTrees::PalmTrees(data = CSD*100,
+                          weights = rep(1/n.col, n.col),
+                          prefix = "",
+                          suffix = "%",
+                          digits = 1,
+                          y.digits = 1,
+                          tooltips = TRUE,
+                          colors = colorVec[1:n.col])
+
+

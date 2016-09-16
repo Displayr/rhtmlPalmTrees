@@ -13,7 +13,9 @@
 #' @param y.lab y axis label
 #' @param y.prefix prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.
 #' @param y.suffix suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.
+#' @param y.digits integer to control the number of decimal places of the y axis
 #' @param colors colors of the leaves  (should be optional but now it must be provided)
+#' @param digits integer to control the number of decimal places in the tooltips
 #' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".
 #' @param width
 #' @param height
@@ -51,13 +53,18 @@ PalmTrees <- function(
     prefix = NULL,
     suffix = NULL,
     column.as.heights = NULL,
+    digits = 1,
     y.lab = NULL,
     y.prefix = NULL,
     y.suffix = NULL,
+    y.digits = 1,
     colors = NULL,
     order = "descending",
     width = NULL,
     height = NULL) {
+
+    if (digits < 0)
+        digits = 0
 
 
     if (class(data) == "data.frame") {
@@ -151,7 +158,9 @@ PalmTrees <- function(
         ylab = y.lab,
         yprefix = y.prefix,
         ysuffix = y.suffix,
+        ydigits = y.digits,
         tooltips = tooltips,
+        digits = digits,
         colors = colors,
         barHeights = bar.heights,
         order = order,

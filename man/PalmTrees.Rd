@@ -7,9 +7,9 @@
 PalmTrees(data = NULL, weights = NULL, row.names = NULL,
   row.heading = NULL, col.names = NULL, col.heading = NULL,
   tooltips = TRUE, prefix = NULL, suffix = NULL,
-  column.as.heights = NULL, y.lab = NULL, y.prefix = NULL,
-  y.suffix = NULL, colors = NULL, order = "descending", width = NULL,
-  height = NULL)
+  column.as.heights = NULL, digits = 1, y.lab = NULL, y.prefix = NULL,
+  y.suffix = NULL, y.digits = 1, colors = NULL, order = "descending",
+  width = NULL, height = NULL)
 }
 \arguments{
 \item{data}{numeric matrix or data frame}
@@ -32,11 +32,15 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{column.as.heights}{Integer to specify which column can be used as tree heights.}
 
+\item{digits}{integer to control the number of decimal places in the tooltips}
+
 \item{y.lab}{y axis label}
 
 \item{y.prefix}{prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.}
 
 \item{y.suffix}{suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.}
+
+\item{y.digits}{integer to control the number of decimal places of the y axis}
 
 \item{colors}{colors of the leaves  (should be optional but now it must be provided)}
 
