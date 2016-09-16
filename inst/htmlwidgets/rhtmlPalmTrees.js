@@ -14,6 +14,7 @@ function PalmPlot() {
         normData = [],
         selectedCol = [],
         unweightedSums = [],
+        weightedSums = [],
         barData = [],
         frondData = [],
         sdBarLeafData = [],
@@ -73,8 +74,8 @@ function PalmPlot() {
     function update_data() {
 
         for (var i = 0; i < rowNames.length; i++) {
-             barData[i].value = unweightedSums[i];
-             frondData[i].value = unweightedSums[i];
+             barData[i].value = weightedSums[i];
+             frondData[i].value = weightedSums[i];
             for (var j = 0; j < colNames.length; j++) {
                 if (selectedCol[j] < 0.5) {
                     frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
@@ -1199,7 +1200,7 @@ function PalmPlot() {
 
         /* main plot area */
 
-        param.ymax = d3.max(unweightedSums);
+        param.ymax = d3.max(weightedSums);
         param.ymin = 0;
 
         // set left margin based on numbers, prefix and if there is ylabel
@@ -1284,13 +1285,13 @@ function PalmPlot() {
                                 {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
                                 {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
             }
-            frondDatum = {leaves: leafData, name: rowNames[i], value: unweightedSums[i], index: i,
+            frondDatum = {leaves: leafData, name: rowNames[i], value: weightedSums[i], index: i,
                             tip: "s", tipR: d3.mean(normData[i]), tipMaxR: d3.max(normData[i])};
             frondData.push(frondDatum);
         }
 
         for (var i = 0; i < rowNames.length; i++) {
-            barData.push({name: rowNames[i], value: unweightedSums[i], index: i});
+            barData.push({name: rowNames[i], value: weightedSums[i], index: i});
         }
 
 
@@ -1430,9 +1431,9 @@ function PalmPlot() {
                 if (settings.barHeights) {
                     atip = atip + " - " + settings.ylab + " ";
                     if (settings.yprefix) {
-                        atip = atip + settings.yprefix + unweightedSums[i].toFixed(settings.digits);
+                        atip = atip + settings.yprefix + weightedSums[i].toFixed(settings.digits);
                     } else {
-                        atip = atip + unweightedSums[i].toFixed(settings.digits);
+                        atip = atip + weightedSums[i].toFixed(settings.digits);
                     }
                     if (settings.ysuffix) {
                         atip = atip + settings.ysuffix;
@@ -1444,9 +1445,9 @@ function PalmPlot() {
                     }
                     atip = atip + " ";
                     if (settings.prefix) {
-                        atip = atip + settings.prefix + unweightedSums[i].toFixed(settings.digits);
+                        atip = atip + settings.prefix + weightedSums[i].toFixed(settings.digits);
                     } else {
-                        atip = atip + unweightedSums[i].toFixed(settings.digits);
+                        atip = atip + weightedSums[i].toFixed(settings.digits);
                     }
                     if (settings.suffix) {
                         atip = atip + settings.suffix;
@@ -1521,9 +1522,9 @@ function PalmPlot() {
                     if (settings.barHeights) {
                         atip = atip + " - " + settings.ylab + " ";
                         if (settings.yprefix) {
-                            atip = atip + settings.yprefix + unweightedSums[i].toFixed(settings.digits);
+                            atip = atip + settings.yprefix + weightedSums[i].toFixed(settings.digits);
                         } else {
-                            atip = atip + unweightedSums[i].toFixed(settings.digits);
+                            atip = atip + weightedSums[i].toFixed(settings.digits);
                         }
                         if (settings.ysuffix) {
                             atip = atip + settings.ysuffix;
@@ -1535,9 +1536,9 @@ function PalmPlot() {
                         }
                         atip = atip + " ";
                         if (settings.prefix) {
-                            atip = atip + settings.prefix + unweightedSums[i].toFixed(settings.digits);
+                            atip = atip + settings.prefix + weightedSums[i].toFixed(settings.digits);
                         } else {
-                            atip = atip + unweightedSums[i].toFixed(settings.digits);
+                            atip = atip + weightedSums[i].toFixed(settings.digits);
                         }
                         if (settings.suffix) {
                             atip = atip + settings.suffix;
@@ -1712,7 +1713,7 @@ function PalmPlot() {
                 // low to high
 
                 for (var i = 0; i < rowNames.length; i++) {
-                    sumsTemp.push(unweightedSums[i]);
+                    sumsTemp.push(weightedSums[i]);
                 }
                 rindices = sortWithIndices(sumsTemp,0);
                 rowNames2 = sortFromIndices(rowNames, rindices);
@@ -1723,7 +1724,7 @@ function PalmPlot() {
                 // high to low
 
                 for (var i = 0; i < rowNames.length; i++) {
-                    sumsTemp.push(unweightedSums[i]);
+                    sumsTemp.push(weightedSums[i]);
                 }
                 rindices = sortWithIndices(sumsTemp,1);
                 rowNames2 = sortFromIndices(rowNames, rindices);
@@ -1768,11 +1769,13 @@ function PalmPlot() {
 
             for (var i = 0; i < rowNames.length; i++) {
                 unweightedSums[i] = 0;
+                weightedSums[i] = 0;
                 for (var j = 0; j < colNames.length; j++) {
                     unweightedSums[i] += selectedCol[j]*data[i][j];
+                    weightedSums[i] += selectedCol[j]*weights[j]*data[i][j];
                 }
                 if (settings.barHeights) {
-                    unweightedSums[i] = settings.barHeights[i];
+                    weightedSums[i] = settings.barHeights[i];
                 }
             }
 
@@ -1780,7 +1783,7 @@ function PalmPlot() {
             make_leaf_tip_data();
             update_data();
 
-            param.ymax = d3.max(unweightedSums);
+            param.ymax = d3.max(weightedSums);
             param.ymin = 0;
 
             yscale.domain([param.ymin, param.ymax])
@@ -1895,18 +1898,24 @@ function PalmPlot() {
         for (var i = 0; i < colNames.length; i++) {
             selectedCol.push(1);
         }
-        var tempSum;
-        var sums = [];
+
+        var wtSum, unwtSum;
         // compute weighted sum
         for (var i = 0; i < rowNames.length; i++) {
-            tempSum = 0;
+            wtSum = 0;
+            unwtSum = 0;
             for (var j = 0; j < colNames.length; j++) {
-                tempSum += selectedCol[j]*weights[j]*value[i][j];
+                wtSum += selectedCol[j]*weights[j]*value[i][j];
+                unwtSum += selectedCol[j]*value[i][j];
             }
-            sums.push(tempSum);
+            weightedSums.push(wtSum);
+            unweightedSums.push(unwtSum);
+            if (settings.barHeights) {
+                weightedSums[i] = settings.barHeights[i];
+            }
         }
 
-        var maxSum = d3.max(sums);
+        var maxSum = d3.max(unweightedSums);
         rindices = d3.range(rowNames.length);
 
         // normalize leaf data
@@ -1924,18 +1933,11 @@ function PalmPlot() {
 
         // now set the original data values for tips
         for (var i = 0; i < rowNames.length; i++) {
-            tempSum = 0;
             var tempData = [];
             for (var j = 0; j < colNames.length; j++) {
                 tempData.push(value[i][j]);
-                tempSum += selectedCol[j]*value[i][j];
             }
             data.push(tempData);
-            unweightedSums.push(tempSum);
-            if (settings.barHeights) {
-                unweightedSums[i] = settings.barHeights[i];
-            }
-
             dataMax = Math.max(dataMax, d3.max(tempData));
             dataMin = Math.min(dataMin, d3.min(tempData));
         }
