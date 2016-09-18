@@ -1612,7 +1612,7 @@ function PalmPlot() {
                                 }
                             }
                         } else {
-                            atip = atip + "<td style='text-align:right'>" + "Missing" + "</td>";
+                            atip = atip + "<td style='text-align:right'>" + "No data" + "</td>";
                         }
 
                         atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
@@ -1635,7 +1635,7 @@ function PalmPlot() {
                                 }
                             }
                         } else {
-                            atip = atip + "<td style='text-align:right'><font color=#999>" + "Missing" + "</font></td>";
+                            atip = atip + "<td style='text-align:right'><font color=#999>" + "No data" + "</font></td>";
                         }
 
                         atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
@@ -1717,7 +1717,7 @@ function PalmPlot() {
                                     }
                                 }
                             } else {
-                                atip = atip + "<td style='text-align:right'>" + "Missing" + "</td>";
+                                atip = atip + "<td style='text-align:right'>" + "No data" + "</td>";
                             }
                             atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
                             atip = atip + "<td style='text-align:center'>";
@@ -1739,7 +1739,7 @@ function PalmPlot() {
                                     }
                                 }
                             } else {
-                                atip = atip + "<td style='text-align:right'><font color=#999>" + "Missing" + "</font></td>";
+                                atip = atip + "<td style='text-align:right'><font color=#999>" + "No data" + "</font></td>";
                             }
                             atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
                             atip = atip + "<td style='text-align:center'>";
