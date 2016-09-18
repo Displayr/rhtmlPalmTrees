@@ -85,7 +85,7 @@ PalmTrees <- function(
     raw.data = data
     if (sum(is.na(data)) > 0) {
         data[is.na(data)] = 0
-        warning("Missing values are coerced to 0.")
+        warning("Missing values detected.")
     }
 
     if (sum(data < 0) > 0) {
