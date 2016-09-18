@@ -77,20 +77,24 @@ function PalmPlot() {
              barData[i].value = weightedSums[i];
              frondData[i].value = weightedSums[i];
             for (var j = 0; j < colNames.length; j++) {
+                var leafValue = radialScale(normData[i][j]);
+                if (!settings.rawData[i][j]) {
+                    leafValue = 0;
+                }
                 if (selectedCol[j] < 0.5) {
                     frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
-                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.03},
-                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
-                                        {x:radialScale(normData[i][j]), y:0},
-                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
-                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
+                                        {x:leafValue*0.25, y:-leafValue*0.03},
+                                        {x:leafValue*0.75, y:-leafValue*0.05},
+                                        {x:leafValue, y:0},
+                                        {x:leafValue*0.75, y:leafValue*0.05},
+                                        {x:leafValue*0.25, y:leafValue*0.03}];
                 } else {
                     frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
-                                        {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
-                                        {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
-                                        {x:radialScale(normData[i][j]), y:0},
-                                        {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
-                                        {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
+                                        {x:leafValue*0.25, y:-leafValue*0.07},
+                                        {x:leafValue*0.75, y:-leafValue*0.13},
+                                        {x:leafValue, y:0},
+                                        {x:leafValue*0.75, y:leafValue*0.13},
+                                        {x:leafValue*0.25, y:leafValue*0.07}];
                 }
             }
         }
@@ -200,20 +204,24 @@ function PalmPlot() {
         i = d.index;
         var s = 1.1;
         for (var j = 0; j < colNames.length; j++) {
+            var leafValue = radialScale(normData[i][j]);
+            if (!settings.rawData[i][j]) {
+                leafValue = 0;
+            }
             if (selectedCol[j] < 0.5) {
                 frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
-                                    {x:radialScale(normData[i][j])*0.25*s, y:-radialScale(normData[i][j])*0.03*s},
-                                    {x:radialScale(normData[i][j])*0.75*s, y:-radialScale(normData[i][j])*0.05*s},
-                                    {x:radialScale(normData[i][j])*s, y:0},
-                                    {x:radialScale(normData[i][j])*0.75*s, y:radialScale(normData[i][j])*0.05*s},
-                                    {x:radialScale(normData[i][j])*0.25*s, y:radialScale(normData[i][j])*0.03*s}];
+                                    {x:leafValue*0.25*s, y:-leafValue*0.03*s},
+                                    {x:leafValue*0.75*s, y:-leafValue*0.05*s},
+                                    {x:leafValue*s, y:0},
+                                    {x:leafValue*0.75*s, y:leafValue*0.05*s},
+                                    {x:leafValue*0.25*s, y:leafValue*0.03*s}];
             } else {
                 frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
-                                    {x:radialScale(normData[i][j])*0.25*s, y:-radialScale(normData[i][j])*0.07*s},
-                                    {x:radialScale(normData[i][j])*0.75*s, y:-radialScale(normData[i][j])*0.13*s},
-                                    {x:radialScale(normData[i][j])*s, y:0},
-                                    {x:radialScale(normData[i][j])*0.75*s, y:radialScale(normData[i][j])*0.13*s},
-                                    {x:radialScale(normData[i][j])*0.25*s, y:radialScale(normData[i][j])*0.07*s}];
+                                    {x:leafValue*0.25*s, y:-leafValue*0.07*s},
+                                    {x:leafValue*0.75*s, y:-leafValue*0.13*s},
+                                    {x:leafValue*s, y:0},
+                                    {x:leafValue*0.75*s, y:leafValue*0.13*s},
+                                    {x:leafValue*0.25*s, y:leafValue*0.07*s}];
             }
         }
         palms.data(frondData);
@@ -226,20 +234,24 @@ function PalmPlot() {
         d3.select("#littleTriangle").style("visibility", "hidden");
         i = d.index;
         for (var j = 0; j < colNames.length; j++) {
+            var leafValue = radialScale(normData[i][j]);
+            if (!settings.rawData[i][j]) {
+                leafValue = 0;
+            }
             if (selectedCol[j] < 0.5) {
                 frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
-                                    {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.03},
-                                    {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.05},
-                                    {x:radialScale(normData[i][j]), y:0},
-                                    {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.05},
-                                    {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.03}];
+                                    {x:leafValue*0.25, y:-leafValue*0.03},
+                                    {x:leafValue*0.75, y:-leafValue*0.05},
+                                    {x:leafValue, y:0},
+                                    {x:leafValue*0.75, y:leafValue*0.05},
+                                    {x:leafValue*0.25, y:leafValue*0.03}];
             } else {
                 frondData[i].leaves[j] =  [{x:0, y:0, i:i, j:j},
-                                    {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
-                                    {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
-                                    {x:radialScale(normData[i][j]), y:0},
-                                    {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
-                                    {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}];
+                                    {x:leafValue*0.25, y:-leafValue*0.07},
+                                    {x:leafValue*0.75, y:-leafValue*0.13},
+                                    {x:leafValue, y:0},
+                                    {x:leafValue*0.75, y:leafValue*0.13},
+                                    {x:leafValue*0.25, y:leafValue*0.07}];
             }
         }
         palms.data(frondData);
@@ -1278,12 +1290,16 @@ function PalmPlot() {
             var frondDatum = {};
             var leafData = [];
             for (var j = 0; j < colNames.length; j++) {
+                var leafValue = radialScale(normData[i][j]);
+                if (!settings.rawData[i][j]) {
+                    leafValue = 0;
+                }
                 leafData.push( [{x:0, y:0, i:i, j:j},
-                                {x:radialScale(normData[i][j])*0.25, y:-radialScale(normData[i][j])*0.07},
-                                {x:radialScale(normData[i][j])*0.75, y:-radialScale(normData[i][j])*0.13},
-                                {x:radialScale(normData[i][j]), y:0},
-                                {x:radialScale(normData[i][j])*0.75, y:radialScale(normData[i][j])*0.13},
-                                {x:radialScale(normData[i][j])*0.25, y:radialScale(normData[i][j])*0.07}]);
+                                {x:leafValue*0.25, y:-leafValue*0.07},
+                                {x:leafValue*0.75, y:-leafValue*0.13},
+                                {x:leafValue, y:0},
+                                {x:leafValue*0.75, y:leafValue*0.13},
+                                {x:leafValue*0.25, y:leafValue*0.07}]);
             }
             frondDatum = {leaves: leafData, name: rowNames[i], value: weightedSums[i], index: i,
                             tip: "s", tipR: d3.mean(normData[i]), tipMaxR: d3.max(normData[i])};
@@ -1460,37 +1476,47 @@ function PalmPlot() {
                     // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(settings.digits) : 0;
                     val = data[i][j].toFixed(settings.digits);
                     if (selectedCol[j] == 1) {
-                        if (settings.prefix) {
-                            if (settings.suffix) {
-                                atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                        if (settings.rawData[i][j]) {
+                            if (settings.prefix) {
+                                if (settings.suffix) {
+                                    atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                                } else {
+                                    atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                                }
                             } else {
-                                atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                                if (settings.suffix) {
+                                    atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
+                                } else {
+                                    atip = atip + "<td style='text-align:right'>" + val + "</td>";
+                                }
                             }
                         } else {
-                            if (settings.suffix) {
-                                atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
-                            } else {
-                                atip = atip + "<td style='text-align:right'>" + val + "</td>";
-                            }
+                            atip = atip + "<td style='text-align:right'>" + "Missing" + "</td>";
                         }
+
                         atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
                         atip = atip + "<td style='text-align:center'>";
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:" + colors[j] + "'></div>" + "</td>";
 
                     } else {
-                        if (settings.prefix) {
-                            if (settings.suffix) {
-                                atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
+                        if (settings.rawData[i][j]) {
+                            if (settings.prefix) {
+                                if (settings.suffix) {
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
+                                } else {
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
+                                }
                             } else {
-                                atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
+                                if (settings.suffix) {
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
+                                } else {
+                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
+                                }
                             }
                         } else {
-                            if (settings.suffix) {
-                                atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
-                            } else {
-                                atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
-                            }
+                            atip = atip + "<td style='text-align:right'><font color=#999>" + "Missing" + "</font></td>";
                         }
+
                         atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
                         atip = atip + "<td style='text-align:center'>";
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
@@ -1555,36 +1581,44 @@ function PalmPlot() {
                         // val = round(data[i][j],2) >= 0.01? data[i][j].toFixed(settings.digits) : 0;
                         val = data[i][j].toFixed(settings.digits);
                         if (selectedCol[j] == 1) {
-                            if (settings.prefix) {
-                                if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                            if (settings.rawData[i][j]) {
+                                if (settings.prefix) {
+                                    if (settings.suffix) {
+                                        atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                                    } else {
+                                        atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                                    }
                                 } else {
-                                    atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                                    if (settings.suffix) {
+                                        atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
+                                    } else {
+                                        atip = atip + "<td style='text-align:right'>" + val + "</td>";
+                                    }
                                 }
                             } else {
-                                if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
-                                } else {
-                                    atip = atip + "<td style='text-align:right'>" + val + "</td>";
-                                }
+                                atip = atip + "<td style='text-align:right'>" + "Missing" + "</td>";
                             }
                             atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
                             atip = atip + "<td style='text-align:center'>";
                             atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:" + colors[j] + "'></div>" + "</td>";
 
                         } else {
-                            if (settings.prefix) {
-                                if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
+                            if (settings.rawData[i][j]) {
+                                if (settings.prefix) {
+                                    if (settings.suffix) {
+                                        atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
+                                    } else {
+                                        atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
+                                    }
                                 } else {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
+                                    if (settings.suffix) {
+                                        atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
+                                    } else {
+                                        atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
+                                    }
                                 }
                             } else {
-                                if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
-                                } else {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
-                                }
+                                atip = atip + "<td style='text-align:right'><font color=#999>" + "Missing" + "</font></td>";
                             }
                             atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
                             atip = atip + "<td style='text-align:center'>";

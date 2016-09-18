@@ -82,6 +82,7 @@ PalmTrees <- function(
         stop("Input data must be a matrix or a data frame.")
     }
 
+    raw.data = data
     if (sum(is.na(data)) > 0) {
         data[is.na(data)] = 0
         warning("Missing values are coerced to 0.")
@@ -150,6 +151,7 @@ PalmTrees <- function(
 
     # create a list that contains the settings
     settings <- list(
+        rawData = raw.data,
         weights = weights,
         rowNames = row.names,
         colNames = col.names,

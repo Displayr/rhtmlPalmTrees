@@ -203,3 +203,22 @@ rhtmlPalmTrees::PalmTrees(data = CSD*100,
                           colors = colorVec[1:n.col])
 
 
+library(rvest)
+page = read_html("https://en.wikipedia.org/wiki/List_of_U.S._states_by_life_expectancy")
+
+tble = page %>% html_node(".wikitable") %>% html_table(fill=T)
+
+rnames <- tble[, 1]
+
+tble = tble[, -1:-2]
+
+tble <- as.data.frame(tble)
+rownames(tble) <- rnames
+
+for (i in seq_along(tble))
+    tble[,i] <- as.numeric(tble[, i])
+
+tble1 <- tble[complete.cases(tble), ]
+library(rhtmlPalmTrees)
+PalmTrees(data = tble)
+PalmTrees(data = tble1)
