@@ -930,22 +930,143 @@ function PalmPlot() {
         var lineNumbers = [];
         text.each(function() {
             var text = d3.select(this),
-                words = text.text().split(/[\s-]+/).reverse(),
+                words = text.text().split(/\s+/).reverse(),
                 word,
                 line = [],
+                nohyph = [],
                 lineNumber = 0,
                 lineHeight = 1.1, // ems
                 y = text.attr("y"),
+                leftOver = "",
                 dy = parseFloat(text.attr("dy")),
                 tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
             while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(" "));
+                // add one word to current line
+                nohyph.push(word);
+                tspan.text(nohyph.join(" "));
                 if (tspan.node().getComputedTextLength() > width) {
-                    line.pop();
-                    tspan.text(line.join(" "));
-                    line = [word];
-                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+
+                    // check if the last added word has hyphen, if yes, break hyphen and try again,
+                    // if no, add the word to a new line
+                    var subwords = word.split(/[-]+/).reverse();
+                    var subword, hyphline = [];
+                    if (subwords.length > 1) {
+                        // has hyphen, try to break up the word
+                        nohyph.pop();
+                        var i = 0, len = subwords.length;
+                        while (subword = subwords.pop()) {
+
+                            if (i === 0) {
+                                // subword is the first part
+                                if (nohyph.length > 0) {
+                                    tspan.text(nohyph.join(" ") + " " + subword + "-");
+                                } else {
+                                    tspan.text(subword + "-");
+                                }
+                            } else if (i === len - 1) {
+                                // subword is the last part
+                                if (nohyph.length > 0) {
+                                    if (hyphline.length > 0) {
+                                        tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-" + subword);
+                                    } else {
+                                        console.log("should not be here 1");
+                                    }
+                                } else {
+                                    if (hyphline.length > 0) {
+                                        tspan.text(hyphline.join("-") + "-" + subword);
+                                    } else {
+                                        tspan.text(subword);
+                                    }
+                                }
+                            } else {
+                                if (nohyph.length > 0) {
+                                    if (hyphline.length > 0) {
+                                        tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-" + subword + "-");
+                                    } else {
+                                        console.log("should not be here 2");
+                                    }
+
+                                } else {
+                                    if (hyphline.length > 0) {
+                                        tspan.text(hyphline.join("-") + "-" + subword + "-");
+                                    } else {
+                                        tspan.text(subword + "-");
+                                    }
+                                }
+                            }
+
+                            hyphline.push(subword);
+
+                            if (tspan.node().getComputedTextLength() > width) {
+                                // if adding the subword exceeds the width, remove the subword,
+                                // add it to the next line, insert new line
+
+                                hyphline.pop();
+                                if (nohyph.length > 0) {
+                                    // starting texts exist before the hyphen line
+                                    if (i === 0) {
+                                        tspan.text(nohyph.join(" "));
+                                        hyphline = [subword];
+                                        nohyph = [];
+                                    } else if (i === len - 1) {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-");
+                                        } else {
+                                            tspan.text(nohyph.join(" ") + " " + subword + "-");
+                                        }
+                                        nohyph = [subword];
+                                    } else {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-");
+                                        } else {
+                                            tspan.text(nohyph.join(" ") + " " + subword + "-");
+                                        }
+                                        nohyph = [];
+                                    }
+
+                                } else {
+                                    if (i === 0) {
+                                        tspan.text(subword + "-");
+                                        hyphline = [];
+                                    } else if (i === len - 1) {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(hyphline.join("-") + "-");
+                                            nohyph = [subword];
+                                        } else {
+                                            tspan.text(subword);
+                                            nohyph = [];
+                                        }
+                                    } else {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(hyphline.join("-") + "-");
+                                            hyphline = [subword];
+                                        } else {
+                                            tspan.text(subword + "-");
+                                            hyphline = [];
+                                        }
+                                    }
+                                }
+
+                                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(subword);
+                            } else {
+                                if (i === len - 1) {
+                                    nohyph = [hyphline.join("-")];
+                                }
+                            }
+                            i++;
+                        }
+
+                    } else {
+                        // the word being checked doesn't contain hyphen, cannot be breaked,
+                        // but still > desired length
+                        if (nohyph.length > 1) {
+                            // send the word being checked to next line, if there exists words before it
+                            nohyph.pop();
+                            tspan.text(nohyph.join(" "));
+                            nohyph = [word];
+                            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                        }
+                    }
                 }
             }
             lineNumbers.push(lineNumber + 1);

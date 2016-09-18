@@ -45,7 +45,7 @@ CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.191
                          dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'Diet Coke','Fanta','Lift','Pepsi'),
                                        Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshes', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
 
-CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.1916, 0.284, 0.3514, 0.2534, 0.2089,
+CSDperceptions1 <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.1916, 0.284, 0.3514, 0.2534, 0.2089,
                            c( 0.0198, 0.4604, 0.2151, 0.5235, 0.1151, 0.12, 0.5457, 0.3041, 0.06312, 0.384, 0.06064),
                            c( 0.01114, 0.4111, 0.1904, 0.4494, 0.06931, 0.1112, 0.4716, 0.2859, 0.0495, 0.3296, 0.03837),
                            c( 0.01114, 0.2373, 0.089, 0.2707, 0.05322, 0.06436, 0.2756, 0.1656, 0.02967, 0.1916, 0.02228),
@@ -53,8 +53,8 @@ CSDperceptions <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.191
                            c( 0.4543, 0.1275, 0.07673, 0.02847, 0.07293, 0.1077, 0.01609, 0.05198, 0.321, 0.01856, 0.0297),
                            c( 0.06807, 0.1089, 0.06064, 0.0198, 0.1174, 0.04084, 0.01609, 0.01733, 0.03465, 0.01361, 0.03589),
                            c( 0.08168, 0.224, 0.1015, 0.04579, 0.04815, 0.04084, 0.03094, 0.05562, 0.05322, 0.04084, 0.02847)),nrow=8,byrow=TRUE,
-                         dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'A very very long brand name','Fanta','Lift','Pepsi'),
-                                       Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshesssssssssssssssssssssssss', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
+                         dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'This is a very-very-long brand name plus random hyphenated-words','Fanta','Lift','Pepsi'),
+                                       Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshes', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
 
 
 set.seed(123)
@@ -98,11 +98,21 @@ suffix = "%"
 
 
 
-rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
-                           weights = weights,
-                           row.names = rownames(CSDperceptions),
+
+PalmTrees(data = CSDperceptions)
+PalmTrees(data = t(CSDperceptions))
+PalmTrees(data = CSDperceptions1)
+htmlwidgets::saveWidget(PalmTrees(data = CSDperceptions,
+                                  row.heading = names(dimnames(CSDperceptions))[1],
+                                  col.heading = names(dimnames(CSDperceptions))[2],
+                                  y.lab = "Market value",
+                                  prefix = prefix,
+                                  suffix = suffix,
+                                  tooltips = TRUE,
+                                  colors = colorVec), file = "/Users/MichaelW/Work/palmtree/index.html", selfcontained = F)
+
+PalmTrees(data = t(CSDperceptions),
                            row.heading = names(dimnames(CSDperceptions))[1],
-                           col.names = colnames(CSDperceptions),
                            col.heading = names(dimnames(CSDperceptions))[2],
                            y.lab = "Market value",
                            prefix = prefix,
@@ -110,6 +120,7 @@ rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            tooltips = TRUE,
                            colors = colorVec)
 
+htmlwidgets::saveWidget(w, file = "/Users/MichaelW/Work/palmtree/index.html", selfcontained = F)
 # use 1 column of data as heights, specifying y label
 rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,
                            weights = weights,
@@ -176,6 +187,7 @@ rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,row.names = rownames(CSDper
 rhtmlPalmTrees::rhtmlPalmTrees(data = CSDperceptions,col.names = col.names,
                            colors = colorVec)
 
+
 library(flipData)
 x = GetTidyTwoDimensionalArray()
 
@@ -222,3 +234,30 @@ tble1 <- tble[complete.cases(tble), ]
 library(rhtmlPalmTrees)
 PalmTrees(data = tble)
 PalmTrees(data = tble1)
+
+
+# single number
+a = 1
+PalmTrees(data = a)
+# vector
+b = c(1,2,3,4,5)
+bb = b
+bb[2] = NA
+PalmTrees(data = b)
+PalmTrees(data = bb)
+# list
+c = list(1,2,3,4,5)
+PalmTrees(data = c)
+# matrix
+d = matrix(runif(24), nrow = 4)
+dd = matrix(as.character(runif(24)), nrow = 4)
+ddd = matrix(letters[1:24], nrow = 4)
+PalmTrees(data = d)
+PalmTrees(data = dd)
+PalmTrees(data = ddd)
+# data frame
+e = data.frame(matrix(runif(24), nrow = 4))
+ee = data.frame(matrix(letters[1:24], nrow = 4), stringsAsFactors = FALSE)
+PalmTrees(data = e)
+PalmTrees(data = ee)
+
