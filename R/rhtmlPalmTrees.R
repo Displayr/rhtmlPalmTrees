@@ -1,10 +1,10 @@
 #' Create a PalmTree plot
 #'
 #' @param data numeric matrix or data frame
-#' @param weights numeric vector specifying weights
-#' @param row.names character vector specifying x ticks
+#' @param weights numeric vector specifying weights. Length must equal to \code{ncol(data)}
+#' @param row.names character vector specifying x ticks. Default value are obtained from \code{rownames(data)}.
 #' @param row.heading character, used as x label
-#' @param col.names character vector specifying the legend
+#' @param col.names character vector specifying the legend. Default value obtained from \code{colnames(data)}.
 #' @param col.heading character vector specifying the heading
 #' @param tooltips logical, whether to attach tooltips on mouseover, default true.
 #' @param prefix prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.
@@ -14,7 +14,7 @@
 #' @param y.prefix prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.
 #' @param y.suffix suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.
 #' @param y.digits integer to control the number of decimal places of the y axis
-#' @param colors colors of the leaves  (should be optional but now it must be provided)
+#' @param colors colors of the leaves. D3 colors will be used if no values are provided.
 #' @param digits integer to control the number of decimal places in the tooltips
 #' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".
 #' @param width

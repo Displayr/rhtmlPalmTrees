@@ -14,13 +14,13 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 \arguments{
 \item{data}{numeric matrix or data frame}
 
-\item{weights}{numeric vector specifying weights}
+\item{weights}{numeric vector specifying weights. Length must equal to \code{ncol(data)}}
 
-\item{row.names}{character vector specifying x ticks}
+\item{row.names}{character vector specifying x ticks. Default value are obtained from \code{rownames(data)}.}
 
 \item{row.heading}{character, used as x label}
 
-\item{col.names}{character vector specifying the legend}
+\item{col.names}{character vector specifying the legend. Default value obtained from \code{colnames(data)}.}
 
 \item{col.heading}{character vector specifying the heading}
 
@@ -42,7 +42,7 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{y.digits}{integer to control the number of decimal places of the y axis}
 
-\item{colors}{colors of the leaves  (should be optional but now it must be provided)}
+\item{colors}{colors of the leaves. D3 colors will be used if no values are provided.}
 
 \item{order}{= c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".}
 

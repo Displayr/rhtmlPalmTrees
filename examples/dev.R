@@ -318,4 +318,4 @@ colorVec = substring(qColors,1,7)
 rhtmlPalmTrees::PalmTrees(data = x, colors = colorVec)
 
 x = matrix(c(1:4, 4, 4, 4, 4),2,  byrow = TRUE)
-rhtmlPalmTrees::PalmTrees(data = x, weights = rep(2, 4))
+rhtmlPalmTrees::PalmTrees(data = x, weights = rep(1,4))
