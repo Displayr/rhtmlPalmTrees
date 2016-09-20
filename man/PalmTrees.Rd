@@ -53,6 +53,11 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 \description{
 Create a PalmTree plot
 }
+\details{
+Frond size is calculated by mapping \code{data} to a linear scale \code{[min_width, max_width]} so that
+\code{min(data)} takes \code{min_width} and \code{max(data)} takes \code{max_width}.
+\code{min_width} is currently set at 8 pixcels and \code{max_width} is calculated using the available space between x ticks.
+}
 \examples{
 data("CSDperceptions", package = "rhtmlPalmTrees")
 

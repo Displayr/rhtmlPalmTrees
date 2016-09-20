@@ -261,3 +261,58 @@ ee = data.frame(matrix(letters[1:24], nrow = 4), stringsAsFactors = FALSE)
 PalmTrees(data = e)
 PalmTrees(data = ee)
 
+input.table <- structure(c(6.125, 57.125, 22.375, 8.875, 61.5, 9.375, 9.25,
+                           100, 2, 57.75, 53.5, 2.5, 57.875, 30.625, 17.375, 100, 10.5,
+                           21.625, 11.375, 10, 44.625, 6.875, 29.875, 100, 64.625, 22.5,
+                           5.375, 39, 9.875, 6.75, 7.25, 100, 22.375, 8.875, 50.625, 16.75,
+                           16.625, 49.25, 12.875, 100, 25.5, 4.75, 64, 17.75, 3.75, 44.75,
+                           15.25, 100, 9.5, 23.25, 9.75, 13.5, 29.75, 5.5, 38.875, 100,
+                           91.25, 14.625, 3, 54.75, 3.75, 4.375, 2.5, 100, 0.5, 76.125,
+                           63.875, 0, 76.625, 40.375, 5.75, 100, 98, 91.5, 94.875, 79.625,
+                           94.75, 86.375, 57.5, 100), .Dim = c(8L, 10L), statistic = "%", .Dimnames = list(
+                               c("Coke", "Diet Coke", "Coke Zero", "Pepsi", "Diet Pepsi",
+                                 "Pepsi Max", "None of these", "NET"), c("Feminine", "Health-conscious",
+                                                                         "Innocent", "Older", "Open to new experiences", "Rebellious",
+                                                                         "Sleepy", "Traditional", "Weight-conscious", "NET")), name = "q5", questions = c("q5",
+                                                                                                                                                          "SUMMARY"))
+
+
+
+
+row.names.to.remove <- unlist(strsplit("", ","))
+column.names.to.remove <- unlist(strsplit("NET, Total, SUM", ","))
+x <- flipData::GetTidyTwoDimensionalArray(input.table, row.names.to.remove, column.names.to.remove)
+data("qColors", package = "flipExampleData")
+colorVec = substring(qColors,1,7)
+
+n.col <- ncol(x)
+stat <- attr(input.table, "statistic")
+suffix <- ifelse(!is.null(stat) && stat == "%", "%", "")
+rhtmlPalmTrees::PalmTrees(data = x,
+                                         weights = rep(1 / n.col, n.col),
+                                         row.names = dimnames(x)[[1]],
+                                         row.heading = "",
+                                         col.names = dimnames(x)[[2]],
+                                         col.heading = "",
+                                         prefix = "",
+                                         suffix = suffix,
+                                         tooltips = "Default",
+                                         colors = colorVec)
+
+x = matrix(c(4,3,2,1,.5,.5,.5,.5), nrow = 4)
+qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
+             grDevices::rgb(237, 125, 49, 255, max = 255), # orange
+             grDevices::rgb(165, 165, 165, 255, max = 255), # grey
+             grDevices::rgb(30, 192, 0, 255, max = 255), # yelow
+             grDevices::rgb(68, 114, 196, 255, max = 255), # darker blue
+             grDevices::rgb(112, 173, 71, 255, max = 255), # green
+             grDevices::rgb(37, 94, 145, 255, max = 255), # even darker blue
+             grDevices::rgb(158, 72, 14, 255, max = 255), # blood
+             grDevices::rgb(99, 99, 99, 255, max = 255), # dark grey
+             grDevices::rgb(153, 115, 0, 255, max = 255), # brown
+             grDevices::rgb(38, 68, 120, 255, max = 255), # very dark blue
+             grDevices::rgb(67, 104, 43, 255, max = 255), # darker green
+             grDevices::rgb(255, 255, 255, 255, max = 255), # black
+             grDevices::rgb(255, 35, 35, 255, max = 255)) # red
+colorVec = substring(qColors,1,7)
+rhtmlPalmTrees::PalmTrees(data = x, colors = colorVec)
