@@ -102,7 +102,14 @@ PalmTrees <- function(
     nc = ncol(data);
 
     if (is.null(weights))
-        weights = rep(1,nc)
+        weights = rep(1/nc,nc)
+    else {
+        if (length(weights) != nc) {
+            stop("The length of weights must be the same as the number of columns.")
+        }
+        weights = weights/sum(weights)
+    }
+
 
     if (is.null(col.names))
         col.names = colnames(data)

@@ -316,3 +316,6 @@ qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
              grDevices::rgb(255, 35, 35, 255, max = 255)) # red
 colorVec = substring(qColors,1,7)
 rhtmlPalmTrees::PalmTrees(data = x, colors = colorVec)
+
+x = matrix(c(1:4, 4, 4, 4, 4),2,  byrow = TRUE)
+rhtmlPalmTrees::PalmTrees(data = x, weights = rep(2, 4))

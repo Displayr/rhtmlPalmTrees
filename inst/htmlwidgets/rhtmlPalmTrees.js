@@ -77,7 +77,7 @@ function PalmPlot() {
              barData[i].value = weightedSums[i];
              frondData[i].value = weightedSums[i];
             for (var j = 0; j < colNames.length; j++) {
-                var leafValue = radialScale(normData[i][j]);
+                var leafValue = linearRadialScale(normData[i][j]);
                 if (!settings.rawData[i][j]) {
                     leafValue = 0;
                 }
@@ -204,7 +204,7 @@ function PalmPlot() {
         i = d.index;
         var s = 1.1;
         for (var j = 0; j < colNames.length; j++) {
-            var leafValue = radialScale(normData[i][j]);
+            var leafValue = linearRadialScale(normData[i][j]);
             if (!settings.rawData[i][j]) {
                 leafValue = 0;
             }
@@ -234,7 +234,7 @@ function PalmPlot() {
         d3.select("#littleTriangle").style("visibility", "hidden");
         i = d.index;
         for (var j = 0; j < colNames.length; j++) {
-            var leafValue = radialScale(normData[i][j]);
+            var leafValue = linearRadialScale(normData[i][j]);
             if (!settings.rawData[i][j]) {
                 leafValue = 0;
             }
@@ -818,8 +818,8 @@ function PalmPlot() {
         xscale.rangeRoundBands([0, plotWidth], 0.1, 0.3);
         // update leaf size
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4), 60);
-        radialScale.range([minLeafWidth, param.maxLeafWidth]);
-        linearRadialScale.range([minLeafWidth, param.maxLeafWidth]);
+        linearRadialScale.range([param.maxLeafWidth*minVal/maxVal, param.maxLeafWidth]);
+        //linearRadialScale.range([minLeafWidth, param.maxLeafWidth]);
         update_data();
         palms.data(frondData);
         leaves.data(function(d) { return d.leaves;});
@@ -1400,18 +1400,18 @@ function PalmPlot() {
                     .rangeRoundBands([0, plotWidth], 0.1, 0.3);
 
         param.maxLeafWidth = Math.min(plotMargin.top, Math.floor((xscale.range()[1] - xscale.range()[0])/1.4), 60);
-        radialScale = d3.scale.sqrt()
-                        .domain([minVal, maxVal])
-                        .range([minLeafWidth, param.maxLeafWidth]);
+        //radialScale = d3.scale.sqrt()
+        //                .domain([minVal, maxVal])
+        //                .range([minLeafWidth, param.maxLeafWidth]);
         linearRadialScale = d3.scale.linear()
                         .domain([minVal, maxVal])
-                        .range([minLeafWidth, param.maxLeafWidth]);
+                        .range([param.maxLeafWidth*minVal/maxVal, param.maxLeafWidth]);
 
         for (var i = 0; i < rowNames.length; i++) {
             var frondDatum = {};
             var leafData = [];
             for (var j = 0; j < colNames.length; j++) {
-                var leafValue = radialScale(normData[i][j]);
+                var leafValue = linearRadialScale(normData[i][j]);
                 if (!settings.rawData[i][j]) {
                     leafValue = 0;
                 }
