@@ -1565,31 +1565,34 @@ function PalmPlot() {
                 var atip = "";
 
                 atip = atip + "<div class='tipHeading'>" + rowNames[i];
-                if (settings.barHeights) {
-                    atip = atip + " - " + settings.ylab + " ";
-                    if (settings.yprefix) {
-                        atip = atip + settings.yprefix + weightedSums[i].toFixed(settings.digits);
+                if (settings.ylab) {
+                    if (settings.barHeights) {
+                        atip = atip + " - " + settings.ylab + " ";
+                        if (settings.yprefix) {
+                            atip = atip + settings.yprefix + weightedSums[i].toFixed(settings.digits);
+                        } else {
+                            atip = atip + weightedSums[i].toFixed(settings.digits);
+                        }
+                        if (settings.ysuffix) {
+                            atip = atip + settings.ysuffix;
+                        }
                     } else {
-                        atip = atip + weightedSums[i].toFixed(settings.digits);
-                    }
-                    if (settings.ysuffix) {
-                        atip = atip + settings.ysuffix;
-                    }
-                } else {
-                    atip = atip + " -";
-                    if (settings.ylab) {
-                        atip = atip + " " + settings.ylab;
-                    }
-                    atip = atip + " ";
-                    if (settings.prefix) {
-                        atip = atip + settings.prefix + weightedSums[i].toFixed(settings.digits);
-                    } else {
-                        atip = atip + weightedSums[i].toFixed(settings.digits);
-                    }
-                    if (settings.suffix) {
-                        atip = atip + settings.suffix;
+                        atip = atip + " -";
+                        if (settings.ylab) {
+                            atip = atip + " " + settings.ylab;
+                        }
+                        atip = atip + " ";
+                        if (settings.prefix) {
+                            atip = atip + settings.prefix + weightedSums[i].toFixed(settings.digits);
+                        } else {
+                            atip = atip + weightedSums[i].toFixed(settings.digits);
+                        }
+                        if (settings.suffix) {
+                            atip = atip + settings.suffix;
+                        }
                     }
                 }
+
                 atip = atip  + "</div>";
                 atip = atip + "<div class='tipTableContainer'>" + "<table class='tipTable'>";
                 for (var j = 0; j < colNames.length; j++) {
@@ -1666,31 +1669,34 @@ function PalmPlot() {
                     var atip = "";
 
                     atip = atip + "<div class='tipHeading'>" + rowNames[i];
-                    if (settings.barHeights) {
-                        atip = atip + " - " + settings.ylab + " ";
-                        if (settings.yprefix) {
-                            atip = atip + settings.yprefix + weightedSums[i].toFixed(settings.digits);
+                    if (settings.ylab) {
+                        if (settings.barHeights) {
+                            atip = atip + " - " + settings.ylab + " ";
+                            if (settings.yprefix) {
+                                atip = atip + settings.yprefix + weightedSums[i].toFixed(settings.digits);
+                            } else {
+                                atip = atip + weightedSums[i].toFixed(settings.digits);
+                            }
+                            if (settings.ysuffix) {
+                                atip = atip + settings.ysuffix;
+                            }
                         } else {
-                            atip = atip + weightedSums[i].toFixed(settings.digits);
-                        }
-                        if (settings.ysuffix) {
-                            atip = atip + settings.ysuffix;
-                        }
-                    } else {
-                        atip = atip + " -";
-                        if (settings.ylab) {
-                            atip = atip + " " + settings.ylab;
-                        }
-                        atip = atip + " ";
-                        if (settings.prefix) {
-                            atip = atip + settings.prefix + weightedSums[i].toFixed(settings.digits);
-                        } else {
-                            atip = atip + weightedSums[i].toFixed(settings.digits);
-                        }
-                        if (settings.suffix) {
-                            atip = atip + settings.suffix;
+                            atip = atip + " -";
+                            if (settings.ylab) {
+                                atip = atip + " " + settings.ylab;
+                            }
+                            atip = atip + " ";
+                            if (settings.prefix) {
+                                atip = atip + settings.prefix + weightedSums[i].toFixed(settings.digits);
+                            } else {
+                                atip = atip + weightedSums[i].toFixed(settings.digits);
+                            }
+                            if (settings.suffix) {
+                                atip = atip + settings.suffix;
+                            }
                         }
                     }
+
                     atip = atip + "</div>";
                     atip = atip + "<div class='tipTableContainer'>" + "<table class='tipTable'>";
                     for (var j = 0; j < colNames.length; j++) {
