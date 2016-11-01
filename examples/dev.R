@@ -30,7 +30,6 @@ rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                                col.heading = names(dimnames(CSDperceptions))[2],
                                prefix = prefix,
                                suffix = suffix,
-                                y.show = FALSE,
                                tooltips = TRUE,
                                colors = qColors)
 
@@ -55,7 +54,7 @@ CSDperceptions1 <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.19
                            c( 0.4543, 0.1275, 0.07673, 0.02847, 0.07293, 0.1077, 0.01609, 0.05198, 0.321, 0.01856, 0.0297),
                            c( 0.06807, 0.1089, 0.06064, 0.0198, 0.1174, 0.04084, 0.01609, 0.01733, 0.03465, 0.01361, 0.03589),
                            c( 0.08168, 0.224, 0.1015, 0.04579, 0.04815, 0.04084, 0.03094, 0.05562, 0.05322, 0.04084, 0.02847)),nrow=8,byrow=TRUE,
-                         dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'This is a very-very-long brand name plus random hyphenated-words','Fanta','Lift','Pepsi'),
+                         dimnames=list(Brand=c('Coke','V',"Red Bull","Lift Plus",'Hewlett-Packard ','A very-very-long label that needs to-be wrapped','Lift+lift','Pepsi-pepsi cola'),
                                        Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshes', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
 
 
@@ -104,6 +103,7 @@ suffix = "%"
 PalmTrees(data = CSDperceptions)
 PalmTrees(data = t(CSDperceptions))
 PalmTrees(data = CSDperceptions1)
+htmlwidgets::saveWidget(PalmTrees(data = CSDperceptions1), file = "/Users/MichaelW/Work/palmtree/index.html", selfcontained = F)
 htmlwidgets::saveWidget(PalmTrees(data = CSDperceptions,
                                   row.heading = names(dimnames(CSDperceptions))[1],
                                   col.heading = names(dimnames(CSDperceptions))[2],
