@@ -22,6 +22,7 @@ weights = rep(1,ncol(CSDperceptions))
 prefix = ""
 suffix = "%"
 rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
+                        y.digits = 2,
                                weights = weights,
                                row.names = rownames(CSDperceptions),
                                row.heading = names(dimnames(CSDperceptions))[1],
@@ -29,6 +30,7 @@ rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                                col.heading = names(dimnames(CSDperceptions))[2],
                                prefix = prefix,
                                suffix = suffix,
+                                y.show = FALSE,
                                tooltips = TRUE,
                                colors = qColors)
 
@@ -111,14 +113,8 @@ htmlwidgets::saveWidget(PalmTrees(data = CSDperceptions,
                                   tooltips = TRUE,
                                   colors = colorVec), file = "/Users/MichaelW/Work/palmtree/index.html", selfcontained = F)
 
-PalmTrees(data = t(CSDperceptions),
-                           row.heading = names(dimnames(CSDperceptions))[1],
-                           col.heading = names(dimnames(CSDperceptions))[2],
-                           y.lab = "Market value",
-                           prefix = prefix,
-                           suffix = suffix,
-                           tooltips = TRUE,
-                           colors = colorVec)
+rhtmlPalmTrees::PalmTrees(data = CSDperceptions, digits = 2,
+                           tooltips = TRUE)
 
 htmlwidgets::saveWidget(w, file = "/Users/MichaelW/Work/palmtree/index.html", selfcontained = F)
 # use 1 column of data as heights, specifying y label
@@ -297,6 +293,7 @@ rhtmlPalmTrees::PalmTrees(data = x,
                                          prefix = "",
                                          suffix = suffix,
                                          tooltips = "Default",
+                          y.show = FALSE,
                                          colors = colorVec)
 
 x = matrix(c(4,3,2,1,.5,.5,.5,.5), nrow = 4)
@@ -317,5 +314,6 @@ qColors <- c(grDevices::rgb(91, 155, 213, 255, max = 255), # blue
 colorVec = substring(qColors,1,7)
 rhtmlPalmTrees::PalmTrees(data = x, colors = colorVec)
 
+library(rhtmlPalmTrees)
 x = matrix(c(1:4, 4, 4, 4, 4),2,  byrow = TRUE)
-rhtmlPalmTrees::PalmTrees(data = x, weights = rep(1,4))
+rhtmlPalmTrees::PalmTrees(data = x, weights = rep(1,4), y.lab = "value", y.show = FALSE)

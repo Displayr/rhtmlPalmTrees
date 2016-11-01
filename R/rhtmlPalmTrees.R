@@ -10,6 +10,7 @@
 #' @param prefix prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.
 #' @param suffix suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.
 #' @param column.as.heights Integer to specify which column can be used as tree heights.
+#' @param y.show Logical. Show y axis?
 #' @param y.lab y axis label
 #' @param y.prefix prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.
 #' @param y.suffix suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.
@@ -60,6 +61,7 @@ PalmTrees <- function(
     suffix = NULL,
     column.as.heights = NULL,
     digits = 1,
+    y.show = TRUE,
     y.lab = NULL,
     y.prefix = NULL,
     y.suffix = NULL,
@@ -170,6 +172,7 @@ PalmTrees <- function(
         colNames = col.names,
         rowHeading = row.heading,
         colHeading = col.heading,
+        showYAxis = y.show,
         ylab = y.lab,
         yprefix = y.prefix,
         ysuffix = y.suffix,

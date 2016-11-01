@@ -7,9 +7,9 @@
 PalmTrees(data = NULL, weights = NULL, row.names = NULL,
   row.heading = NULL, col.names = NULL, col.heading = NULL,
   tooltips = TRUE, prefix = NULL, suffix = NULL,
-  column.as.heights = NULL, digits = 1, y.lab = NULL, y.prefix = NULL,
-  y.suffix = NULL, y.digits = 1, colors = NULL, order = "descending",
-  width = NULL, height = NULL)
+  column.as.heights = NULL, digits = 1, y.show = TRUE, y.lab = NULL,
+  y.prefix = NULL, y.suffix = NULL, y.digits = 1, colors = NULL,
+  order = "descending", width = NULL, height = NULL)
 }
 \arguments{
 \item{data}{numeric matrix or data frame}
@@ -33,6 +33,8 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 \item{column.as.heights}{Integer to specify which column can be used as tree heights.}
 
 \item{digits}{integer to control the number of decimal places in the tooltips}
+
+\item{y.show}{Logical. Show y axis?}
 
 \item{y.lab}{y axis label}
 

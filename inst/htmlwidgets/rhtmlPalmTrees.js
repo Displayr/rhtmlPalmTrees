@@ -1337,16 +1337,20 @@ function PalmPlot() {
         param.ymin = 0;
 
         // set left margin based on numbers, prefix and if there is ylabel
-        if (param.ymax >= 10000) {
-            yaxisFormat = 1;
-            left_margin = 55;
+        if (settings.showYAxis) {
+            if (param.ymax >= 10000) {
+                yaxisFormat = 1;
+                left_margin = 55;
+            } else {
+                yaxisFormat = 0;
+                left_margin = ((Math.floor(param.ymax)).toString().length + settings.ydigits )*7 + 25;
+            }
         } else {
-            yaxisFormat = 0;
-            left_margin = ((Math.floor(param.ymax)).toString().length + settings.ydigits )*7 + 25;
+            left_margin = 10;
         }
 
         if (settings.barHeights) {
-            if (settings.yprefix && settings.ysuffix) {
+            if (settings.yprefix && settings.ysuffix && settings.showYAxis) {
                 yPrefixText = settings.yprefix;
                 var prefixLength = 0;
                 plotArea.append("text")
@@ -1360,7 +1364,7 @@ function PalmPlot() {
                 left_margin = left_margin + prefixLength;
             }
         } else {
-            if (settings.prefix && settings.suffix) {
+            if (settings.prefix && settings.suffix && settings.showYAxis) {
                 yPrefixText = settings.prefix;
                 var prefixLength = 0;
                 plotArea.append("text")
@@ -1516,9 +1520,12 @@ function PalmPlot() {
 
         plotArea.attr("transform", "translate(" + plotMargin.left + "," + plotMargin.top + ")");
 
-        plotArea.append("g")
-                .attr("class", "yaxis")
-                .call(yAxis);
+        if (settings.showYAxis) {
+            plotArea.append("g")
+                    .attr("class", "yaxis")
+                    .call(yAxis);
+        }
+
 
 
         // vertical bars
@@ -2021,30 +2028,35 @@ function PalmPlot() {
         rowNames1.sort();
 
         if (settings.barHeights) {
-            if (settings.yprefix || settings.ysuffix) {
-                if (!settings.ysuffix) {
-                    plotArea.append("text")
-                        .attr("class", "suffixText")
-                        .text(settings.yprefix);
-                } else {
-                    plotArea.append("text")
-                        .attr("class", "suffixText")
-                        .text(settings.ysuffix);
+            if (settings.showYAxis) {
+                if (settings.yprefix || settings.ysuffix) {
+                    if (!settings.ysuffix) {
+                        plotArea.append("text")
+                            .attr("class", "suffixText")
+                            .text(settings.yprefix);
+                    } else {
+                        plotArea.append("text")
+                            .attr("class", "suffixText")
+                            .text(settings.ysuffix);
+                    }
+                    update_unit_position();
                 }
-                update_unit_position();
             }
+
         } else {
-            if (settings.prefix || settings.suffix) {
-                if (!settings.suffix) {
-                    plotArea.append("text")
-                        .attr("class", "suffixText")
-                        .text(settings.prefix);
-                } else {
-                    plotArea.append("text")
-                        .attr("class", "suffixText")
-                        .text(settings.suffix);
+            if (settings.showYAxis) {
+                if (settings.prefix || settings.suffix) {
+                    if (!settings.suffix) {
+                        plotArea.append("text")
+                            .attr("class", "suffixText")
+                            .text(settings.prefix);
+                    } else {
+                        plotArea.append("text")
+                            .attr("class", "suffixText")
+                            .text(settings.suffix);
+                    }
+                    update_unit_position();
                 }
-                update_unit_position();
             }
         }
 
