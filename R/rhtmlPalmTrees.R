@@ -3,18 +3,34 @@
 #' @param data numeric matrix or data frame
 #' @param weights numeric vector specifying weights. Length must equal to \code{ncol(data)}
 #' @param row.names character vector specifying x ticks. Default value are obtained from \code{rownames(data)}.
+#' @param row.font.size Default row font size = 11
+#' @param row.font.family Default row font family = "sans-serif"
 #' @param row.heading character, used as x label
+#' @param row.heading.font.size Default row heading font size = 12
+#' @param row.heading.font.family Default row heading font family = "sans-serif"
 #' @param col.names character vector specifying the legend. Default value obtained from \code{colnames(data)}.
+#' @param col.font.size Default column font size = 11
+#' @param col.font.family Default column font family = "sans-serif"
 #' @param col.heading character vector specifying the heading
+#' @param col.heading.font.size Default column heading font size = 12
+#' @param col.heading.font.family Default column heading font family = "sans-serif"
 #' @param tooltips logical, whether to attach tooltips on mouseover, default true.
-#' @param prefix prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.
-#' @param suffix suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.
-#' @param column.as.heights Integer to specify which column can be used as tree heights.
+#' @param tooltips.font.size Default tooltip font size = 11
+#' @param tooltips.font.family Default tooltip font family = "sans-serif"
+#' @param tooltips.heading.font.size Default tooltip heading font size = 12
+#' @param tooltips.heading.font.family Default tooltip heading font family = "sans-serif"
 #' @param y.show Logical. Show y axis?
 #' @param y.lab y axis label
 #' @param y.prefix prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.
 #' @param y.suffix suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.
 #' @param y.digits integer to control the number of decimal places of the y axis
+#' @param y.font.size Default y axis font size = 11
+#' @param y.font.family Default y axis font family = "sans-serif"
+#' @param y.lab.font.size Default y axis label font size = 12
+#' @param y.lab.font.family Default y axis label font family = "sans-serif"
+#' @param prefix prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.
+#' @param suffix suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.
+#' @param column.as.heights Integer to specify which column can be used as tree heights.
 #' @param colors colors of the leaves. D3 colors will be used if no values are provided.
 #' @param digits integer to control the number of decimal places in the tooltips
 #' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".
@@ -53,35 +69,35 @@ PalmTrees <- function(
     data = NULL,
     weights = NULL,
     row.names = NULL,
-    row.font.size = 10,
+    row.font.size = 11,
     row.font.family = "sans-serif",
     row.heading = NULL,
-    row.heading.font.size = 10,
+    row.heading.font.size = 12,
     row.heading.font.family = "sans-serif",
     col.names = NULL,
-    col.font.size = 10,
+    col.font.size = 11,
     col.font.family = "sans-serif",
     col.heading = NULL,
     col.heading.font.size = 12,
     col.heading.font.family = "sans-serif",
     tooltips = TRUE,
-    tooltips.font.size = 10,
+    tooltips.font.size = 11,
     tooltips.font.family = "sans-serif",
     tooltips.heading.font.size = 12,
     tooltips.heading.font.family = "sans-serif",
-    prefix = NULL,
-    suffix = NULL,
-    column.as.heights = NULL,
-    digits = 1,
     y.show = TRUE,
     y.lab = NULL,
     y.prefix = NULL,
     y.suffix = NULL,
     y.digits = 1,
-    y.font.size = 10,
+    y.font.size = 11,
     y.font.family = "sans-serif",
     y.lab.font.size = 12,
     y.lab.font.family = "sans-serif",
+    prefix = NULL,
+    suffix = NULL,
+    column.as.heights = NULL,
+    digits = 1,
     colors = NULL,
     order = "descending",
     width = NULL,
@@ -185,15 +201,31 @@ PalmTrees <- function(
         rawData = raw.data,
         weights = weights,
         rowNames = row.names,
-        colNames = col.names,
+        rowFontSize = row.font.size,
+        rowFontFamily = row.font.family,
         rowHeading = row.heading,
+        rowHeadingFontSize = row.heading.font.size,
+        rowHeadingFontFamily = row.heading.font.family,
+        colNames = col.names,
+        colFontSize = col.font.size,
+        colFontFamily = col.font.family,
         colHeading = col.heading,
+        colHeadingFontSize = col.heading.font.size,
+        colHeadingFontFamily = col.heading.font.family,
+        tooltips = tooltips,
+        tooltipsFontSize = tooltips.font.size,
+        tooltipsFontFamily = tooltips.font.family,
+        tooltipsHeadingFontSize = tooltips.heading.font.size,
+        tooltipsHeadingFontFamily = tooltips.heading.font.family,
         showYAxis = y.show,
         ylab = y.lab,
         yprefix = y.prefix,
         ysuffix = y.suffix,
         ydigits = y.digits,
-        tooltips = tooltips,
+        yFontSize =  y.font.size,
+        yFontFamily =  y.font.family,
+        yLabFontSize = y.lab.font.size,
+        yLabFontFamily = y.lab.font.family,
         digits = digits,
         colors = colors,
         barHeights = bar.heights,

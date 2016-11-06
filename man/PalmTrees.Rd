@@ -5,10 +5,18 @@
 \title{Create a PalmTree plot}
 \usage{
 PalmTrees(data = NULL, weights = NULL, row.names = NULL,
-  row.heading = NULL, col.names = NULL, col.heading = NULL,
-  tooltips = TRUE, prefix = NULL, suffix = NULL,
-  column.as.heights = NULL, digits = 1, y.show = TRUE, y.lab = NULL,
-  y.prefix = NULL, y.suffix = NULL, y.digits = 1, colors = NULL,
+  row.font.size = 11, row.font.family = "sans-serif", row.heading = NULL,
+  row.heading.font.size = 12, row.heading.font.family = "sans-serif",
+  col.names = NULL, col.font.size = 11, col.font.family = "sans-serif",
+  col.heading = NULL, col.heading.font.size = 12,
+  col.heading.font.family = "sans-serif", tooltips = TRUE,
+  tooltips.font.size = 11, tooltips.font.family = "sans-serif",
+  tooltips.heading.font.size = 12,
+  tooltips.heading.font.family = "sans-serif", y.show = TRUE,
+  y.lab = NULL, y.prefix = NULL, y.suffix = NULL, y.digits = 1,
+  y.font.size = 11, y.font.family = "sans-serif", y.lab.font.size = 12,
+  y.lab.font.family = "sans-serif", prefix = NULL, suffix = NULL,
+  column.as.heights = NULL, digits = 1, colors = NULL,
   order = "descending", width = NULL, height = NULL)
 }
 \arguments{
@@ -18,21 +26,37 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{row.names}{character vector specifying x ticks. Default value are obtained from \code{rownames(data)}.}
 
+\item{row.font.size}{Default row font size = 11}
+
+\item{row.font.family}{Default row font family = "sans-serif"}
+
 \item{row.heading}{character, used as x label}
+
+\item{row.heading.font.size}{Default row heading font size = 12}
+
+\item{row.heading.font.family}{Default row heading font family = "sans-serif"}
 
 \item{col.names}{character vector specifying the legend. Default value obtained from \code{colnames(data)}.}
 
+\item{col.font.size}{Default column font size = 11}
+
+\item{col.font.family}{Default column font family = "sans-serif"}
+
 \item{col.heading}{character vector specifying the heading}
+
+\item{col.heading.font.size}{Default column heading font size = 12}
+
+\item{col.heading.font.family}{Default column heading font family = "sans-serif"}
 
 \item{tooltips}{logical, whether to attach tooltips on mouseover, default true.}
 
-\item{prefix}{prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.}
+\item{tooltips.font.size}{Default tooltip font size = 11}
 
-\item{suffix}{suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.}
+\item{tooltips.font.family}{Default tooltip font family = "sans-serif"}
 
-\item{column.as.heights}{Integer to specify which column can be used as tree heights.}
+\item{tooltips.heading.font.size}{Default tooltip heading font size = 12}
 
-\item{digits}{integer to control the number of decimal places in the tooltips}
+\item{tooltips.heading.font.family}{Default tooltip heading font family = "sans-serif"}
 
 \item{y.show}{Logical. Show y axis?}
 
@@ -43,6 +67,22 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 \item{y.suffix}{suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.}
 
 \item{y.digits}{integer to control the number of decimal places of the y axis}
+
+\item{y.font.size}{Default y axis font size = 11}
+
+\item{y.font.family}{Default y axis font family = "sans-serif"}
+
+\item{y.lab.font.size}{Default y axis label font size = 12}
+
+\item{y.lab.font.family}{Default y axis label font family = "sans-serif"}
+
+\item{prefix}{prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.}
+
+\item{suffix}{suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.}
+
+\item{column.as.heights}{Integer to specify which column can be used as tree heights.}
+
+\item{digits}{integer to control the number of decimal places in the tooltips}
 
 \item{colors}{colors of the leaves. D3 colors will be used if no values are provided.}
 

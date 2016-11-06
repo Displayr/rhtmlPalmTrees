@@ -58,6 +58,43 @@ CSDperceptions1 <- matrix(c(0.3004, 0.6864, 0.4975, 0.2908, 0.2781, 0.2642, 0.19
                                        Attribute=c('Kids', 'Teens', "Enjoy life", 'Picks you up', 'Refreshes', 'Cheers you up', 'Energy', 'Up-to-date', 'Fun', 'When tired', 'Relax')))
 
 
+rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
+                          y.digits = 2,
+                          weights = weights,
+                          row.heading = names(dimnames(CSDperceptions))[1],
+                          col.heading = names(dimnames(CSDperceptions))[2],
+                          prefix = prefix,
+                          suffix = suffix,
+                          tooltips = TRUE,
+                          row.font.size = 14,
+                          row.font.family = "serif",
+                          row.heading.font.size = 16,
+                          row.heading.font.family = "serif",
+                          col.font.size = 14,
+                          col.font.family = "serif",
+                          col.heading.font.size = 16,
+                          col.heading.font.family = "serif",
+                          tooltips.font.size = 14,
+                          tooltips.font.family = "serif",
+                          tooltips.heading.font.size = 16,
+                          tooltips.heading.font.family = "serif",
+                          y.lab = "a y lab",
+                          y.font.size = 14,
+                          y.font.family = "serif",
+                          y.lab.font.size = 16,
+                          y.lab.font.family = "serif",
+                          colors = qColors)
+
+rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
+                          y.digits = 2,
+                          weights = weights,
+                          row.heading = names(dimnames(CSDperceptions))[1],
+                          col.heading = names(dimnames(CSDperceptions))[2],
+                          prefix = prefix,
+                          suffix = suffix,
+                          tooltips = TRUE,
+                          y.lab = "a y lab",
+                          colors = qColors)
 set.seed(123)
 # weights = runif(ncol(CSDperceptions))
 # weights = weights/sum(weights)

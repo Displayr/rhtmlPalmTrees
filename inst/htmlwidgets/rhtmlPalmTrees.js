@@ -55,7 +55,6 @@ function PalmPlot() {
         point,
         commasFormatter,
         commasFormatterE,
-        separators = {"-": 1, " ": 1},
         leafTips = [];
 
 
@@ -359,8 +358,8 @@ function PalmPlot() {
         param.sdBarMaxWidth = Math.floor(viewerWidth*0.25);
         param.sdBarMaxHeight = Math.floor(viewerHeight - 2*param.sdBarOuterMargin);
 
-        param.sdBarFontSize = 10;
-        param.sdBarHdFontSize = param.sdBarFontSize + 2;
+        param.sdBarFontSize = settings.colFontSize;
+        param.sdBarHdFontSize = settings.colHeadingFontSize;
         param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
         param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
         param.sdBarColorBarsH = param.sdBarElemH - 2*param.sdBarPadding;
@@ -466,7 +465,7 @@ function PalmPlot() {
         baseSvg.select(".sdBarHeading")
                 .attr("x", param.sdBarPadding)
                 .attr("y", param.sdBarHdY)
-                .style("font-size", param.sdBarHdFontSize );
+                .style("font-size", param.sdBarHdFontSize + "px");
 
         baseSvg.selectAll(".sdBarElem")
                 .attr("transform", function(d,i) {
@@ -829,6 +828,8 @@ function PalmPlot() {
                 .attr("transform", "translate(0," + plotHeight + ")")
                 .call(xAxis)
                 .selectAll(".tick text")
+                .style("font-size", settings.rowFontSize + "px")
+                .style("font-family", settings.rowFontFamily)
                 .call(wrap_new, xscale.rangeBand());
 
         plotMargin.bottom = bottom_margin + maxXaxisLines*xFontSize*1.1;
@@ -853,7 +854,11 @@ function PalmPlot() {
         yscale.range([plotHeight, 0]);
         yAxis.scale(yscale);
         xAxis.scale(xscale);
-        baseSvg.select(".yaxis").call(yAxis);
+        baseSvg.select(".yaxis")
+                .call(yAxis)
+                .selectAll(".tick text")
+                .style("font-size", settings.yFontSize + "px")
+                .style("font-family", settings.yFontFamily);
 
         baseSvg.selectAll(".bar")
                 .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
@@ -930,6 +935,7 @@ function PalmPlot() {
 
 
     function wrap_new(text, width) {
+        var separators = {"-": 1, " ": 1};
         var lineNumbers = [];
         text.each(function() {
             var text = d3.select(this),
@@ -1041,19 +1047,22 @@ function PalmPlot() {
         sdBarCtrl.append("text")
                 .attr("class", "sdBarAllOn")
                 .attr("dy", "0.35em")
-                .attr("text-anchor", "middle")
-                .text("All On");
+                .text("All On")
+                .style("text-anchor", "middle")
+                .style("font-family", settings.colFontFamily);
 
         sdBarCtrl.append("text")
                 .attr("class", "sdBarAllOff")
                 .attr("dy", "0.35em")
-                .attr("text-anchor", "middle")
-                .text("All Off");
+                .text("All Off")
+                .style("text-anchor", "middle")
+                .style("font-family", settings.colFontFamily);
 
         sdBarCtrl.append("text")
                 .attr("class", "sdBarSortHeading")
                 .attr("dy", "0.35em")
-                .text("Order");
+                .text("Order")
+                .style("font-family", settings.colFontFamily);
 
         var sortText = ["Original", "Alphabetical", "Ascending", "Descending"];
         var sdBarCtrlEnter = sdBarCtrl.selectAll("g.span")
@@ -1073,12 +1082,14 @@ function PalmPlot() {
                 .attr("class", "sdBarSortText")
                 .attr("id", function(d,i) { return "sortT" + i;})
                 .attr("dy", "0.35em")
-                .text(function(d) {return d;});
+                .text(function(d) {return d;})
+                .style("font-family", settings.colFontFamily);
 
         sdBarDisp.append("text")
                 .attr("class","sdBarHeading")
                 .attr("dy", "0.35em")
-                .text(settings.colHeading);
+                .text(settings.colHeading)
+                .style("font-family", settings.colHeadingFontFamily);
 
         for (var i = 0; i < colNames.length; i++) {
             var sdBarLeafDatum = {};
@@ -1133,7 +1144,8 @@ function PalmPlot() {
                 .attr("class", "sideBarText")
                 .attr("id", function(d,i) { return "sbTxt" + i;})
                 .attr("dy", "0.35em")
-                .text(function(d) { return d.colName;});
+                .text(function(d) { return d.colName;})
+                .style("font-family", settings.colFontFamily);
 
         update_sidebar(baseSvg);
 
@@ -1390,6 +1402,8 @@ function PalmPlot() {
                 .call(xAxis)
                 .selectAll(".tick text")
                 .attr("id", function(d,i) { return "tickTxt" + i})
+                .style("font-size", settings.rowFontSize + "px")
+                .style("font-family", settings.rowFontFamily)
                 .call(wrap_new, xscale.rangeBand());
 
 
@@ -1419,7 +1433,9 @@ function PalmPlot() {
                     .attr("x", plotWidth/2)
                     .attr("y", plotHeight + plotMargin.bottom - 10)
                     .text(settings.rowHeading)
-                    .attr("text-anchor", "middle");
+                    .style("text-anchor", "middle")
+                    .style("font-size", settings.rowHeadingFontSize + "px")
+                    .style("font-family", settings.rowHeadingFontFamily);
         }
 
         // y axis
@@ -1431,7 +1447,9 @@ function PalmPlot() {
                     .attr("transform", "rotate(-90," + (-plotMargin.left + 20) + "," + (plotHeight/2) + ")")
                     .attr("x", -plotMargin.left + 20)
                     .attr("y", plotHeight/2)
-                    .attr("text-anchor", "middle");
+                    .style("text-anchor", "middle")
+                    .style("font-size", settings.yLabFontSize + "px")
+                    .style("font-family", settings.yLabFontFamily);
         }
 
         yscale = d3.scale.linear()
@@ -1456,7 +1474,10 @@ function PalmPlot() {
         if (settings.showYAxis) {
             plotArea.append("g")
                     .attr("class", "yaxis")
-                    .call(yAxis);
+                    .call(yAxis)
+                    .selectAll(".tick text")
+                    .style("font-size", settings.yFontSize + "px")
+                    .style("font-family", settings.yFontFamily);
         }
 
 
@@ -1504,7 +1525,7 @@ function PalmPlot() {
             for (var i = 0; i < rowNames.length; i++) {
                 var atip = "";
 
-                atip = atip + "<div class='tipHeading'>" + rowNames[i];
+                atip = atip + "<div class='tipHeading' style='font-family:" + settings.tooltipsHeadingFontFamily + ";font-size:" + settings.tooltipsHeadingFontSize + "px" +"'>" + rowNames[i];
                 if (settings.ylab) {
                     if (settings.barHeights) {
                         atip = atip + " - " + settings.ylab + " ";
@@ -1543,22 +1564,22 @@ function PalmPlot() {
                         if (settings.rawData[i][j]) {
                             if (settings.prefix) {
                                 if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + settings.prefix + val + settings.suffix + "</td>";
                                 } else {
-                                    atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + settings.prefix + val + "</td>";
                                 }
                             } else {
                                 if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + val + settings.suffix + "</td>";
                                 } else {
-                                    atip = atip + "<td style='text-align:right'>" + val + "</td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + val + "</td>";
                                 }
                             }
                         } else {
-                            atip = atip + "<td style='text-align:right'>" + "No data" + "</td>";
+                            atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + "No data" + "</td>";
                         }
 
-                        atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
+                        atip = atip + "<td style='text-align:left;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + colNames[j] + "</td>";
                         atip = atip + "<td style='text-align:center'>";
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:" + colors[j] + "'></div>" + "</td>";
 
@@ -1566,22 +1587,22 @@ function PalmPlot() {
                         if (settings.rawData[i][j]) {
                             if (settings.prefix) {
                                 if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
                                 } else {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + settings.prefix + val + "</font></td>";
                                 }
                             } else {
                                 if (settings.suffix) {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + val + settings.suffix + "</font></td>";
                                 } else {
-                                    atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
+                                    atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + val + "</font></td>";
                                 }
                             }
                         } else {
-                            atip = atip + "<td style='text-align:right'><font color=#999>" + "No data" + "</font></td>";
+                            atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + "No data" + "</font></td>";
                         }
 
-                        atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
+                        atip = atip + "<td style='text-align:left;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + colNames[j] + "</font></td>";
                         atip = atip + "<td style='text-align:center'>";
                         atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
                     }
@@ -1608,7 +1629,7 @@ function PalmPlot() {
                 for (var jj = 0; jj < colNames.length; jj++) {
                     var atip = "";
 
-                    atip = atip + "<div class='tipHeading'>" + rowNames[i];
+                    atip = atip + "<div class='tipHeading' style='font-family:" + settings.tooltipsHeadingFontFamily + ";font-size:" + settings.tooltipsHeadingFontSize + "px" +"'>" + rowNames[i];
                     if (settings.ylab) {
                         if (settings.barHeights) {
                             atip = atip + " - " + settings.ylab + " ";
@@ -1651,21 +1672,21 @@ function PalmPlot() {
                             if (settings.rawData[i][j]) {
                                 if (settings.prefix) {
                                     if (settings.suffix) {
-                                        atip = atip + "<td style='text-align:right'>" + settings.prefix + val + settings.suffix + "</td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + settings.prefix + val + settings.suffix + "</td>";
                                     } else {
-                                        atip = atip + "<td style='text-align:right'>" + settings.prefix + val + "</td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + settings.prefix + val + "</td>";
                                     }
                                 } else {
                                     if (settings.suffix) {
-                                        atip = atip + "<td style='text-align:right'>" + val + settings.suffix + "</td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + val + settings.suffix + "</td>";
                                     } else {
-                                        atip = atip + "<td style='text-align:right'>" + val + "</td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + val + "</td>";
                                     }
                                 }
                             } else {
-                                atip = atip + "<td style='text-align:right'>" + "No data" + "</td>";
+                                atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + "No data" + "</td>";
                             }
-                            atip = atip + "<td style='text-align:left'>" + colNames[j] + "</td>";
+                            atip = atip + "<td style='text-align:left;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'>" + colNames[j] + "</td>";
                             atip = atip + "<td style='text-align:center'>";
                             atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:" + colors[j] + "'></div>" + "</td>";
 
@@ -1673,21 +1694,21 @@ function PalmPlot() {
                             if (settings.rawData[i][j]) {
                                 if (settings.prefix) {
                                     if (settings.suffix) {
-                                        atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + settings.prefix + val + settings.suffix + "</font></td>";
                                     } else {
-                                        atip = atip + "<td style='text-align:right'><font color=#999>" + settings.prefix + val + "</font></td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + settings.prefix + val + "</font></td>";
                                     }
                                 } else {
                                     if (settings.suffix) {
-                                        atip = atip + "<td style='text-align:right'><font color=#999>" + val + settings.suffix + "</font></td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + val + settings.suffix + "</font></td>";
                                     } else {
-                                        atip = atip + "<td style='text-align:right'><font color=#999>" + val + "</font></td>";
+                                        atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + val + "</font></td>";
                                     }
                                 }
                             } else {
-                                atip = atip + "<td style='text-align:right'><font color=#999>" + "No data" + "</font></td>";
+                                atip = atip + "<td style='text-align:right;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + "No data" + "</font></td>";
                             }
-                            atip = atip + "<td style='text-align:left'><font color=#999>" + colNames[j] + "</font></td>";
+                            atip = atip + "<td style='text-align:left;font-family:" + settings.tooltipsFontFamily + ";font-size:" + settings.tooltipsFontSize + "px" + "'><font color=#999>" + colNames[j] + "</font></td>";
                             atip = atip + "<td style='text-align:center'>";
                             atip = atip + "<div style='width:" + tipBarScale(data[i][j]) + "px;height:8px;background-color:#ccc'></div>" + "</td>";
                         }
@@ -1846,6 +1867,8 @@ function PalmPlot() {
                     .duration(duration)
                     .call(xAxis)
                     .selectAll(".tick text")
+                    .style("font-size", settings.rowFontSize + "px")
+                    .style("font-family", settings.rowFontFamily)
                     .call(wrap_new, xscale.rangeBand());
 
             /*plotArea.selectAll(".xtickBg")
@@ -1896,7 +1919,10 @@ function PalmPlot() {
             plotArea.select(".yaxis")
                     .transition()
                     .duration(duration)
-                    .call(yAxis);
+                    .call(yAxis)
+                    .selectAll(".tick text")
+                    .style("font-size", settings.yFontSize + "px")
+                    .style("font-family", settings.yFontFamily);
 
             bars.data(barData);
             palms.data(frondData);
@@ -1966,11 +1992,15 @@ function PalmPlot() {
                     if (!settings.ysuffix) {
                         plotArea.append("text")
                             .attr("class", "suffixText")
-                            .text(settings.yprefix);
+                            .text(settings.yprefix)
+                            .style("font-size", settings.yFontSize + "px")
+                            .style("font-family", settings.yFontFamily);
                     } else {
                         plotArea.append("text")
                             .attr("class", "suffixText")
-                            .text(settings.ysuffix);
+                            .text(settings.ysuffix)
+                            .style("font-size", settings.yFontSize + "px")
+                            .style("font-family", settings.yFontFamily);
                     }
                     update_unit_position();
                 }
@@ -1982,11 +2012,15 @@ function PalmPlot() {
                     if (!settings.suffix) {
                         plotArea.append("text")
                             .attr("class", "suffixText")
-                            .text(settings.prefix);
+                            .text(settings.prefix)
+                            .style("font-size", settings.yFontSize + "px")
+                            .style("font-family", settings.yFontFamily);
                     } else {
                         plotArea.append("text")
                             .attr("class", "suffixText")
-                            .text(settings.suffix);
+                            .text(settings.suffix)
+                            .style("font-size", settings.yFontSize + "px")
+                            .style("font-family", settings.yFontFamily);
                     }
                     update_unit_position();
                 }
