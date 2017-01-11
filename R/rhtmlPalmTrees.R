@@ -104,7 +104,7 @@ PalmTrees <- function(
     height = NULL) {
 
     if (digits < 0)
-        digits = 0
+        digits <- 0
 
 
     if (class(data) == "data.frame") {
