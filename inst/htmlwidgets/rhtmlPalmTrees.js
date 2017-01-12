@@ -2172,7 +2172,7 @@ HTMLWidgets.widget({
 
         instance = instance.settings(x.settings);
         instance = instance.data(x.data);
-        d3.select(el).select('g').remove();
+        d3.select(el).selectAll('g').remove();
         d3.select(el).call(instance);
 
     }
