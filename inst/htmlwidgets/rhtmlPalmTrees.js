@@ -2031,6 +2031,20 @@ function PalmPlot() {
 
     };
 
+    chart.reset = function() {
+      sdBarLeafData = [];
+      weightedSums = [];
+      unweightedSums = [];
+      normData = [];
+      barData = [];
+      frondData = [];
+      data = [];
+      leafTips = [];
+      selectedCol = [];
+
+      return chart;
+    }
+
     // settings getter/setter
     chart.data = function(value) {
         if (!arguments.length) return data;
@@ -2169,7 +2183,7 @@ HTMLWidgets.widget({
     },
 
     renderValue: function(el, x, instance) {
-
+        instance = instance.reset();
         instance = instance.settings(x.settings);
         instance = instance.data(x.data);
         d3.select(el).selectAll('g').remove();
