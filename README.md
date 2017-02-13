@@ -1,7 +1,7 @@
 Installation
 ------------
 
-    devtools::install_github("NumbersInternational/rhtmlPalmTrees")
+    devtools::install_github("Displayr/rhtmlPalmTrees")
 
 Usage
 -----
