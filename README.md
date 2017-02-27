@@ -5,7 +5,7 @@ This package uses a customised htmlwidget package that allows local state saving
 
 Installation
 ------------
-devtools::install_github("NumbersInternational/rhtmlPalmTrees")
+devtools::install_github("Displayr/rhtmlPalmTrees")
 
 
 Usage
