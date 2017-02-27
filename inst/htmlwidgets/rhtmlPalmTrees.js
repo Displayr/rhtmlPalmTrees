@@ -22,6 +22,7 @@ function PalmPlot() {
         minVal,
         rindices,
         colSort = "3",
+        colSortRestore = false,
         duration = 600,
         nticks = 10,
         colNames,
@@ -56,6 +57,8 @@ function PalmPlot() {
         commasFormatter,
         commasFormatterE,
         leafTips = [];
+
+    var saveStates;
 
 
     // set up default colors
@@ -1012,14 +1015,14 @@ function PalmPlot() {
         maxXaxisLines = d3.max(lineNumbers);
     }
 
-    function chart(selection){
+    function chart(chartWindowSelection){
+
+        var baseSvg = chartWindowSelection.select("svg");
 
         line = d3.svg.line()
                     .interpolate("cardinal-closed")
                     .x(function(d) { return d.x; })
                     .y(function(d) { return d.y; });
-
-        var baseSvg = selection.select("svg");
 
         /* create the side bar */
         /* this part goes first to set plot width */
@@ -1158,6 +1161,7 @@ function PalmPlot() {
             } else {
                 selectedCol[index] = 0;
             }
+            save_states();
             updatePlot(duration);
             d3.event.stopPropagation();
         }
@@ -1170,6 +1174,7 @@ function PalmPlot() {
             } else {
                 selectedCol[d[0].j] = 0;
             }
+            save_states();
             updatePlot(duration);
             var tipRect = sel.select("#ghost" + d.index)[0][0];
             d3.event.stopPropagation();
@@ -1213,6 +1218,7 @@ function PalmPlot() {
                     selectedCol[i] = 0;
                 });
             }
+            save_states();
             updatePlot(duration);
             d3.event.stopPropagation();
         }
@@ -1236,6 +1242,7 @@ function PalmPlot() {
 
             if (thisid != colSort) {
                 colSort = thisid;
+                save_states();
                 sdBarCtrl.selectAll(".sdBarSortBox").style("fill", "#fff").style("stroke","#999");
                 sdBarCtrl.selectAll(".sdBarSortText").style("fill", "#999");
 
@@ -1256,20 +1263,23 @@ function PalmPlot() {
                     d3.event.stopPropagation();
                 });
 
-        switch (settings.order) {
-            case "original":
-                colSort = "0";
-                break;
-            case "alphabetical":
-                colSort = "1";
-                break;
-            case "ascending":
-                colSort = "2";
-                break;
-            case "descending":
-                colSort = "3";
-                break;
+        if (!colSortRestore) {
+            switch (settings.order) {
+                case "original":
+                    colSort = "0";
+                    break;
+                case "alphabetical":
+                    colSort = "1";
+                    break;
+                case "ascending":
+                    colSort = "2";
+                    break;
+                case "descending":
+                    colSort = "3";
+                    break;
+            }
         }
+
         sdBarCtrl.select("#sortC" + colSort).style("fill", "steelblue").style("stroke","steelblue");
         sdBarCtrl.select("#sortT" + colSort).style("fill", "#000");
         sdBarCtrl.selectAll(".sideBarElemSortRect").on("click", clickSort);
@@ -2029,7 +2039,21 @@ function PalmPlot() {
 
         updatePlot(duration);
 
-    };
+    }
+
+    save_states = function() {
+        // save selectedCol and colSort
+        saveStates({selectedCol: selectedCol, colSort: colSort});
+    }
+
+    restore_states = function(state) {
+        colSort = state.colSort;
+        colSortRestore = true;
+        selectedCol = [];
+        for (var i = 0; i < settings.colNames.length; i++) {
+            selectedCol.push(state.selectedCol[i]);
+        }
+    }
 
     chart.reset = function() {
       sdBarLeafData = [];
@@ -2043,7 +2067,7 @@ function PalmPlot() {
       selectedCol = [];
 
       return chart;
-    }
+    };
 
     // settings getter/setter
     chart.data = function(value) {
@@ -2123,13 +2147,26 @@ function PalmPlot() {
             param.sdBarMaxTxtL = Math.max(param.sdBarMaxTxtL, colNames[i].length);
         }
 
+        return chart;
+    };
 
+    // loads the state of the widget if it is saved
+    chart.restore = function(state) {
+        restore_states(state);
+        return chart;
+    };
+
+    // set the state saver function
+    chart.stateSaver = function(stateChanged) {
+        if (!arguments.length) return stateChanged;
+        saveStates = stateChanged;
         return chart;
     };
 
     // resize
     chart.resize = function(el) {
         resize_chart(el);
+        return chart;
     };
 
     chart.width = function(value) {
@@ -2156,38 +2193,42 @@ HTMLWidgets.widget({
 
     type: "output",
 
-    initialize: function(el, w, h) {
+    factory: function(el, width, height, stateChanged) {
 
-        var width,
-            height;
+        var w = width < 200 ? 200 : width,
+            h = height < 100 ? 100 : height;
 
-        width = w < 200 ? 200 : w;
-        height = h < 100 ? 100 : h;
-
-        d3.select(el)
-            .append("svg")
+        d3.select(el).append("svg")
             .attr("class", "svgContent")
-            .attr("width", width)
-            .attr("height", height);
+            .attr("width", w)
+            .attr("height", h);
 
-        return PalmPlot().width(width).height(height);
-    },
+        // an empty instance of the PalmPlot object with width and height initialized
+        var palm = new PalmPlot().width(w).height(h).stateSaver(stateChanged);
 
-    resize: function(el, width, height, instance) {
+        return {
 
-        d3.select(el).select("svg")
-            .attr("width", width)
-            .attr("height", height);
+            renderValue: function(x, state) {
+                palm = palm.reset();
+                palm = palm.settings(x.settings);
+                palm = palm.data(x.data);
+                if (state) {
+                    palm.restore(state);
+                }
+                d3.select(el).selectAll('g').remove();
+                d3.select(el).call(palm);
+            },
 
-        return instance.width(width).height(height).resize(el);
-    },
+            resize: function(width, height) {
+                d3.select(el).select("svg")
+                    .attr("width", width)
+                    .attr("height", height);
 
-    renderValue: function(el, x, instance) {
-        instance = instance.reset();
-        instance = instance.settings(x.settings);
-        instance = instance.data(x.data);
-        d3.select(el).selectAll('g').remove();
-        d3.select(el).call(instance);
+                return palm.width(width).height(height).resize(el);
+            },
 
+            palm: palm
+
+        };
     }
 });
