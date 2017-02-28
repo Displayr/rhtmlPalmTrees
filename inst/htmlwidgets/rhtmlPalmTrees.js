@@ -974,11 +974,13 @@ function PalmPlot() {
                             } else if (c === "-") {
                                 // check negation or hyphen
                                 c1 = chars.pop();
-                                if (c1 && isnum.test(c1)) {
-                                    chars.push(c1);
-                                    chars.push(lineTemp.pop());
-                                } else {
-                                    chars.push(c1);
+                                if (c1) {
+                                    if (isnum.test(c1)) {
+                                        chars.push(c1);
+                                        chars.push(lineTemp.pop());
+                                    } else {
+                                        chars.push(c1);
+                                    }
                                 }
                             }
                             // make new line
@@ -1003,9 +1005,14 @@ function PalmPlot() {
                         // handles negative sign and space
                         if (sep === "-") {
                             c1 = newline.pop();
-                            if (c1 && isnum.test(c1)) {
-                                newline.push(c1);
-                                newline.push(sep);
+                            if (c1) {
+                                if (isnum.test(c1)) {
+                                    newline.push(c1);
+                                    newline.push(sep);
+                                } else {
+                                    lineTemp.push(sep);
+                                    newline.push(c1);
+                                }
                             } else {
                                 lineTemp.push(sep);
                                 newline.push(c1);
@@ -1016,7 +1023,7 @@ function PalmPlot() {
                         // put chars back into the string that needs to be wrapped
                         newline.reverse();
                         while (nextchar = newline.pop()) {
-                            chars.push(nextchar);
+                            newline.push(nextchar);
                         }
                         // make new line
                         sep = undefined;
