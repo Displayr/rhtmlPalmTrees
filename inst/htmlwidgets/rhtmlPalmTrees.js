@@ -948,7 +948,7 @@ function PalmPlot() {
                 isnum = /[0-9]/,
                 nextchar,
                 sep,
-                newline = [];   // the chars from the current line that should be breaked and wrapped
+                newline = [],   // the chars from the current line that should be breaked and wrapped
                 lineTemp = [],  // the current, temporary line (tspan) that needs to be filled
                 lineNumber = 0,
                 lineHeight = 1.1, // ems
@@ -1023,7 +1023,7 @@ function PalmPlot() {
                         // put chars back into the string that needs to be wrapped
                         newline.reverse();
                         while (nextchar = newline.pop()) {
-                            newline.push(nextchar);
+                            chars.push(nextchar);
                         }
                         // make new line
                         sep = undefined;
