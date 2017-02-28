@@ -944,10 +944,12 @@ function PalmPlot() {
             var text = d3.select(this),
                 chars = text.text().split("").reverse(),
                 c,
+                c1,
+                isnum = /[0-9]/,
                 nextchar,
                 sep,
-                newline = [];
-                lineTemp = [],
+                newline = [];   // the chars from the current line that should be breaked and wrapped
+                lineTemp = [],  // the current, temporary line (tspan) that needs to be filled
                 lineNumber = 0,
                 lineHeight = 1.1, // ems
                 x = text.attr("x"),
@@ -969,6 +971,15 @@ function PalmPlot() {
                         if (c in separators) {
                             if (c === " ") {
                                 lineTemp.pop();
+                            } else if (c === "-") {
+                                // check negation or hyphen
+                                c1 = chars.pop();
+                                if (c1 && isnum.test(c1)) {
+                                    chars.push(c1);
+                                    chars.push(lineTemp.pop());
+                                } else {
+                                    chars.push(c1);
+                                }
                             }
                             // make new line
                             sep = undefined;
@@ -979,24 +990,34 @@ function PalmPlot() {
                         }
 
                     } else {
-                        // pop out chars until reaching sep
+                        // handles the case when the last char is a separator and c === sep
                         if (c in separators) {
                             newline.push(lineTemp.pop());
                         }
+                        // pop chars until it reaches the previous separator recorded
                         nextchar = lineTemp.pop();
                         while (nextchar !== sep && lineTemp.length > 0) {
                             newline.push(nextchar);
                             nextchar = lineTemp.pop();
                         }
+                        // handles negative sign and space
+                        if (sep === "-") {
+                            c1 = newline.pop();
+                            if (c1 && isnum.test(c1)) {
+                                newline.push(c1);
+                                newline.push(sep);
+                            } else {
+                                lineTemp.push(sep);
+                                newline.push(c1);
+                            }
+                        } else if (sep !== " ") {
+                            lineTemp.push(sep);
+                        }
+                        // put chars back into the string that needs to be wrapped
                         newline.reverse();
                         while (nextchar = newline.pop()) {
                             chars.push(nextchar);
                         }
-
-                        if (sep !== " ") {
-                            lineTemp.push(sep);
-                        }
-
                         // make new line
                         sep = undefined;
                         tspan.text(lineTemp.join(""));
