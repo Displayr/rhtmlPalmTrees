@@ -37,8 +37,8 @@ function PalmPlot() {
         tipBarScale,
         dataMax = 0,
         dataMin = 100000000,
-        xaxis,
-        yaxis,
+        xAxis,
+        yAxis,
         line,
         bars,
         texts,
@@ -204,7 +204,7 @@ function PalmPlot() {
         }*/
 
 
-        i = d.index;
+        var i = d.index;
         var s = 1.1;
         for (var j = 0; j < colNames.length; j++) {
             var leafValue = linearRadialScale(normData[i][j]);
@@ -1431,7 +1431,7 @@ function PalmPlot() {
         //var xtickRect = barsEnter.append("rect")
         //                        .attr("class", "xtickBg");
 
-        xAxis = d3.svg.axis()
+        var xAxis = d3.svg.axis()
                     .scale(xscale)
                     .orient("bottom");
 
