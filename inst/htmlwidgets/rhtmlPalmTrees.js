@@ -967,7 +967,8 @@ function PalmPlot() {
 
                     // if no separator detected before c, wait until there is one
                     // otherwise, wrap texts
-                    if (sep === undefined) {
+                    // The or case handles situations when the negative sign is the first char
+                    if (sep === undefined || lineTemp[0] == '-') {
                         if (c in separators) {
                             if (c === " ") {
                                 lineTemp.pop();
@@ -1431,7 +1432,7 @@ function PalmPlot() {
         //var xtickRect = barsEnter.append("rect")
         //                        .attr("class", "xtickBg");
 
-        var xAxis = d3.svg.axis()
+        xAxis = d3.svg.axis()
                     .scale(xscale)
                     .orient("bottom");
 
