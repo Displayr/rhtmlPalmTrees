@@ -2072,7 +2072,7 @@ function PalmPlot() {
 
     save_states = function() {
         // save selectedCol and colSort
-        saveStates({selectedCol: selectedCol, colSort: colSort});
+        saveStates({selectedCol: selectedCol, colSort: colSort, data: data});
     }
 
     restore_states = function(state) {
@@ -2082,6 +2082,27 @@ function PalmPlot() {
         for (var i = 0; i < settings.colNames.length; i++) {
             selectedCol.push(state.selectedCol[i]);
         }
+    }
+
+    function check_state(state) {
+        var savedData = state.data;
+        if (data && savedData && data[0] && savedData[0]) {
+            if (savedData.length !== data.length || savedData[0].length !== data[0].length) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        for (var i = 0; i < rowNames.length; i++) {
+            for (var j = 0; j < colNames.length; j++) {
+                if (data[i][j] !== savedData[i][j]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     chart.reset = function() {
@@ -2179,8 +2200,17 @@ function PalmPlot() {
         return chart;
     };
 
+    chart.checkState = function(v) {
+        return check_state(v);
+    };
+
+    chart.resetState = function() {
+        saveStates(null);
+        return chart;
+    };
+
     // loads the state of the widget if it is saved
-    chart.restore = function(state) {
+    chart.restoreState = function(state) {
         restore_states(state);
         return chart;
     };
@@ -2242,7 +2272,11 @@ HTMLWidgets.widget({
                 palm = palm.settings(x.settings);
                 palm = palm.data(x.data);
                 if (state) {
-                    palm.restore(state);
+                    if (palm.checkState(state)) {
+                        palm.restoreState(state);
+                    } else {
+                        palm.resetState();
+                    }
                 }
                 d3.select(el).selectAll('g').remove();
                 d3.select(el).call(palm);
