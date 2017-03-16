@@ -181,29 +181,6 @@ function PalmPlot() {
             }
         }
 
-        /*if (plotMargin.top + yscale(d.value) > viewerHeight * 0.5) {
-            this_tip = this_tip.direction("n").offset([-10,0]).show(d, tipRect);
-            d3.select("#littleTriangle")
-            .attr("class", "northTip")
-            .style("visibility", "visible")
-            .style("top", (y - 5 + yscale(d.value) + plotMargin.top) + "px")
-            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
-        } else {
-            this_tip = this_tip.direction("s").offset([10,0]).show(d, tipRect);
-            d3.select("#littleTriangle")
-            .attr("class", "southTip")
-            .style("visibility", "visible")
-            .style("top", (y + h + 5 + yscale(d.value) + plotMargin.top) + "px")
-            .style("left", (xscale(d.name) + xscale.rangeBand()/2 + plotMargin.left) + "px");
-        }
-
-        if (parseFloat(this_tip.style("left")) < 0) {
-            this_tip.style("left", "5px");
-        } else if (parseFloat(this_tip.style("left")) + parseFloat(this_tip.style("width")) > param.sdBarX) {
-            this_tip.style("left", (param.sdBarX - 5 - parseFloat(this_tip.style("width"))) + "px");
-        }*/
-
-
         var i = d.index;
         var s = 1.1;
         for (var j = 0; j < colNames.length; j++) {
@@ -1191,7 +1168,7 @@ function PalmPlot() {
                 selectedCol[index] = 0;
             }
             save_states();
-            updatePlot(duration);
+            updatePlot(duration, false);
             d3.event.stopPropagation();
         }
 
@@ -1204,7 +1181,7 @@ function PalmPlot() {
                 selectedCol[d[0].j] = 0;
             }
             save_states();
-            updatePlot(duration);
+            updatePlot(duration, false);
             var tipRect = sel.select("#ghost" + d.index)[0][0];
             d3.event.stopPropagation();
         }
@@ -1248,7 +1225,7 @@ function PalmPlot() {
                 });
             }
             save_states();
-            updatePlot(duration);
+            updatePlot(duration, false);
             d3.event.stopPropagation();
         }
 
@@ -1278,7 +1255,7 @@ function PalmPlot() {
                 sdBarCtrl.select("#sortC" + thisid).style("fill", "steelblue").style("stroke","steelblue");
                 sdBarCtrl.select("#sortT" + thisid).style("fill", "#000");
 
-                sortBars();
+                sortBars(false);
             }
         }
 
@@ -1402,12 +1379,21 @@ function PalmPlot() {
                 if (!settings.rawData[i][j]) {
                     leafValue = 0;
                 }
-                leafData.push( [{x:0, y:0, i:i, j:j},
-                                {x:leafValue*0.25, y:-leafValue*0.07},
-                                {x:leafValue*0.75, y:-leafValue*0.13},
-                                {x:leafValue, y:0},
-                                {x:leafValue*0.75, y:leafValue*0.13},
-                                {x:leafValue*0.25, y:leafValue*0.07}]);
+                if (selectedCol[j] < 0.5) {
+                    leafData.push( [{x:0, y:0, i:i, j:j},
+                                    {x:leafValue*0.25, y:-leafValue*0.03},
+                                    {x:leafValue*0.75, y:-leafValue*0.05},
+                                    {x:leafValue, y:0},
+                                    {x:leafValue*0.75, y:leafValue*0.05},
+                                    {x:leafValue*0.25, y:leafValue*0.03}]);
+                } else {
+                    leafData.push( [{x:0, y:0, i:i, j:j},
+                                    {x:leafValue*0.25, y:-leafValue*0.07},
+                                    {x:leafValue*0.75, y:-leafValue*0.13},
+                                    {x:leafValue, y:0},
+                                    {x:leafValue*0.75, y:leafValue*0.13},
+                                    {x:leafValue*0.25, y:leafValue*0.07}]);
+                }
             }
             frondDatum = {leaves: leafData, name: rowNames[i], value: weightedSums[i], index: i,
                             tip: "s", tipR: d3.mean(normData[i]), tipMaxR: d3.max(normData[i])};
@@ -1553,7 +1539,9 @@ function PalmPlot() {
             return "rotate(" + (i*360/ncol - 90) + ")";
         });
 
-        leaves.style("fill", function(d,i) { return colors[i];});
+        leaves.style("fill", function(d,i) {
+                    return selectedCol[i] === 0 ? "#ccc" : colors[i];
+                });
 
         // update html tip content on ghost rectangle
         function make_tip_data() {
@@ -1793,7 +1781,7 @@ function PalmPlot() {
                     })
                     .attr("y", function(d) {
                         return this.parentNode.getBoundingClientRect().top - 5 - 1 -
-                        (plotHeight + plotMargin.top);
+                        (yscale(d.value) + plotMargin.top);
                     })
                     .attr("width", function(d) {return this.parentNode.getBoundingClientRect().width + 2;})
                     .attr("height", function(d) {return this.parentNode.getBoundingClientRect().height + 2;})
@@ -1851,7 +1839,7 @@ function PalmPlot() {
         }
 
         // sort bars
-        function sortBars() {
+        function sortBars(initialization) {
             var rowNamesTemp = [];
             var sortfun,sortfun1;
             var sumsTemp = [];
@@ -1893,42 +1881,56 @@ function PalmPlot() {
                 sortfun = function(a,b) { return -(a.value - b.value);};
             }
 
-            plotArea.selectAll(".bar")
-                    .sort(sortfun)
-                    .transition("barHeight")
-                    .duration(duration)
-                    .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
-                    .attr("y", function(d) { return yscale(d.value); })
-                    .attr("height", function(d) { return plotHeight - yscale(d.value); });
+            if (initialization) {
+                plotArea.selectAll(".bar")
+                        .sort(sortfun)
+                        .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
+                        .attr("y", function(d) { return yscale(d.value); })
+                        .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
-            plotArea.select(".xaxis")
-                    .transition("xtickLocation")
-                    .duration(duration)
-                    .call(xAxis)
-                    .selectAll(".tick text")
-                    .style("font-size", settings.rowFontSize + "px")
-                    .style("font-family", settings.rowFontFamily)
-                    .call(wrap_new, xscale.rangeBand());
+                plotArea.select(".xaxis")
+                        .call(xAxis)
+                        .selectAll(".tick text")
+                        .style("font-size", settings.rowFontSize + "px")
+                        .style("font-family", settings.rowFontFamily)
+                        .call(wrap_new, xscale.rangeBand());
 
-            /*plotArea.selectAll(".xtickBg")
-                    .sort(sortfun)
-                    .transition()
-                    .duration(duration)
-                    .attr("x", function(d,i) {
-                        return -Number(d3.select(this).attr("width"))/2 + xscale(d.name) + xscale.rangeBand()/2;
-                    });*/
+                plotArea.selectAll(".leaf")
+                        .sort(sortfun)
+                        .attr("transform", function(d) {
+                            return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
+                        });
+            } else {
+                plotArea.selectAll(".bar")
+                        .sort(sortfun)
+                        .transition("barHeight")
+                        .duration(duration)
+                        .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
+                        .attr("y", function(d) { return yscale(d.value); })
+                        .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
-            plotArea.selectAll(".leaf")
-                    .sort(sortfun)
-                    .transition("leafHeight")
-                    .duration(duration)
-                    .attr("transform", function(d) {
-                        return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
-                    });
+                plotArea.select(".xaxis")
+                        .transition("xtickLocation")
+                        .duration(duration)
+                        .call(xAxis)
+                        .selectAll(".tick text")
+                        .style("font-size", settings.rowFontSize + "px")
+                        .style("font-family", settings.rowFontFamily)
+                        .call(wrap_new, xscale.rangeBand());
+
+                plotArea.selectAll(".leaf")
+                        .sort(sortfun)
+                        .transition("leafHeight")
+                        .duration(duration)
+                        .attr("transform", function(d) {
+                            return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
+                        });
+            }
+
         }
 
         // update plot when something is clicked
-        function updatePlot(duration) {
+        function updatePlot(duration, initialization) {
 
             for (var i = 0; i < rowNames.length; i++) {
                 unweightedSums[i] = 0;
@@ -1955,13 +1957,21 @@ function PalmPlot() {
 
             yAxis.scale(yscale);
 
-            plotArea.select(".yaxis")
-                    .transition()
-                    .duration(duration)
-                    .call(yAxis)
-                    .selectAll(".tick text")
-                    .style("font-size", settings.yFontSize + "px")
-                    .style("font-family", settings.yFontFamily);
+            if (initialization) {
+                plotArea.select(".yaxis")
+                        .call(yAxis)
+                        .selectAll(".tick text")
+                        .style("font-size", settings.yFontSize + "px")
+                        .style("font-family", settings.yFontFamily);
+            } else {
+                plotArea.select(".yaxis")
+                        .transition()
+                        .duration(duration)
+                        .call(yAxis)
+                        .selectAll(".tick text")
+                        .style("font-size", settings.yFontSize + "px")
+                        .style("font-family", settings.yFontFamily);
+            }
 
             bars.data(barData);
             palms.data(frondData);
@@ -2013,7 +2023,7 @@ function PalmPlot() {
                         return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
                     });
             } else {
-                sortBars();
+                sortBars(initialization);
             }
         }
 
@@ -2066,7 +2076,7 @@ function PalmPlot() {
             }
         }
 
-        //updatePlot(duration);
+        updatePlot(duration, true);
 
     }
 
