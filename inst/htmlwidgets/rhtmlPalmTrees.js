@@ -43,8 +43,8 @@ function PalmPlot() {
         bars,
         texts,
         palms,
-        tips,
         tip,
+        leaf_tip,
         minLeafWidth = 8,
         maxXaxisLines = 1,
         xFontSize = 11,
@@ -1526,9 +1526,9 @@ function PalmPlot() {
                     .selectAll("path")
                     .data(function(d) { return d.leaves;});
 
-        leavesEnter = leaves.enter().append("path").style("cursor", "pointer");
-
-        leavesEnter.attr("d", line);
+        leaves.enter().append("path")
+            .style("cursor", "pointer")
+            .attr("d", line);
 
         plotArea.selectAll(".leaf")
                 .attr("transform", function(d) {
@@ -2080,12 +2080,12 @@ function PalmPlot() {
 
     }
 
-    save_states = function() {
+    function save_states() {
         // save selectedCol and colSort
         saveStates({selectedCol: selectedCol, colSort: colSort, data: data});
     }
 
-    restore_states = function(state) {
+    function restore_states(state) {
         colSort = state.colSort;
         colSortRestore = true;
         selectedCol = [];
@@ -2115,24 +2115,7 @@ function PalmPlot() {
         return true;
     }
 
-    chart.reset = function() {
-      sdBarLeafData = [];
-      weightedSums = [];
-      unweightedSums = [];
-      normData = [];
-      barData = [];
-      frondData = [];
-      data = [];
-      leafTips = [];
-      selectedCol = [];
-
-      return chart;
-    };
-
-    // settings getter/setter
-    chart.data = function(value) {
-        if (!arguments.length) return data;
-
+    function init_data(value) {
         for (var i = 0; i < colNames.length; i++) {
             selectedCol.push(1);
         }
@@ -2181,14 +2164,9 @@ function PalmPlot() {
         }
 
         tipBarScale = d3.scale.linear().domain([dataMin,dataMax]).range([2,30]);
+    }
 
-        return chart;
-    };
-
-    // settings getter/setter
-    chart.settings = function(value) {
-        if (!arguments.length) return settings;
-
+    function init_settings(value) {
         settings = value;
         colNames = settings.colNames;
         rowNames = settings.rowNames;
@@ -2206,7 +2184,33 @@ function PalmPlot() {
         for (var i = 0; i < colNames.length; i++) {
             param.sdBarMaxTxtL = Math.max(param.sdBarMaxTxtL, colNames[i].length);
         }
+    }
 
+    chart.reset = function() {
+      sdBarLeafData = [];
+      weightedSums = [];
+      unweightedSums = [];
+      normData = [];
+      barData = [];
+      frondData = [];
+      data = [];
+      leafTips = [];
+      selectedCol = [];
+
+      return chart;
+    };
+
+    // settings getter/setter
+    chart.data = function(value) {
+        if (!arguments.length) return data;
+        init_data(value);
+        return chart;
+    };
+
+    // settings getter/setter
+    chart.settings = function(value) {
+        if (!arguments.length) return settings;
+        init_settings(value);
         return chart;
     };
 
