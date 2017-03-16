@@ -1526,8 +1526,8 @@ function PalmPlot() {
         barRect.attr("class", "bar")
                 .attr("x", function(d) { return xscale(d.name) + Math.round(xscale.rangeBand()/2); })
                 .attr("width", 1)
-                .attr("y", function(d) { return plotHeight; })
-                .attr("height", function(d) { return 0; });
+                .attr("y", function(d) { return yscale(d.value); })
+                .attr("height", function(d) { return plotHeight - yscale(d.value); });
 
         // leaves
         if(settings.tooltips){
@@ -1546,7 +1546,7 @@ function PalmPlot() {
 
         plotArea.selectAll(".leaf")
                 .attr("transform", function(d) {
-                    return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + plotHeight + ")";
+                    return "translate(" + (xscale(d.name) + xscale.rangeBand()/2) + "," + yscale(d.value) + ")";
                 });
 
         leaves.attr("transform", function(d,i) {
@@ -2066,7 +2066,7 @@ function PalmPlot() {
             }
         }
 
-        updatePlot(duration);
+        //updatePlot(duration);
 
     }
 
