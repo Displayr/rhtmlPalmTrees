@@ -212,7 +212,7 @@ function PalmPlot() {
     function mouse_out_frond(d) {
         tip.hide(d);
         d3.select("#littleTriangle").style("visibility", "hidden");
-        i = d.index;
+        var i = d.index;
         for (var j = 0; j < colNames.length; j++) {
             var leafValue = linearRadialScale(normData[i][j]);
             if (!settings.rawData[i][j]) {
