@@ -1,14 +1,14 @@
 dependencies:
-  - name: d3
-    version: 3.5.11
-    src: htmlwidgets/lib/d3
-    script: d3.min.js
-  - name: d3-tip
-    version: 0.6.7
-    src: htmlwidgets/lib/d3-tip
-    script: d3-tip.js
-    stylesheet: d3-tip.css
-  - name: rhtmlPalmTrees
-    version: 0.0.1
-    src: htmlwidgets/lib/rhtmlPalmTrees
-    stylesheet: rhtmlPalmTrees.css
+- name: scripts
+  version: 0.0.1
+  src: htmlwidgets/lib/
+  script: 
+  - d3.min.js
+  - d3-tip.js
+  - PalmTrees.js
+
+- name: style
+  version: 1.0.0
+  src: htmlwidgets/lib/style
+  stylesheet:
+  - rhtmlPalmTrees.css

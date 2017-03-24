@@ -1,0 +1,6 @@
+{
+  "widgetClassFile": "theSrc/scripts/PalmTrees.js",
+  "widgetEntryPoint": "theSrc/scripts/rhtmlPalmTrees.js",
+  "widgetName": "rhtmlPalmTrees",
+  "rFunction": "rhtmlPalmTrees::PalmTrees"
+}
