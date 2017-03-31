@@ -777,8 +777,8 @@ function PalmTrees() {
     function resize_chart(el) {
 
         d3.select(el).select("svg")
-            .attr("width", width)
-            .attr("height", height);
+            .attr("width", viewerWidth)
+            .attr("height", viewerHeight);
 
         var baseSvg = d3.select(el).select("svg");
 

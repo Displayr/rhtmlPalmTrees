@@ -36,9 +36,9 @@ gulp.task('default', function () {
 //   runSequence('clean', 'core', 'testSpecs', ['makeDocs', 'makeExample'], done);
 // });
 
-gulp.task('build_s', function(done) {
-  runSequence('clean', 'core', ['makeDocs', 'makeExample'], done);
-});
+// gulp.task('build_s', function(done) {
+//   runSequence('clean', 'core', ['makeDocs', 'makeExample'], done);
+// });
 
 // gulp.task('core', ['compileES6ToInst', 'less', 'copy', 'buildContentManifest']);
 
