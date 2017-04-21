@@ -7,7 +7,9 @@ R htmlwidget package for creating a palm tree plot
 ## Important
 This package uses a customised htmlwidget package that allows local state saving. The official htmlwidget package will not work. Download the customised package by running install_github('Displayr/htmlwidgets')
 
+## Installation
 1. `library(devtools)`
+1. `install_github('Displayr/htmlwidgets')`
 1. `install_github('Displayr/rhtmlPalmTrees', auth_token='????????????????????')`
 
 An example to verify installation:
