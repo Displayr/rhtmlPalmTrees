@@ -34,7 +34,7 @@ function runProtractor(done) {
     .pipe($.exit());
 }
 
-gulp.task('testVisual', ['webdriverUpdate', 'connect'], runProtractor);
+gulp.task('testVisual', ['build', 'webdriverUpdate', 'connect'], runProtractor);
 
 // NB p_skip skips the webdriver download step - it is downloading gecko drivers every time (30MB / run)
 // TODO - need to detect which browser drivers are required - probavbly in protractor conf

@@ -47,8 +47,9 @@ gulp.task('default', function () {
 gulp.task('build', function(done) {
   runSequence('clean', 'copy', 'buildContentManifest', ['makeDocs'], done);
 });
-
-gulp.task('serve', ['connect'], function () {
+// Live reload is disabled by default as the author of this package saves changes frequently,
+// and therefore prefers manual reload. 
+gulp.task('serve', ['build', 'connect'], function () {
   opn('http://localhost:9000');
 });
 

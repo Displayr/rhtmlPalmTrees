@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const widgetName = require('../config/widget.config.json').widgetName;
-const contentManifest = require('../../theSrc/internal_www/contentManifest.json');
+const contentManifest = require('../../browser/contentManifest.json');
 
 // NB global.visualDiffConfig is set globally in protractor.conf.js
 const eyes = require('./initializeApplitools').getEyes(global.visualDiffConfig);
