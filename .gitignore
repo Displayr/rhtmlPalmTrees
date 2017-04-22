@@ -1,5 +1,5 @@
 .RData
-.DSStore
+.DS_Store
 .Rbuildignore
 .Rhistory
 .Rproj.user

@@ -48,11 +48,11 @@ An example to verify installation:
 1. type `npm install` ENTER
     1. `npm install` is noisy and will print several warnings about `UNMET` and `DEPRECATED`. Ignore these and only make note of errors. If it fails, try running it again.
 1. type `gulp serve` ENTER
-    1. If `gulp serve` does not work try `./node_modules/.bin/gulp serve`. To correct this and to make your nodejs life easier you should add `./node_modules/.bin` to your PATH. Consult the Internet for instructions on how to do so on your OS of choice.
+    1. If `gulp serve` does not work try `./node_modules/.bin/gulp serve`. To correct this and to make your nodejs life easier you should add `./node_modules/.bin` to your PATH. Consult the Internet for instructions on how to do so on your OS of choice. 
+    1. Auto-reload will be enabled with `gulp serve`, meaning that any changes saved to the specific files in folders `scripts`, `internal_www` and `styles` inside the `theSrc` folder will trigger an automatic browser reload.
+1. If you do not wish to have auto-reload enabled, run `gulp serve_s` instead.
 
 If this worked, then the `gulp serve` command opened your browser and you are looking at `http://localhost:9000`. You should see a page listing a bunch of links to examples. These examples are defined in the [internal www content directory](theSrc/internal_www/content).
-
-Note that the browser auto-reloading feature has been disabled by default. 
 
 ## Prerequisite Installation Help
 
