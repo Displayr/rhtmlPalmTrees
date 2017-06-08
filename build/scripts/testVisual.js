@@ -45,7 +45,7 @@ describe('Take visual regression snapshots', function () {
               width: global.visualDiffConfig.browserWidth,
               height: global.visualDiffConfig.browserHeight,
             };
-            eyes.open(browser, `${widgetName} ${global.visualDiffConfig.testLabel}`, contentPath, eyesParams);
+            eyes.open(browser, `${widgetName} ${global.visualDiffConfig.testLabel}`, `Check initialization for ${contentPath}`, eyesParams);
             openedEyes = true;
 
             console.log(`Waiting ${global.visualDiffConfig.pageLoadWaitSeconds * 1000} seconds for widgetsPage`);
