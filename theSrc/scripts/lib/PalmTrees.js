@@ -2160,7 +2160,7 @@ function PalmTrees() {
         for (var i = 0; i < rowNames.length; i++) {
             tempNorm = [];
             for (var j = 0; j < colNames.length; j++) {
-                tempNorm.push(value[i][j]/maxSum);
+                tempNorm.push(Math.sqrt(value[i][j]/maxSum));
             }
             normData.push(tempNorm);
             maxVal = Math.max(d3.max(normData[i]), maxVal);
