@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "showYAxis": true,
+    "ylab": null,
+    "yprefix": "yPref",
+    "ysuffix": "ySuf",
+    "ydigits": 2,
+    "yFontSize": 11,
+    "yFontFamily": "sans-serif",
+    "yLabFontSize": 12,
+    "yLabFontFamily": "sans-serif"
+  }
+}

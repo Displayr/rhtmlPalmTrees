@@ -1,3 +1,22 @@
+import d3 from 'd3'
+import _ from 'lodash'
+const d3Tip = require('d3-tip')
+d3Tip(d3)
+
+const defaultSettings = {
+  'colFontSize': 11,
+  'colFontFamily': 'sans-serif',
+  'colHeadingFontSize': 12,
+  'colHeadingFontFamily': 'sans-serif',
+  'rowFontSize': 11,
+  'rowFontFamily': 'sans-serif',
+  'columnHeading': '',
+  'rowHeading': '',
+  'rowHeadingFontSize': 12,
+  'rowHeadingFontFamily': 'sans-serif'
+}
+
+/* eslint-disable */
 function PalmTrees() {
     var viewerWidth = 600, // default width
         viewerHeight = 600, // default height
@@ -864,10 +883,10 @@ function PalmTrees() {
         if(settings.tooltips){
             tip.destroy();
             leaf_tip.destroy();
-            tip = d3.tip()
+            tip = d3Tip()
                     .attr('class', 'd3-tip')
                     .html(function(d) { return d.tip; });
-            leaf_tip = d3.tip()
+            leaf_tip = d3Tip()
                     .attr('class', 'd3-tip1')
                     .html(function(d,i) { return leafTips[d[0].i][d[0].j]; });
 
@@ -915,7 +934,6 @@ function PalmTrees() {
         }
 
     }
-
 
     function wrap_new(text, width) {
         var separators = {"-": 1, " ": 1};
@@ -1761,11 +1779,11 @@ function PalmTrees() {
 
             make_tip_data();
             make_leaf_tip_data();
-            tip = d3.tip()
+            tip = d3Tip()
                     .attr('class', 'd3-tip')
                     .html(function(d) { return d.tip; });
 
-            leaf_tip = d3.tip()
+            leaf_tip = d3Tip()
                     .attr('class', 'd3-tip1')
                     .html(function(d,i) { return leafTips[d[0].i][d[0].j]; });
 
@@ -2121,14 +2139,7 @@ function PalmTrees() {
     function init_data(value) {
 
         if (!settings.rawData) {
-            settings.rawData = [];
-            for (var i = 0; i < rowNames.length; i++) {
-                var rawDataVec = [];
-                for (var j = 0; j < colNames.length; j++) {
-                    rawDataVec.push(value[i][j]);
-                }
-                settings.rawData.push(rawDataVec);
-            }
+          settings.rawData = _.cloneDeep(value)
         }
 
         for (var i = 0; i < colNames.length; i++) {
@@ -2183,7 +2194,7 @@ function PalmTrees() {
     }
 
     function init_settings(value) {
-        settings = value;
+        settings = _.defaultsDeep(value, defaultSettings);
         colNames = settings.colNames;
         rowNames = settings.rowNames;
         weights = settings.weights;
@@ -2274,3 +2285,6 @@ function PalmTrees() {
 
     return chart;
 }
+
+module.exports = PalmTrees
+/* eslint-enable */
