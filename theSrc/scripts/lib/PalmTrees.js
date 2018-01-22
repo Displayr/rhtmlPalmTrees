@@ -380,11 +380,11 @@ function PalmTrees() {
         param.sdBarWidth = Math.ceil(param.sdBarMaxTextWidth + 3*param.sdBarPadding + param.sdBarColorBarsW + param.sdBarLeafR*2);
         param.sdBarHeight = Math.ceil(param.sdBarHdH + colNames.length*param.sdBarElemH);
 
+        const origSdBarHdFontSize = param.sdBarHdFontSize
         while (param.sdBarFontSize > 1 &&
             (param.sdBarWidth > param.sdBarMaxWidth || param.sdBarHeight > param.sdBarMaxHeight) ) {
-
             param.sdBarFontSize = param.sdBarFontSize - 1;
-            param.sdBarHdFontSize = param.sdBarFontSize + 2;
+            param.sdBarHdFontSize = Math.min(origSdBarHdFontSize, param.sdBarFontSize + 2);
             param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF;
             param.sdBarElemH = param.sdBarFontSize * param.sdBarHdivF;
             param.sdBarColorBarsH = param.sdBarElemH - 2*param.sdBarPadding;
