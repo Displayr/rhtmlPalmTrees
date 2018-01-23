@@ -6,7 +6,7 @@ d3Tip(d3)
 const defaultSettings = {
   'colFontSize': 11,
   'colFontFamily': 'sans-serif',
-  'colHeadingFontSize': 12,
+  'colHeadingFontSize': 0,
   'colHeadingFontFamily': 'sans-serif',
   'rowFontSize': 11,
   'rowFontFamily': 'sans-serif',
