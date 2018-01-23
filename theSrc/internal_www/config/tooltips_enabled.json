@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "tooltips": true,
+    "tooltipsFontSize": 11,
+    "tooltipsFontFamily": "sans-serif",
+    "tooltipsHeadingFontSize": 12,
+    "tooltipsHeadingFontFamily": "sans-serif"
+  }
+}

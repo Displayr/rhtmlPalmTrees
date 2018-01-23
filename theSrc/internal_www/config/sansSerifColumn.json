@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "colFontSize": 11,
+    "colFontFamily": "sans-serif",
+    "colHeading": "Column Heading",
+    "colHeadingFontSize": 12,
+    "colHeadingFontFamily": "sans-serif"
+  }
+}

@@ -1,6 +1,16 @@
 {
-  "widgetClassFile": "theSrc/scripts/PalmTrees.js",
   "widgetEntryPoint": "theSrc/scripts/rhtmlPalmTrees.js",
+  "widgetFactory": "theSrc/scripts/rhtmlPalmTrees.factory.js",
   "widgetName": "rhtmlPalmTrees",
-  "rFunction": "rhtmlPalmTrees::PalmTrees"
+  "rFunction": "rhtmlPalmTrees::PalmTrees",
+  "internalWebSettings": {
+    "includeDimensionsOnWidgetDiv": true,
+    "default_border": true,
+    "css": [
+      "/styles/rhtmlPalmTree.css"
+    ]
+  },
+  "visualRegressionSuite": {
+    "isReadySelector": "svg.svgContent"
+  }
 }
