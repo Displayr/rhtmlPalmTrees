@@ -1,7 +1,10 @@
 import d3 from 'd3'
 import _ from 'lodash'
+import * as log from 'loglevel'
+
 const d3Tip = require('d3-tip')
 d3Tip(d3)
+log.setLevel('info') // NB default, adjusted later in init_logger
 
 const defaultSettings = {
   'colFontSize': 11,
@@ -1456,6 +1459,7 @@ function PalmTrees() {
         // update bottom margin based on x axis
         plotMargin.bottom = bottom_margin + maxXaxisLines*xFontSize*1.1;
         plotHeight = viewerHeight - plotMargin.top - plotMargin.bottom;
+        log.info(`plotHeight(${plotHeight}) = viewerHeight(${viewerHeight}) - plotMargin.top(${plotMargin.top}) - plotMargin.bottom(${plotMargin.bottom})`)
         plotArea.select(".xaxis")
                 .attr("transform", "translate(0," + plotHeight + ")");
 
@@ -2195,6 +2199,7 @@ function PalmTrees() {
 
     function init_settings(value) {
         settings = _.defaultsDeep(value, defaultSettings);
+        init_logger(settings.logger)
         colNames = settings.colNames;
         rowNames = settings.rowNames;
         weights = settings.weights;
@@ -2213,16 +2218,80 @@ function PalmTrees() {
         }
     }
 
+    function init_logger(loggerSettings) {
+      if (_.isNull(loggerSettings)) {
+        return
+      }
+      if (_.isString(loggerSettings)) {
+        log.setLevel(loggerSettings)
+        return
+      }
+      _(loggerSettings).each((loggerLevel,loggerName) => {
+        if (loggerName === 'default') {
+          log.setLevel(loggerLevel)
+        } else {
+          log.getLogger(loggerName).setLevel(loggerLevel)
+        }
+      })
+    }
+
     chart.reset = function() {
-      sdBarLeafData = [];
-      weightedSums = [];
-      unweightedSums = [];
+      plotWidth = 400;
+      plotHeight = 400;
+      left_margin = 35;
+      bottom_margin = 20;
+      yaxisFormat = 0;
+      data = [];
+      settings = {};
+      plotMargin = {};
+      param = {};
+      tempNorm = [];
       normData = [];
+      selectedCol = [];
+      unweightedSums = [];
+      weightedSums = [];
       barData = [];
       frondData = [];
-      data = [];
+      sdBarLeafData = [];
+      maxVal = null;
+      minVal = null;
+      rindices = null;
+      colSort = "3";
+      colSortRestore = false;
+      duration = 600;
+      nticks = 10;
+      colNames = null;
+      rowNames = null;
+      weights = null;
+      colors = null;
+      ncol = null;
+      xscale = null;
+      yscale = null;
+      radialScale = null;
+      linearRadialScale = null;
+      tipBarScale = null;
+      dataMax = 0;
+      dataMin = 100000000;
+      xAxis = null;
+      yAxis = null;
+      line = null;
+      bars = null;
+      texts = null;
+      palms = null;
+      tip = null;
+      leaf_tip = null;
+      minLeafWidth = 8;
+      maxXaxisLines = 1;
+      xFontSize = 11;
+      initR = [];
+      yPrefixText = "";
+      leaves = null;
+      sdBarPalms = null;
+      sdBarLeaves = null;
+      point = null;
+      commasFormatter = null;
+      commasFormatterE = null;
       leafTips = [];
-      selectedCol = [];
 
       return chart;
     };
