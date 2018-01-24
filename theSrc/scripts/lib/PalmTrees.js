@@ -356,6 +356,17 @@ function PalmTrees () {
     const origSdBarHdFontSize = param.sdBarHdFontSize
     while (param.sdBarFontSize > 1 &&
             (param.sdBarWidth > param.sdBarMaxWidth || param.sdBarHeight > param.sdBarMaxHeight)) {
+      log.getLogger('sizing').debug([
+        'Shrinking sidebar dimensions:',
+        `sdBarWidth(${param.sdBarWidth}) > sdBarMaxWidth(${param.sdBarMaxWidth}) || sdBarHeight(${param.sdBarHeight}) > sdBarMaxHeight(${param.sdBarMaxHeight})`,
+        `sdBarFontSize(${param.sdBarFontSize})`,
+        `sdBarHdFontSize(${param.sdBarHdFontSize})`,
+        `sdBarHdH(${param.sdBarHdH})`,
+        `sdBarElemH(${param.sdBarElemH})`,
+        `sdBarColorBarsH(${param.sdBarColorBarsH})`,
+        `sdBarColorBarsW(${param.sdBarColorBarsW})`
+      ].join('\n'))
+
       param.sdBarFontSize = param.sdBarFontSize - 1
       param.sdBarHdFontSize = Math.min(origSdBarHdFontSize, param.sdBarFontSize + 2)
       param.sdBarHdH = param.sdBarHdFontSize * param.sdBarHdivF
@@ -1987,8 +1998,10 @@ function PalmTrees () {
   }
 
   function saveStates () {
-        // save selectedCol and colSort
-    saveStatesFn({selectedCol: selectedCol, colSort: colSort, data: data})
+    if (_.isFunction(saveStatesFn)) {
+      // save selectedCol and colSort
+      saveStatesFn({selectedCol: selectedCol, colSort: colSort, data: data})
+    }
   }
 
   function restoreStates (state) {
@@ -2078,7 +2091,7 @@ function PalmTrees () {
 
   function initSettings (value) {
     settings = _.defaultsDeep(value, defaultSettings)
-    initLogger(settings.logger)
+    initLogger(settings.logger || settings.log)
     colNames = settings.colNames
     rowNames = settings.rowNames
     weights = settings.weights

@@ -1,7 +1,9 @@
 import PalmTrees from './lib/PalmTrees'
 import d3 from 'd3'
 
-module.exports = function (el, width, height, stateChanged) {
+module.exports = function (el, width, height, stateChangedFn) {
+  const stateChangedFnPresent = (typeof stateChangedFn === 'function') ? 'present' : 'absent'
+  console.log(`rhtmlPalmtrees.factory called width=${width}, height=${height}, stateChangedFn=${stateChangedFnPresent}`)
   const w = width < 200 ? 200 : width
   const h = height < 100 ? 100 : height
 
@@ -11,7 +13,7 @@ module.exports = function (el, width, height, stateChanged) {
     .attr('height', h)
 
   // an empty instance of the PalmPlot object with width and height initialized
-  let palm = new PalmTrees().width(w).height(h).stateSaver(stateChanged)
+  let palm = new PalmTrees().width(w).height(h).stateSaver(stateChangedFn)
 
   return {
     resize: function (width, height) {
