@@ -2,7 +2,8 @@
 
 * why data and settings.rawData ?
 * when two palmtree on same page, 1 row, 2 col, second suffix text does not get x=-20 y=-20 causing the % to sit in wrong spot
-
+* where does getComputedTextLength() come from ?
+* stateChanged is not being passed to PalmTrees
 
 
 ## Overview
