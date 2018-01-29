@@ -1,0 +1,19 @@
+{
+  "data": [
+    [0.9, 0.9, 0.9, 0.9],
+    [1, 1, 1, 1]
+  ],
+  "settings": {
+    "weights": [1, 1, 1, 1],
+    "rowNames": [
+      "Row0",
+      "Row1"
+    ],
+    "colNames": [
+      "Col1",
+      "Col2",
+      "Col3",
+      "Col4"
+    ]
+  }
+}
