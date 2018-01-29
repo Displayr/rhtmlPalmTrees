@@ -100,6 +100,7 @@ class PalmTrees {
 
     let wtSum, unwtSum
     // compute weighted sum
+    // TODO this is repeated in updatePlot and in constructor
     for (let i = 0; i < this.rowNames.length; i++) {
       wtSum = 0
       unwtSum = 0
@@ -503,6 +504,7 @@ class PalmTrees {
 
   // update date on resize, column toggle and initialization
   updateData () {
+    // TODO: this compute leafdata code is repeated in three places
     for (let i = 0; i < this.rowNames.length; i++) {
       this.barData[i].value = this.weightedSums[i]
       this.frondData[i].value = this.weightedSums[i]
@@ -597,6 +599,7 @@ class PalmTrees {
       thisTip.style('top', this.viewerHeight - tipHeight - 5 + 'px')
     }
 
+    // TODO: this compute leafdata code is repeated in three places
     let i = d.index
     let s = 1.1
     for (let j = 0; j < this.colNames.length; j++) {
@@ -628,6 +631,7 @@ class PalmTrees {
   mouseOutFrond (d) {
     this.tip.hide(d)
     d3.select('#littleTriangle').style('visibility', 'hidden')
+    // TODO: this compute leafdata code is repeated in three places
     let i = d.index
     for (let j = 0; j < this.colNames.length; j++) {
       let leafValue = this.linearRadialScale(this.normData[i][j])
@@ -1517,6 +1521,7 @@ class PalmTrees {
       .domain([this.minVal, this.maxVal])
       .range([this.param.maxLeafWidth * this.minVal / this.maxVal, this.param.maxLeafWidth])
 
+    // TODO: this compute leafdata code is repeated in three places
     for (let i = 0; i < this.rowNames.length; i++) {
       let frondDatum = {}
       let leafData = []
@@ -1525,7 +1530,7 @@ class PalmTrees {
         if (!this.settings.rawData[i][j]) {
           leafValue = 0
         }
-        if (this.selectedCol[j] < 0.5) {
+        if (this.selectedCol[j] < 0.5) { // this means IF column is selected ...
           leafData.push([{x: 0, y: 0, i: i, j: j},
             {x: leafValue * 0.25, y: -leafValue * 0.03},
             {x: leafValue * 0.75, y: -leafValue * 0.05},
@@ -1557,18 +1562,12 @@ class PalmTrees {
       this.barData.push({name: this.rowNames[i], value: this.weightedSums[i], index: i})
     }
 
-    this.bars = plotArea.selectAll('.vbar')
-      .data(this.barData)
-    let barsEnter = this.bars.enter()
-    let barRect = barsEnter.append('rect')
+    /* stop drawing stuff / start drawing stuff */
 
-    this.palms = plotArea.selectAll('.palm')
+    this.palms = plotArea.selectAll('.palm') // TODO there are no class palm ! ...
       .data(this.frondData)
 
     let palmEnter = this.palms.enter().append('g')
-
-    // let xtickRect = barsEnter.append("rect")
-    //                        .attr("class", "xtickBg");
 
     this.xAxis = d3.svg.axis()
       .scale(this.xscale)
@@ -1645,7 +1644,12 @@ class PalmTrees {
 
     // vertical this.bars
 
-    barRect.attr('class', 'bar')
+    this.bars = plotArea.selectAll('.bar')
+      .data(this.barData)
+
+    this.bars.enter()
+      .append('rect')
+      .attr('class', 'bar')
       .attr('id', function (d) { return `bar${d.index}` })
       .attr('x', function (d) { return _this.xscale(d.name) + Math.round(_this.xscale.rangeBand() / 2) })
       .attr('width', 1)
@@ -2051,6 +2055,7 @@ class PalmTrees {
 
     // update plot when something is clicked
     function updatePlot (duration, initialization) {
+      // TODO this is repeated in updatePlot and in constructor
       for (let i = 0; i < _this.rowNames.length; i++) {
         _this.unweightedSums[i] = 0
         _this.weightedSums[i] = 0
