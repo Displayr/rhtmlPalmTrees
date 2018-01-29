@@ -13,17 +13,22 @@ module.exports = function (el, width, height, stateChangedFn) {
     .attr('height', h)
 
   // an empty instance of the PalmPlot object with width and height initialized
-  let palm = new PalmTrees().width(w).height(h).stateSaver(stateChangedFn)
+  let palm = new PalmTrees()
+  palm.width(w)
+  palm.height(h)
+  palm.stateSaver(stateChangedFn)
 
   return {
     resize: function (width, height) {
-      return palm.width(width).height(height).resize(el)
+      palm.width(width)
+      palm.height(height)
+      return palm.resize(el)
     },
 
     renderValue: function (x, state) {
-      palm = palm.reset()
-      palm = palm.settings(x.settings)
-      palm = palm.data(x.data)
+      palm.reset()
+      palm.setConfig(x.settings)
+      palm.setData(x.data)
       if (state) {
         if (palm.checkState(state)) {
           palm.restoreState(state)
@@ -32,7 +37,7 @@ module.exports = function (el, width, height, stateChangedFn) {
         }
       }
       d3.select(el).selectAll('g').remove()
-      d3.select(el).call(palm)
+      d3.select(el).call(this.palm.draw.bind(palm))
     },
 
     palm: palm
