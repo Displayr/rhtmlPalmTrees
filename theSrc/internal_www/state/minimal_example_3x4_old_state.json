@@ -1,11 +1,11 @@
 {
-  "selectedColumns": [
-    1,
-    1,
-    1,
+  "selectedCol": [
+    0,
+    0,
+    0,
     1
   ],
-  "sortBy": "original",
+  "colSort": "3",
   "data": [
     [
       0.8,
