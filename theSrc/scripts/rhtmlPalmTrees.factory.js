@@ -1,4 +1,4 @@
-import PalmTrees from './lib/PalmTrees'
+import PalmTrees from './PalmTrees'
 import d3 from 'd3'
 
 module.exports = function (el, width, height, stateChangedFn) {
@@ -16,7 +16,6 @@ module.exports = function (el, width, height, stateChangedFn) {
   let palm = new PalmTrees()
   palm.width(w)
   palm.height(h)
-  palm.stateSaver(stateChangedFn)
 
   return {
     resize: function (width, height) {
@@ -29,6 +28,9 @@ module.exports = function (el, width, height, stateChangedFn) {
       palm.reset()
       palm.setConfig(x.settings)
       palm.setData(x.data)
+      if (stateChangedFnPresent) {
+        palm.stateSaver(stateChangedFn)
+      }
       if (state) {
         if (palm.checkState(state)) {
           palm.restoreState(state)
@@ -36,6 +38,7 @@ module.exports = function (el, width, height, stateChangedFn) {
           palm.resetState()
         }
       }
+      palm.registerInternalListeners()
       d3.select(el).selectAll('g').remove()
       d3.select(el).call(this.palm.draw.bind(palm))
     },

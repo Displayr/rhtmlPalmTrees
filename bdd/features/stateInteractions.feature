@@ -81,7 +81,7 @@ Feature: State Interactions
     And I wait for animations to complete
     Then the "interaction_click_tree_0_frond_1" snapshot matches the baseline
 
-  @applitools @state @foo
+  @applitools @state
   Scenario: User can load a palmtree plot with saved state and see the saved selected columns and sort restored
     Given I am viewing "data.bdd_minimal_example" with state "state.minimal_example_3x4_column_1_off_sort_ascending" and dimensions 600x400
     And I wait for animations to complete
