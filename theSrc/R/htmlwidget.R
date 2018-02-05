@@ -233,14 +233,14 @@ PalmTrees <- function(
         prefix = prefix,
         suffix = suffix
     )
-    attr(settings, "TOJSON_ARGS") = list(auto_unbox = FALSE)
 
     # pass the data and settings using 'x'
     x <- list(
         data = data,
         settings = settings
     )
-
+    attr(x, "TOJSON_ARGS") = list(auto_unbox = FALSE)
+    
     # create the widget
     htmlwidgets::createWidget(
         name = "rhtmlPalmTrees",
