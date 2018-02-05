@@ -13,19 +13,22 @@
 // if no data then put 'No data'
 // this.tipBarScale
 
-function makeTipContent ({ rowIndex, rowName, columnNames, data, settings, columnState, tipScale, colors }) {
-  // NB create short hand variables to make template more readable
-  const {
-    tooltipsHeadingFontFamily: hFamily,
-    tooltipsHeadingFontSize: hSize,
-    tooltipsFontFamily: fFamily,
-    tooltipsFontSize: fSize,
-    // ylab: yLabel = '',
+function makeTipContent ({
+    rowIndex,
+    rowName,
+    columnNames,
+    data,
+    hFamily,
+    hSize,
+    fFamily,
+    fSize,
     digits = 1,
     prefix = '',
-    suffix = ''
-  } = settings
-
+    suffix = '',
+    columnState,
+    tipScale,
+    colors
+  }) {
   const rowContent = data.map((columnValue, index) => {
     return makeTipContentRow({
       value: columnValue.toFixed(digits),
@@ -54,7 +57,7 @@ function makeTipContent ({ rowIndex, rowName, columnNames, data, settings, colum
 // TODO set class if valueEnabled == false
 function makeTipContentRow ({ columnIndex, value = 'No Data', valueEnabled, barWidth, barColor, name, prefix, suffix, fFamily, fSize }) {
   return `<tr class="tip-column tip-column-${columnIndex} ${(valueEnabled) ? '' : 'class="column-off"'}">
-    <td style="text-align:right;font-family:${fFamily};font-size:${fSize}px">${prefix}${value}${suffix}</td>
+    <td style="text-align:right;font-family:${fFamily};font-size:${fSize}px">${prefix || ''}${value || ''}${suffix || ''}</td>
     <td style="text-align:left;font-family:${fFamily};font-size:${fSize}px">${name}</td>
     <td style="text-align:center">
       <div style="width:${barWidth}px;height:8px;background-color:${barColor}"></div>

@@ -152,12 +152,14 @@ class Sidebar {
       let sdBarLeafDatum = {}
       let sdBarLeaf = []
       for (let j = 0; j < this.config.columnNames.length; j++) {
-        sdBarLeaf.push([{x: 0, y: 0, color: this.config.colors[i], index: i},
+        sdBarLeaf.push([
+          {x: 0, y: 0, color: this.config.colors[i], index: i},
           {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
           {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
           {x: this.param.sdBarLeafR, y: 0},
           {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}])
+          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}
+        ])
       }
       sdBarLeafDatum = {leaves: sdBarLeaf, colName: this.config.columnNames[i], color: this.config.colors[i], index: i}
       this.sdBarLeafData.push(sdBarLeafDatum)
@@ -204,7 +206,7 @@ class Sidebar {
       .text(function (d) { return d.colName })
       .style('font-family', this.config.fontFamily)
 
-    this.updateSidebar()
+    this.adjustDimensionsToFit()
 
     const _this = this
     function toggleColumn () {
@@ -247,10 +249,6 @@ class Sidebar {
       })
       .on('click', clickAllToggle)
 
-    // YOU ARE HERE
-    // sort rows
-    // TODO currently, internally sort is ['0', '1', '2', '3'] but settings.order is "original", "alphabetical", "ascending", "descending"
-    // use an enum of symbols instead
     function clickSort (sortValue) {
       if (d3.event.defaultPrevented) return // click suppressed
 
@@ -282,16 +280,21 @@ class Sidebar {
       .on('mouseleave', this.mouseLeaveSidebar.bind(this))
   }
 
-  updateSidebar () {
+  setFontSizeAndGetMaxTextWidth (newFontSize) {
+    const textWidths = []
+    this.element.selectAll('.sideBarText')
+      .style('font-size', newFontSize + 'px')
+      .each(function (d) {
+        textWidths.push(this.getComputedTextLength())
+      })
+    return _.max(textWidths)
+  }
+
+  adjustDimensionsToFit () {
     const sideBar = this.element
 
     const _this = this
-    this.param.sdBarMaxTextWidth = 0
-    sideBar.selectAll('.sideBarText')
-      .style('font-size', this.param.sdBarFontSize + 'px')
-      .each(function (d) {
-        _this.param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), _this.param.sdBarMaxTextWidth)
-      })
+    this.param.sdBarMaxTextWidth = this.setFontSizeAndGetMaxTextWidth(this.param.sdBarFontSize)
 
     this.param.sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth + 3 * this.param.sdBarPadding + this.param.sdBarColorBarsW + this.param.sdBarLeafR * 2)
     this.param.sdBarHeight = Math.ceil(this.param.sdBarHdH + this.config.columnNames.length * this.param.sdBarElemH)
@@ -301,7 +304,9 @@ class Sidebar {
     (this.param.sdBarWidth > this.param.sdBarMaxWidth || this.param.sdBarHeight > this.param.sdBarMaxHeight)) {
       log.debug([
         'Shrinking sidebar dimensions phase 1:',
-        `sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.param.sdBarMaxWidth}) || sdBarHeight(${this.param.sdBarHeight}) > sdBarMaxHeight(${this.param.sdBarMaxHeight})`,
+        `because sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.param.sdBarMaxWidth}) || sdBarHeight(${this.param.sdBarHeight}) > sdBarMaxHeight(${this.param.sdBarMaxHeight})`,
+        `sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth(${this.param.sdBarMaxTextWidth}) + 3 * this.param.sdBarPadding(${this.param.sdBarPadding}) + this.param.sdBarColorBarsW(${this.param.sdBarColorBarsW}) + this.param.sdBarLeafR(${this.param.sdBarLeafR}) * 2)`,
+        `sdBarHeight = Math.ceil(this.param.sdBarHdH(${this.param.sdBarHdH}) + this.config.columnNames.length(${this.config.columnNames.length}) * this.param.sdBarElemH(${this.param.sdBarElemH}))`,
         `sdBarFontSize(${this.param.sdBarFontSize})`,
         `sdBarHdFontSize(${this.param.sdBarHdFontSize})`,
         `sdBarHdH(${this.param.sdBarHdH})`,
@@ -316,16 +321,12 @@ class Sidebar {
       this.param.sdBarElemH = this.param.sdBarFontSize * this.param.sdBarHdivF
       this.param.sdBarColorBarsH = this.param.sdBarElemH - 2 * this.param.sdBarPadding
       this.param.sdBarColorBarsW = Math.round(this.param.sdBarColorBarsH * 0.6)
-
+      this.param.sdBarLeafR = (this.param.sdBarElemH - 2) / 2
       this.param.sdBarHdY = this.param.sdBarHdH / 2
       this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
       this.param.sdBarMaxTextWidth = 0
 
-      sideBar.selectAll('.sideBarText')
-        .style('font-size', this.param.sdBarFontSize + 'px')
-        .each(function (d) {
-          _this.param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), _this.param.sdBarMaxTextWidth)
-        })
+      this.param.sdBarMaxTextWidth = this.setFontSizeAndGetMaxTextWidth(this.param.sdBarFontSize)
 
       this.param.sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth + 3 * this.param.sdBarPadding + this.param.sdBarColorBarsW + this.param.sdBarLeafR * 2)
       this.param.sdBarHeight = Math.ceil(this.param.sdBarHdH + this.config.columnNames.length * this.param.sdBarElemH)
@@ -361,7 +362,6 @@ class Sidebar {
       this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
 
       this.param.sdBarMaxTextWidth = 0
-      const _this = this
       sideBar.select('.sdBarHeading')
         .style('font-size', this.param.sdBarHdFontSize + 'px')
         .each(function (d) {

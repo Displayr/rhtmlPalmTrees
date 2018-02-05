@@ -9,6 +9,7 @@ import makeTipContent from './TipContentFactory'
 const d3Tip = require('d3-tip')
 d3Tip(d3)
 log.setLevel('info') // NB default, adjusted later in init_logger
+const tooltipLogger = log.getLogger('tooltip')
 
 const defaultSettings = {
   'digits': 0,
@@ -159,6 +160,7 @@ class PalmTrees {
     if (!arguments.length) return this.settings
 
     this.settings = _.defaultsDeep(value, defaultSettings)
+
     this.initLogger(this.settings.logger || this.settings.log)
     this.colNames = this.settings.colNames
     this.rowNames = this.settings.rowNames
@@ -517,21 +519,25 @@ class PalmTrees {
 
   // create ghost rectangle tooltip
   mouseOverFrond (d, el, sel) {
+    tooltipLogger.debug('mouseOverFrond')
     this.showTooltipDesiredState = true
     this.updateToolTipWithDebounce(d, el, sel)
   }
 
   mouseOutFrond (d) {
+    tooltipLogger.debug('mouseOutFrond')
     this.showTooltipDesiredState = false
     this.updateToolTipWithDebounce(d)
   }
 
   mouseOverLeaf (d, i) {
+    tooltipLogger.debug('mouseOverLeaf')
     d3.selectAll(`.tip-column`).classed('selected', false)
     d3.selectAll(`.tip-column-${i}`).classed('selected', true)
   }
 
   mouseOutLeaf (d) {
+    tooltipLogger.debug('mouseOutLeaf')
     d3.selectAll(`.tip-column`).classed('selected', false)
   }
 
@@ -577,39 +583,46 @@ class PalmTrees {
     let tipSouth = y + h + 5 + this.yscale(yPos) + this.plotMargin.top
     let tipNorth = y - 5 + this.yscale(yPos) + this.plotMargin.top
 
+    tooltipLogger.debug(`tipHeight: ${tipHeight}, tipWidth: ${tipWidth}, tipSouth: ${tipSouth}, tipNorth: ${tipNorth} `)
+
     const halfWidthOfTriangle = 7
     const heightOfTriangle = 10
 
+    let direction, directionClass, offset, top, left
     if (this.viewerHeight - tipSouth >= tipHeight) {
-      this.tip.direction('s').offset([10, 0]).show({}, ghostRectHtmlElement)
-
-      d3.select('#littleTriangle')
-        .attr('class', 'southTip')
-        .style('visibility', 'visible')
-        .style('top', `${ghostRectDimensions.y + ghostRectDimensions.height}px`)
-        .style('left', `${barRectBboxDimensions.x - halfWidthOfTriangle}px`)
+      direction = 's'
+      offset = [10, 0]
+      directionClass = 'southTip'
+      top = ghostRectDimensions.y + ghostRectDimensions.height
+      left = barRectBboxDimensions.x - halfWidthOfTriangle
     } else if (tipNorth - tipHeight >= 0) {
-      this.tip.direction('n').offset([-10, 0]).show({}, ghostRectHtmlElement)
-      d3.select('#littleTriangle')
-        .attr('class', 'northTip')
-        .style('visibility', 'visible')
-        .style('top', `${ghostRectDimensions.y - heightOfTriangle}px`)
-        .style('left', `${barRectBboxDimensions.x - halfWidthOfTriangle}px`)
+      direction = 'n'
+      offset = [-10, 0]
+      directionClass = 'northTip'
+      top = ghostRectDimensions.y - heightOfTriangle
+      left = barRectBboxDimensions.x - halfWidthOfTriangle
     } else if (this.xscale(xPos) + Math.round(this.xscale.rangeBand() / 2) >= this.plotWidth * 0.5) {
-      this.tip.direction('w').offset([0, -10]).show({}, ghostRectHtmlElement)
-      d3.select('#littleTriangle')
-        .attr('class', 'westTip')
-        .style('visibility', 'visible')
-        .style('top', `${ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle}px`)
-        .style('left', `${ghostRectDimensions.x - heightOfTriangle}px`)
+      direction = 'w'
+      offset = [0, -10]
+      directionClass = 'westTip'
+      top = ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle
+      left = ghostRectDimensions.x - heightOfTriangle
     } else {
-      this.tip.direction('e').offset([0, 10]).show({}, ghostRectHtmlElement)
-      d3.select('#littleTriangle')
-        .attr('class', 'eastTip')
-        .style('visibility', 'visible')
-        .style('top', `${ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle}px`)
-        .style('left', `${ghostRectDimensions.x + ghostRectDimensions.width}px`)
+      direction = 'e'
+      offset = [0, 10]
+      directionClass = 'eastTip'
+      top = ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle
+      left = ghostRectDimensions.x + ghostRectDimensions.width
     }
+
+    tooltipLogger.debug(`chose ${directionClass} top: ${top}, left: ${left}`)
+
+    this.tip.direction(direction).offset(offset).show({}, ghostRectHtmlElement)
+    d3.select('#littleTriangle')
+      .attr('class', directionClass)
+      .style('visibility', 'visible')
+      .style('top', `${top}px`)
+      .style('left', `${left}px`)
 
     if (parseFloat(this.tip.style('left')) < 0) {
       this.tip.style('left', '5px')
@@ -985,7 +998,13 @@ class PalmTrees {
           rowName: this.rowNames[i],
           rowIndex: i,
           columnNames: this.colNames,
-          settings: this.settings,
+          hFamily: this.settings.tooltipsHeadingFontFamily,
+          hSize: this.settings.tooltipsHeadingFontSize,
+          fFamily: this.settings.tooltipsFontFamily,
+          fSize: this.settings.tooltipsFontSize,
+          digits: this.settings.digits,
+          prefix: this.settings.prefix,
+          suffix: this.settings.suffix,
           data: this.settings.rawData[i],
           columnState: this.plotState.getState().selectedColumns,
           tipScale: this.tipBarScale,
