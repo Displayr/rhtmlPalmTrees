@@ -588,52 +588,41 @@ class PalmTrees {
     const halfWidthOfTriangle = 7
     const heightOfTriangle = 10
 
-    let direction, directionClass, offset, top, left
+    let direction, directionClass, offset, triangleTop, triangleLeft
     if (this.viewerHeight - tipSouth >= tipHeight) {
       direction = 's'
       offset = [10, 0]
       directionClass = 'southTip'
-      top = ghostRectDimensions.y + ghostRectDimensions.height
-      left = barRectBboxDimensions.x - halfWidthOfTriangle
+      triangleTop = ghostRectDimensions.y + ghostRectDimensions.height
+      triangleLeft = barRectBboxDimensions.x - halfWidthOfTriangle
     } else if (tipNorth - tipHeight >= 0) {
       direction = 'n'
       offset = [-10, 0]
       directionClass = 'northTip'
-      top = ghostRectDimensions.y - heightOfTriangle
-      left = barRectBboxDimensions.x - halfWidthOfTriangle
+      triangleTop = ghostRectDimensions.y - heightOfTriangle
+      triangleLeft = barRectBboxDimensions.x - halfWidthOfTriangle
     } else if (this.xscale(xPos) + Math.round(this.xscale.rangeBand() / 2) >= this.plotWidth * 0.5) {
       direction = 'w'
       offset = [0, -10]
       directionClass = 'westTip'
-      top = ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle
-      left = ghostRectDimensions.x - heightOfTriangle
+      triangleTop = ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle
+      triangleLeft = ghostRectDimensions.x - heightOfTriangle
     } else {
       direction = 'e'
       offset = [0, 10]
       directionClass = 'eastTip'
-      top = ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle
-      left = ghostRectDimensions.x + ghostRectDimensions.width
+      triangleTop = ghostRectDimensions.y + ghostRectDimensions.height / 2 - halfWidthOfTriangle
+      triangleLeft = ghostRectDimensions.x + ghostRectDimensions.width
     }
 
-    tooltipLogger.debug(`chose ${directionClass} top: ${top}, left: ${left}`)
+    tooltipLogger.debug(`chose ${directionClass} top: ${triangleTop}, left: ${triangleLeft}`)
 
     this.tip.direction(direction).offset(offset).show({}, ghostRectHtmlElement)
     d3.select('#littleTriangle')
       .attr('class', directionClass)
       .style('visibility', 'visible')
-      .style('top', `${top}px`)
-      .style('left', `${left}px`)
-
-    if (parseFloat(this.tip.style('left')) < 0) {
-      this.tip.style('left', '5px')
-    } else if (parseFloat(this.tip.style('left')) + tipWidth > this.sidebar.getDimensions().x) {
-      this.tip.style('left', (this.sidebar.getDimensions().x - 5 - tipWidth) + 'px')
-    }
-    if (parseFloat(this.tip.style('top')) < 0) {
-      this.tip.style('top', '5px')
-    } else if (parseFloat(this.tip.style('top')) + tipHeight > this.viewerHeight) {
-      this.tip.style('top', this.viewerHeight - tipHeight - 5 + 'px')
-    }
+      .style('top', `${triangleTop}px`)
+      .style('left', `${triangleLeft}px`)
 
     // TODO: this compute leafdata code is repeated in three places
     let i = palmTreeIndex
