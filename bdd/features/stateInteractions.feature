@@ -1,7 +1,7 @@
 Feature: State Interactions
 	Interactions with the sidebar and palmtrees cause the plot to update. The state is saved and can be restored.
 
-  @applitools @state
+  @applitools @sidebar
   Scenario: User can interact with the palm tree plot sidebar to control the plot
     Given I am viewing "data.bdd_minimal_example" with dimensions 600x400
     Then the "interaction_baseline" snapshot matches the baseline
@@ -49,7 +49,7 @@ Feature: State Interactions
     Then the "interaction_sidebar_sort_descending" snapshot matches the baseline
     And the final state callback should match "state.minimal_example_3x4_sort_descending"
 
-  @applitools @state
+  @applitools @palmtree
   Scenario: Scenario: User can hover over the top of the palm trees to get a tooltip with extra info
     Given I am viewing "data.bdd_minimal_example" with dimensions 600x400
     Then the "interaction_baseline" snapshot matches the baseline
@@ -66,7 +66,24 @@ Feature: State Interactions
     And I wait for animations to complete
     Then the "interaction_hover_tree_0_frond_2" snapshot matches the baseline
 
-  @applitools @state
+  @applitools @palmtree @foo
+  Scenario: Scenario: User can hover from one tree to the next and the tooltip will update
+    Given I am viewing "data.bdd_cramped_example" with dimensions 300x200
+    Then the "interaction_baseline" snapshot matches the baseline
+
+    When I hover over frond 0 of tree 0
+    And I wait for animations to complete
+    Then the "cramped_example_interaction_hover_tree_0_frond_0" snapshot matches the baseline
+
+    When I hover over frond 0 of tree 1
+    And I wait for animations to complete
+    Then the "cramped_example_interaction_hover_tree_1_frond_0" snapshot matches the baseline
+
+    When I hover over frond 0 of tree 2
+    And I wait for animations to complete
+    Then the "cramped_example_interaction_hover_tree_2_frond_0" snapshot matches the baseline
+
+  @applitools @palmtree
   Scenario: Scenario: User can click leaves to toggle them on and off
     Given I am viewing "data.bdd_minimal_example" with dimensions 600x400
     Then the "interaction_baseline" snapshot matches the baseline
@@ -81,8 +98,9 @@ Feature: State Interactions
     And I wait for animations to complete
     Then the "interaction_click_tree_0_frond_1" snapshot matches the baseline
 
-  @applitools @state
+  @applitools @state_restore
   Scenario: User can load a palmtree plot with saved state and see the saved selected columns and sort restored
     Given I am viewing "data.bdd_minimal_example" with state "state.minimal_example_3x4_column_1_off_sort_ascending" and dimensions 600x400
     And I wait for animations to complete
+    When I hover over the sidebar
     Then the "minimal_example_3x4_column_1_off_sort_ascending" snapshot matches the baseline

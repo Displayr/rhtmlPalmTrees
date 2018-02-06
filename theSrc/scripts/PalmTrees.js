@@ -80,9 +80,7 @@ class PalmTrees {
     this.line = null
     this.bars = null
     this.palms = null
-    this.showTooltipDesiredState = false
-    this.showTooltipActualState = false
-    this.tip = null
+
     this.maxXaxisLines = 1
     this.xFontSize = 11
     this.initR = []
@@ -90,6 +88,11 @@ class PalmTrees {
     this.leaves = null
     this.commasFormatter = null
     this.commasFormatterE = null
+
+    this.showTooltipDesiredState = false
+    this.showTooltipActualState = false
+    this.currentlyDisplayedTooltipIndex = null
+    this.tip = null
   }
 
   reset () {
@@ -557,16 +560,18 @@ class PalmTrees {
 
     this.updateToolTipWithDebounceTimeoutHandler = setTimeout(() => {
       if (this.showTooltipDesiredState && !this.showTooltipActualState) {
-        this.showTooltipActualState = true
         this.showTooltip(params)
       } else if (!this.showTooltipDesiredState && this.showTooltipActualState) {
-        this.showTooltipActualState = false
         this.hideTooltip(params)
+      } else if (this.showTooltipDesiredState && this.showTooltipActualState && this.currentlyDisplayedTooltipIndex !== params.palmTreeIndex) {
+        this.showTooltip(params)
       }
     }, 50) // NB TODO from a config somewhere
   }
 
   showTooltip ({ palmTreeIndex, html, yPos, xPos }) {
+    this.showTooltipActualState = true
+    this.currentlyDisplayedTooltipIndex = palmTreeIndex
     let ghostRect = this.baseSvg.select('#ghost' + palmTreeIndex)
     let ghostRectHtmlElement = ghostRect[0][0]
     let ghostRectDimensions = ghostRectHtmlElement.getBoundingClientRect()
@@ -654,6 +659,8 @@ class PalmTrees {
   }
 
   hideTooltip ({ palmTreeIndex }) {
+    this.showTooltipActualState = false
+    this.currentlyDisplayedTooltipIndex = null
     this.tip.hide()
     d3.select('#littleTriangle').style('visibility', 'hidden')
     // TODO: this compute leafdata code is repeated in three places
