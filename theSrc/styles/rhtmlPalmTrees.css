@@ -227,7 +227,7 @@
 .ghostCircle {
     fill: transparent;
     stroke: transparent;
-    /*stroke: black; for debug only*/
+    /*stroke: black; !*for debug only*!*/
     stroke-width: 1px;
     cursor: default;
 }

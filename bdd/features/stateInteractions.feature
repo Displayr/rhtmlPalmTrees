@@ -69,7 +69,7 @@ Feature: State Interactions
   @applitools @palmtree @foo
   Scenario: Scenario: User can hover from one tree to the next and the tooltip will update
     Given I am viewing "data.bdd_cramped_example" with dimensions 300x200
-    Then the "interaction_baseline" snapshot matches the baseline
+    Then the "cramped_example_interaction_baseline" snapshot matches the baseline
 
     When I hover over frond 0 of tree 0
     And I wait for animations to complete

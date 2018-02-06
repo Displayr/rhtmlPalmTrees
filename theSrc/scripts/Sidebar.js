@@ -38,8 +38,6 @@ class Sidebar {
   // remove all sdBar from vars, and make vars names that dont suck
   initSidebarParam () {
     this.sdBarLeafData = []
-    this.sdBarPalms = null
-    this.sdBarLeaves = null
 
     this.param = {}
     this.param.sdBarMaxTxtL = _(this.config.columnNames).map('length').max()
@@ -53,9 +51,6 @@ class Sidebar {
     this.param.sdBarHdivF = 2   // ratio of height divided by font size
     this.param.sdBarY = this.param.sdBarOuterMargin + 0.5
 
-    this.param.sdBarMaxWidth = this.config.maxWidth
-    this.param.sdBarMaxHeight = this.config.maxHeight
-
     this.param.sdBarHdH = this.config.headingFontSize * this.param.sdBarHdivF
     this.param.sdBarElemH = this.config.fontSize * this.param.sdBarHdivF
     this.param.sdBarColorBarsH = this.param.sdBarElemH - 2 * this.param.sdBarPadding
@@ -64,6 +59,23 @@ class Sidebar {
 
     this.param.sdBarHdY = this.param.sdBarHdH / 2
     this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
+
+    for (let i = 0; i < this.config.columnNames.length; i++) {
+      let sdBarLeafDatum = {}
+      let sdBarLeaf = []
+      for (let j = 0; j < this.config.columnNames.length; j++) {
+        sdBarLeaf.push([
+          {x: 0, y: 0, color: this.config.colors[i], index: i},
+          {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
+          {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
+          {x: this.param.sdBarLeafR, y: 0},
+          {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
+          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}
+        ])
+      }
+      sdBarLeafDatum = {leaves: sdBarLeaf, colName: this.config.columnNames[i], color: this.config.colors[i], index: i}
+      this.sdBarLeafData.push(sdBarLeafDatum)
+    }
   }
 
   getDimensions () {
@@ -75,8 +87,10 @@ class Sidebar {
     }
   }
 
-  resize () {
-
+  resize (sizeUpdates) {
+    _.assign(this.config, sizeUpdates)
+    this.initSidebarParam()
+    this.adjustDimensionsToFit()
   }
 
   draw () {
@@ -149,23 +163,6 @@ class Sidebar {
       .attr('dy', '0.35em')
       .text(this.config.headingText)
       .style('font-family', this.config.headingFontFamily)
-
-    for (let i = 0; i < this.config.columnNames.length; i++) {
-      let sdBarLeafDatum = {}
-      let sdBarLeaf = []
-      for (let j = 0; j < this.config.columnNames.length; j++) {
-        sdBarLeaf.push([
-          {x: 0, y: 0, color: this.config.colors[i], index: i},
-          {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
-          {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR, y: 0},
-          {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}
-        ])
-      }
-      sdBarLeafDatum = {leaves: sdBarLeaf, colName: this.config.columnNames[i], color: this.config.colors[i], index: i}
-      this.sdBarLeafData.push(sdBarLeafDatum)
-    }
 
     this.sdBarPalms = sdBarDisp.selectAll('sdBar.g')
       .data(this.sdBarLeafData)
@@ -303,10 +300,10 @@ class Sidebar {
 
     const origSdBarHdFontSize = this.param.sdBarHdFontSize
     while (this.param.sdBarFontSize > 1 &&
-    (this.param.sdBarWidth > this.param.sdBarMaxWidth || this.param.sdBarHeight > this.param.sdBarMaxHeight)) {
+    (this.param.sdBarWidth > this.config.maxWidth || this.param.sdBarHeight > this.config.maxHeight)) {
       log.debug([
         'Shrinking sidebar dimensions phase 1:',
-        `because sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.param.sdBarMaxWidth}) || sdBarHeight(${this.param.sdBarHeight}) > sdBarMaxHeight(${this.param.sdBarMaxHeight})`,
+        `because sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.config.maxWidth}) || sdBarHeight(${this.param.sdBarHeight}) > sdBarMaxHeight(${this.config.maxHeight})`,
         `sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth(${this.param.sdBarMaxTextWidth}) + 3 * this.param.sdBarPadding(${this.param.sdBarPadding}) + this.param.sdBarColorBarsW(${this.param.sdBarColorBarsW}) + this.param.sdBarLeafR(${this.param.sdBarLeafR}) * 2)`,
         `sdBarHeight = Math.ceil(this.param.sdBarHdH(${this.param.sdBarHdH}) + this.config.columnNames.length(${this.config.columnNames.length}) * this.param.sdBarElemH(${this.param.sdBarElemH}))`,
         `sdBarFontSize(${this.param.sdBarFontSize})`,
@@ -347,10 +344,10 @@ class Sidebar {
     }
 
     // reduce heading font size
-    while (this.param.sdBarWidth > this.param.sdBarMaxWidth) {
+    while (this.param.sdBarWidth > this.config.maxWidth) {
       log.debug([
         'Shrinking sidebar dimensions phase 2:',
-        `sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.param.sdBarMaxWidth})`,
+        `sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.config.maxWidth})`,
         `sdBarHdFontSize(${this.param.sdBarHdFontSize})`,
         `sdBarHdH(${this.param.sdBarHdH})`,
         `sdBarElemH(${this.param.sdBarElemH})`,

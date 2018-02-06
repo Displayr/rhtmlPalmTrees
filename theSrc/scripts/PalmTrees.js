@@ -8,7 +8,7 @@ import makeTipContent from './TipContentFactory'
 
 const d3Tip = require('d3-tip')
 d3Tip(d3)
-log.setLevel('info') // NB default, adjusted later in init_logger
+log.setLevel('info') // NB default, adjusted later in initLogger
 const tooltipLogger = log.getLogger('tooltip')
 
 const defaultSettings = {
@@ -31,6 +31,10 @@ class PalmTrees {
     this.viewerWidth = 600 // default width
     this.viewerHeight = 600 // default height
     this.init()
+  }
+
+  static getLoggerNames () {
+    return ['tooltip', 'sidebar']
   }
 
   static defaultState () {
@@ -198,6 +202,7 @@ class PalmTrees {
     }
     if (_.isString(loggerSettings)) {
       log.setLevel(loggerSettings)
+      _(PalmTrees.getLoggerNames()).each((loggerName) => { log.getLogger(loggerName).setLevel(loggerSettings) })
       return
     }
     _(loggerSettings).each((loggerLevel, loggerName) => {
@@ -248,6 +253,7 @@ class PalmTrees {
 
   // resize
   resize (el) {
+    const _this = this
     d3.select(el).select('svg')
       .attr('width', this.viewerWidth)
       .attr('height', this.viewerHeight)
@@ -264,8 +270,12 @@ class PalmTrees {
     }
 
     // sidebar
-    this.initSidebarParam()
-    this.updateSidebar(baseSvg)
+    this.sidebar.resize({
+      maxWidth: Math.floor(this.viewerWidth * 0.25),
+      maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
+      containerWidth: this.viewerWidth
+    })
+
     // main plot area
     this.plotMargin.top = this.viewerHeight * 0.1
     this.plotMargin.right = 10 + this.sidebar.getDimensions().width
@@ -302,12 +312,14 @@ class PalmTrees {
       .style('font-family', this.settings.yFontFamily)
 
     baseSvg.selectAll('.bar')
-      .attr('x', function (d) { return this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2) })
-      .attr('y', function (d) { return this.yscale(d.value) })
-      .attr('height', function (d) { return this.plotHeight - this.yscale(d.value) })
+      .attr('x', function (d) { return _this.xscale(d.name) + Math.round(_this.xscale.rangeBand() / 2) })
+      .attr('y', function (d) { return _this.yscale(d.value) })
+      .attr('height', function (d) { return _this.plotHeight - _this.yscale(d.value) })
+
     baseSvg.selectAll('.plotAreaHeading')
       .attr('x', this.plotWidth / 2)
       .attr('y', this.plotHeight + this.plotMargin.bottom - 10)
+
     baseSvg.selectAll('.plotAreaYLab')
       .attr('transform', 'rotate(-90,' + (-this.plotMargin.left + 20) + ',' + (this.plotHeight / 2) + ')')
       .attr('x', -this.plotMargin.left + 20)
@@ -315,46 +327,25 @@ class PalmTrees {
 
     baseSvg.selectAll('.leaf')
       .attr('transform', function (d) {
-        return 'translate(' + (this.xscale(d.name) + this.xscale.rangeBand() / 2) + ',' + this.yscale(d.value) + ')'
+        return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
       })
     this.leaves.attr('d', this.line)
 
     if (this.settings.tooltips) {
-      this.tip.destroy()
-      this.tip = d3Tip()
-        .attr('class', 'd3-tip')
-        .html(function (d) { return d.tip })
-      baseSvg.call(this.tip)
-
       baseSvg.selectAll('.ghostCircle')
         .attr('x', function (d) {
-          return Number(d3.select(this).attr('x')) * this.linearRadialScale(d.tipMaxR) / this.initR[d.index]
+          return Number(d3.select(this).attr('x')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
         })
         .attr('y', function (d) {
-          return Number(d3.select(this).attr('y')) * this.linearRadialScale(d.tipMaxR) / this.initR[d.index]
+          return Number(d3.select(this).attr('y')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
         })
         .attr('width', function (d) {
-          return Number(d3.select(this).attr('width')) * this.linearRadialScale(d.tipMaxR) / this.initR[d.index]
+          return Number(d3.select(this).attr('width')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
         })
         .attr('height', function (d) {
-          return Number(d3.select(this).attr('height')) * this.linearRadialScale(d.tipMaxR) / this.initR[d.index]
+          return Number(d3.select(this).attr('height')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
         })
-        .each((d) => { this.initR[d.index] = this.linearRadialScale(d.tipMaxR) })
-
-      baseSvg.selectAll('.leaf')
-        .on('mouseover', function (d) {
-          this.mouseOverFrond(d, this, baseSvg)
-        })
-        .on('mouseout', function (d) {
-          this.mouseOutFrond(d)
-        })
-
-      this.leaves.on('mouseover', function (leafData, leafIndex) {
-        this.mouseOverLeaf(leafData, leafIndex)
-      })
-        .on('mouseout', function (d) {
-          this.mouseOutLeaf(d)
-        })
+        .each(function (d) { _this.initR[d.index] = _this.linearRadialScale(d.tipMaxR) })
     }
 
     if (this.settings.barHeights) {
