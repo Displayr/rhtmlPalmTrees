@@ -119,6 +119,8 @@ class Sidebar {
       .style('font-family', this.config.fontFamily)
 
     let sortText = ['Original', 'Alphabetical', 'Ascending', 'Descending']
+    let initialSort = this.plotState.getState().sortBy
+
     let sdBarCtrlEnter = sdBarCtrl.selectAll('g.span')
       .data(sortText)
       .enter()
@@ -131,14 +133,14 @@ class Sidebar {
     sdBarCtrlEnter.append('circle')
       .attr('class', (d) => `sdBarSortBox ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 'sortC' + i })
-      .style('fill', (d) => { return (d === 'Descending') ? 'steelblue' : '#fff' })
-      .style('stroke', (d) => { return (d === 'Descending') ? 'steelblue' : '#999' })
+      .style('fill', (d) => { return (d.toLowerCase() === initialSort) ? 'steelblue' : '#fff' })
+      .style('stroke', (d) => { return (d.toLowerCase() === initialSort) ? 'steelblue' : '#999' })
 
     sdBarCtrlEnter.append('text')
       .attr('class', (d) => `sdBarSortText ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 'sortT' + i })
       .attr('dy', '0.35em')
-      .style('fill', (d) => { return (d === 'Descending') ? '#000' : '#999' })
+      .style('fill', (d) => { return (d.toLowerCase() === initialSort) ? '#000' : '#999' })
       .text(function (d) { return d })
       .style('font-family', this.config.fontFamily)
 
