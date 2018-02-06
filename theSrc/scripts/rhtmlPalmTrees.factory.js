@@ -31,13 +31,12 @@ module.exports = function (el, width, height, stateChangedFn) {
       if (stateChangedFnPresent) {
         palm.stateSaver(stateChangedFn)
       }
-      if (state) {
-        if (palm.checkState(state)) {
-          palm.restoreState(state)
-        } else {
-          palm.resetState()
-        }
+      if (state && palm.checkState(state)) {
+        palm.restoreState(state)
+      } else {
+        palm.resetState()
       }
+
       palm.registerInternalListeners()
       d3.select(el).selectAll('g').remove()
       d3.select(el).call(this.palm.draw.bind(palm))
