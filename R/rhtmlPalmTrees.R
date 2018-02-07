@@ -239,7 +239,8 @@ PalmTrees <- function(
         data = data,
         settings = settings
     )
-
+    attr(x, "TOJSON_ARGS") = list(auto_unbox = FALSE)
+    
     # create the widget
     htmlwidgets::createWidget(
         name = "rhtmlPalmTrees",
