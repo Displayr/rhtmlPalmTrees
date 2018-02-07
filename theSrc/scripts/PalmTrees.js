@@ -28,6 +28,7 @@ const defaultSettings = {
 
 class PalmTrees {
   constructor () {
+    log.info('PalmTree.constructor()')
     this.viewerWidth = 600 // default width
     this.viewerHeight = 600 // default height
     this.init()
@@ -39,13 +40,14 @@ class PalmTrees {
 
   static defaultState () {
     return _.cloneDeep({
-      selectedCol: [],
+      selectedColumns: [],
       sortBy: 'descending',
       data: []
     })
   }
 
   init () {
+    log.info('PalmTree.init()')
     this.plotState = new PlotState(PalmTrees.defaultState())
     this.sidebar = null
     this.plotWidth = 400
@@ -100,6 +102,7 @@ class PalmTrees {
   }
 
   reset () {
+    log.info('PalmTree.reset()')
     this.init()
     return this
   }
@@ -216,7 +219,10 @@ class PalmTrees {
 
   checkState (previousUserState) {
     const previousData = _.get(previousUserState, 'data')
-    return _.isEqual(previousData, this.data)
+    return !_.isNull(previousUserState) &&
+      _.isEqual(previousData, this.data) &&
+      _.has(previousUserState, 'sortBy') &&
+      _.has(previousUserState, 'selectedColumns')
   }
 
   resetState () {
@@ -253,6 +259,7 @@ class PalmTrees {
 
   // resize
   resize (el) {
+    log.info('PalmTree.resize()')
     const _this = this
     d3.select(el).select('svg')
       .attr('width', this.viewerWidth)
@@ -699,6 +706,7 @@ class PalmTrees {
 
   // update side bar content on initialization and resize
   draw (chartWindowSelection) {
+    log.info('PalmTree.draw()')
     let baseSvg = chartWindowSelection.select('svg')
     this.baseSvg = baseSvg
     const _this = this
@@ -1095,6 +1103,7 @@ class PalmTrees {
   }
 
   updatePlot (duration, initialization) {
+    log.info('PalmTree.updatePlot()')
     const _this = this
     const baseSvg = this.baseSvg
     const plotArea = this.plotArea
@@ -1150,12 +1159,14 @@ class PalmTrees {
         return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
       })
 
+    // TODO this should be handled bv the sidebar !
     baseSvg.selectAll('.sideBarColorBox').transition('boxColor')
       .duration(_this.duration)
       .style('fill', function (d, i) {
         return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
       })
 
+    // TODO this should be handled bv the sidebar !
     baseSvg.selectAll('.sideBarText').transition('textColor')
       .duration(_this.duration)
       .style('fill', function (d, i) {
@@ -1182,6 +1193,7 @@ class PalmTrees {
   }
 
   sortBars (initialization) {
+    log.info('PalmTree.sortBars()')
     const _this = this
     const plotArea = this.plotArea
 

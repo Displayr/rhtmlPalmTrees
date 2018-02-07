@@ -22,9 +22,11 @@ class Sidebar {
   }
 
   constructor ({ element, plotState, config }) {
+    log.info('sidebar.constructor')
     this.element = element
     this.plotState = plotState
     this.config = _.defaults(config, Sidebar.defaultSettings)
+    this.frondCount = config.columnNames.length
 
     this.line = d3.svg.line()
       .interpolate('cardinal-closed')
@@ -88,12 +90,15 @@ class Sidebar {
   }
 
   resize (sizeUpdates) {
+    log.info('sidebar.resize()')
     _.assign(this.config, sizeUpdates)
     this.initSidebarParam()
     this.adjustDimensionsToFit()
   }
 
   draw () {
+    log.info('sidebar.draw()')
+    const _this = this
     const sideBar = this.element
 
     sideBar.append('rect')
@@ -174,25 +179,25 @@ class Sidebar {
       .attr('class', 'sideBarElemRect')
       .attr('id', function (d, i) { return 'sbRect' + i })
 
-    this.sdBarLeaves = sdBarElemEnter.append('g')
-      .attr('class', 'sideBarFrond')
-      .attr('id', function (d, i) { return 'sbFrond' + i })
-      .selectAll('.le')
-      .data(function (d) { return d.leaves })
+    this.sdBarFrondGroup = sdBarElemEnter.append('g')
+      .attr('class', 'sideBarFrondGroup')
+      .attr('id', function (d, i) { return 'sideBarFrondGroup' + i })
 
-    this.sdBarLeaves.enter()
+    this.sdBarFronds = this.sdBarFrondGroup.selectAll('.sideBarFrond')
+      .data(function (d) {
+        return _.range(_this.frondCount).map((frondIndex) => {
+          return {frondGroupIndex: d.index, frondIndex: frondIndex}
+        })
+      })
+
+    this.sdBarFronds.enter()
       .append('path')
+      .attr('class', 'sideBarFrond')
       .attr('d', this.line)
       .attr('transform', (d, i) => {
         return 'rotate(' + (i * 360 / this.config.columnNames.length - 90) + ')'
       })
-      .style('fill', function (d, i) {
-        if (d[0].index === i) {
-          return '#000'
-        } else {
-          return '#ccc'
-        }
-      })
+      .style('fill', function (d) { return (d.frondGroupIndex === d.frondIndex) ? '#000' : '#ccc' })
 
     sdBarElemEnter.append('rect')
       .attr('class', 'sideBarColorBox')
@@ -207,7 +212,6 @@ class Sidebar {
 
     this.adjustDimensionsToFit()
 
-    const _this = this
     function toggleColumn () {
       if (d3.event.defaultPrevented) return // click suppressed
 
@@ -228,13 +232,11 @@ class Sidebar {
       .on('click', toggleColumn)
 
     function clickAllToggle () {
-      if (d3.event.defaultPrevented) return // click suppressed
       if (this.id.substring(4) === '0') {
         _this.plotState.turnOnAllColumns()
       } else {
         _this.plotState.turnOffAllColumns()
       }
-      d3.event.stopPropagation()
     }
 
     sideBar.selectAll('.sdBarAllRect')
@@ -249,8 +251,6 @@ class Sidebar {
       .on('click', clickAllToggle)
 
     function clickSort (sortValue) {
-      if (d3.event.defaultPrevented) return // click suppressed
-
       // change selected sort Box
       sdBarCtrl.selectAll('.sdBarSortBox').style('fill', '#fff').style('stroke', '#999')
       sdBarCtrl.select(`.sdBarSortBox.${sortValue.toLowerCase()}`).style('fill', 'steelblue').style('stroke', 'steelblue')
@@ -279,17 +279,8 @@ class Sidebar {
       .on('mouseleave', this.mouseLeaveSidebar.bind(this))
   }
 
-  setFontSizeAndGetMaxTextWidth (newFontSize) {
-    const textWidths = []
-    this.element.selectAll('.sideBarText')
-      .style('font-size', newFontSize + 'px')
-      .each(function (d) {
-        textWidths.push(this.getComputedTextLength())
-      })
-    return _.max(textWidths)
-  }
-
   adjustDimensionsToFit () {
+    log.info('sidebar.adjustDimensionsToFit()')
     const sideBar = this.element
 
     const _this = this
@@ -374,22 +365,9 @@ class Sidebar {
 
     this.param.sdBarX = this.config.containerWidth - this.param.sdBarOuterMargin - this.param.sdBarWidth - 0.5
     this.param.sdBarElemW = this.param.sdBarWidth
-    this.param.sdBarLeafR = (this.param.sdBarElemH - 2) / 2
-    for (let i = 0; i < this.config.columnNames.length; i++) {
-      for (let j = 0; j < this.config.columnNames.length; j++) {
-        this.sdBarLeafData[i].leaves[j] = [
-          {x: 0, y: 0, color: this.config.colors[i], index: i},
-          {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
-          {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR, y: 0},
-          {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}
-        ]
-      }
-    }
-    this.sdBarPalms.data(this.sdBarLeafData)
-    this.sdBarLeaves.data(function (d) { return d.leaves })
-    // transform the object into position
+
+    this.updateFrondSizes({ rowHeight: this.param.sdBarElemH })
+
     sideBar.select('#g_sideBarDisp').attr('transform', 'translate(' + this.param.sdBarX + ',' + this.param.sdBarY + ')')
     sideBar.select('#g_sdBarControl').attr('transform', 'translate(' + this.param.sdBarX + ',' + this.param.sdBarY + ')')
     // set attributes
@@ -415,11 +393,6 @@ class Sidebar {
       .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarLeafR * 2 + this.param.sdBarColorBarsW)
       .attr('y', this.param.sdBarElemH / 2)
       .style('fill', (d, i) => { return this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000' })
-
-    sideBar.selectAll('.sideBarFrond')
-      .attr('transform', 'translate(' + this.param.sdBarElemH / 2 + ',' + this.param.sdBarElemH / 2 + ')')
-      .selectAll('path')
-      .attr('d', this.line)
 
     // column this.config.colors
     sideBar.selectAll('.sideBarColorBox')
@@ -529,23 +502,11 @@ class Sidebar {
   }
 
   mouseEnterSidebar () {
+    log.info('sidebar.mouseEnterSidebar()')
     const sideBar = this.element
     const dur = 200 // NB pull from config
 
-    this.param.sdBarLeafR = (this.param.sdBarHoverElemH - 2) / 2
-    for (let i = 0; i < this.config.columnNames.length; i++) {
-      for (let j = 0; j < this.config.columnNames.length; j++) {
-        this.sdBarLeafData[i].leaves[j] = [
-          {x: 0, y: 0, color: this.config.colors[i], index: i},
-          {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
-          {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR, y: 0},
-          {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}]
-      }
-    }
-    this.sdBarPalms.data(this.sdBarLeafData)
-    this.sdBarLeaves.data(function (d) { return d.leaves })
+    this.updateFrondSizes({ rowHeight: this.param.sdBarHoverElemH, duration: dur })
 
     sideBar.selectAll('.sdBarElem')
       .transition()
@@ -559,13 +520,6 @@ class Sidebar {
       .duration(dur)
       .attr('width', this.param.sdBarHoverElemW + 'px')
       .attr('height', this.param.sdBarHoverElemH + 'px')
-
-    sideBar.selectAll('.sideBarFrond')
-      .transition()
-      .duration(dur)
-      .attr('transform', 'translate(' + this.param.sdBarHoverElemH / 2 + ',' + this.param.sdBarHoverElemH / 2 + ')')
-      .selectAll('path')
-      .attr('d', this.line)
 
     sideBar.selectAll('.sideBarColorBox')
       .transition()
@@ -632,22 +586,11 @@ class Sidebar {
   }
 
   mouseLeaveSidebar () {
+    log.info('sidebar.mouseLeaveSidebar()')
     const sideBar = this.element
     const dur = 200 // NB pull from config
 
-    this.param.sdBarLeafR = (this.param.sdBarElemH - 2) / 2
-    for (let i = 0; i < this.config.columnNames.length; i++) {
-      for (let j = 0; j < this.config.columnNames.length; j++) {
-        this.sdBarLeafData[i].leaves[j] = [{x: 0, y: 0, color: this.config.colors[i], index: i},
-          {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
-          {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR, y: 0},
-          {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}]
-      }
-    }
-    this.sdBarPalms.data(this.sdBarLeafData)
-    this.sdBarLeaves.data(function (d) { return d.leaves })
+    this.updateFrondSizes({ rowHeight: this.param.sdBarElemH, duration: dur })
 
     sideBar.selectAll('.sdBarElem')
       .transition()
@@ -661,13 +604,6 @@ class Sidebar {
       .duration(dur)
       .attr('width', this.param.sdBarElemW + 'px')
       .attr('height', this.param.sdBarElemH + 'px')
-
-    sideBar.selectAll('.sideBarFrond')
-      .transition()
-      .duration(dur)
-      .attr('transform', 'translate(' + this.param.sdBarElemH / 2 + ',' + this.param.sdBarElemH / 2 + ')')
-      .selectAll('path')
-      .attr('d', this.line)
 
     sideBar.selectAll('.sideBarColorBox')
       .transition()
@@ -731,6 +667,46 @@ class Sidebar {
       .attr('x', this.param.sdBarX)
       .attr('width', this.param.sdBarWidth)
       .attr('height', this.param.sdBarHeight)
+  }
+
+  setFontSizeAndGetMaxTextWidth (newFontSize) {
+    const textWidths = []
+    this.element.selectAll('.sideBarText')
+      .style('font-size', newFontSize + 'px')
+      .each(function () {
+        textWidths.push(this.getComputedTextLength())
+      })
+    return _.max(textWidths)
+  }
+
+  updateFrondSizes ({ rowHeight, duration = null }) {
+    const _this = this
+    const sideBar = this.element
+
+    const newRadius = (rowHeight - 2) / 2
+    this.param.sdBarLeafR = newRadius
+    for (let frondGroupIndex = 0; frondGroupIndex < this.frondCount; frondGroupIndex++) {
+      for (let frondIndex = 0; frondIndex < this.frondCount; frondIndex++) {
+        this.sdBarLeafData[frondGroupIndex].leaves[frondIndex] = [
+          {x: 0, y: 0},
+          {x: newRadius * 0.25, y: -newRadius * 0.07},
+          {x: newRadius * 0.75, y: -newRadius * 0.13},
+          {x: newRadius, y: 0},
+          {x: newRadius * 0.75, y: newRadius * 0.13},
+          {x: newRadius * 0.25, y: newRadius * 0.07}]
+      }
+    }
+
+    let frondGroups = sideBar.selectAll('.sideBarFrondGroup')
+    let fronds = sideBar.selectAll('.sideBarFrond')
+
+    if (duration) {
+      frondGroups = frondGroups.transition().duration(duration)
+      fronds = fronds.transition().duration(duration)
+    }
+
+    frondGroups.attr('transform', 'translate(' + rowHeight / 2 + ',' + rowHeight / 2 + ')')
+    fronds.attr('d', (d) => _this.line(_this.sdBarLeafData[d.frondGroupIndex].leaves[d.frondIndex]))
   }
 }
 

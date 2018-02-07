@@ -66,7 +66,7 @@ Feature: State Interactions
     And I wait for animations to complete
     Then the "interaction_hover_tree_0_frond_2" snapshot matches the baseline
 
-  @applitools @palmtree @foo
+  @applitools @palmtree
   Scenario: Scenario: User can hover from one tree to the next and the tooltip will update
     Given I am viewing "data.bdd_cramped_example" with dimensions 300x200
     Then the "cramped_example_interaction_baseline" snapshot matches the baseline
@@ -104,3 +104,19 @@ Feature: State Interactions
     And I wait for animations to complete
     When I hover over the sidebar
     Then the "minimal_example_3x4_column_1_off_sort_ascending" snapshot matches the baseline
+
+  @applitools @state_old_state_reset @foo
+  Scenario: When Palmtree widget is given old version of user state it rejects it and resets state
+    Given I am viewing "data.bdd_minimal_example" with state "state.minimal_example_3x4_old_state" and dimensions 600x400
+    And I wait for animations to complete
+    When I hover over the sidebar
+    Then the "minimal_example_3x4_old_state_is_reset" snapshot matches the baseline
+    And the final state callback should match "state.minimal_example_3x4_sort_descending"
+
+  @applitools @state_reset @foo
+  Scenario: When Palmtree widget is given state where data does not match it rejects it and resets state
+    Given I am viewing "data.bdd_minimal_example" with state "state.minimal_example_4x4_sort_ascending" and dimensions 600x400
+    And I wait for animations to complete
+    When I hover over the sidebar
+    Then the "minimal_example_3x4_mismatch_state_is_reset" snapshot matches the baseline
+    And the final state callback should match "state.minimal_example_3x4_sort_descending"

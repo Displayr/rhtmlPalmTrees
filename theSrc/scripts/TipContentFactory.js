@@ -3,14 +3,13 @@
 // this.settings.tooltipsHeadingFontSize
 // this.settings.ylab // ignore for now
 // this.settings.barHeights // ignore for now (note that the prefix and suffix changes when barHeights is enabled !!)
+// if column is disabled then use color #999 // ignore for now
 // this.weightedSums
 // this.settings.digits
 // this.settings.suffix
 // this.settings.prefix
 // this.settings.tooltipsFontFamily
 // this.settings.tooltipsFontSize
-// if column is disabled then use color #999 // ignore for now
-// if no data then put 'No data'
 // this.tipBarScale
 
 function makeTipContent ({
