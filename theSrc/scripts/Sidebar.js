@@ -310,6 +310,7 @@ class Sidebar {
         `sdBarHdFontSize(${this.param.sdBarHdFontSize})`,
         `sdBarHdH(${this.param.sdBarHdH})`,
         `sdBarElemH(${this.param.sdBarElemH})`,
+        `sdBarLeafR(${this.param.sdBarLeafR})`,
         `sdBarColorBarsH(${this.param.sdBarColorBarsH})`,
         `sdBarColorBarsW(${this.param.sdBarColorBarsW})`
       ].join('\n'))
@@ -332,6 +333,7 @@ class Sidebar {
     }
 
     // account for heading
+    // TODO use setFontSizeAndGetMaxTextWidth (must extend to take in selector)
     sideBar.select('.sdBarHeading')
       .style('font-size', this.param.sdBarHdFontSize + 'px')
       .each(function (d) {
@@ -346,7 +348,7 @@ class Sidebar {
     // reduce heading font size
     while (this.param.sdBarWidth > this.config.maxWidth) {
       log.debug([
-        'Shrinking sidebar dimensions phase 2:',
+        'Shrinking sidebar dimensions phase 2 (col header phase):',
         `sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.config.maxWidth})`,
         `sdBarHdFontSize(${this.param.sdBarHdFontSize})`,
         `sdBarHdH(${this.param.sdBarHdH})`,
@@ -375,12 +377,14 @@ class Sidebar {
     this.param.sdBarLeafR = (this.param.sdBarElemH - 2) / 2
     for (let i = 0; i < this.config.columnNames.length; i++) {
       for (let j = 0; j < this.config.columnNames.length; j++) {
-        this.sdBarLeafData[i].leaves[j] = [{x: 0, y: 0, color: this.config.colors[i], index: i},
+        this.sdBarLeafData[i].leaves[j] = [
+          {x: 0, y: 0, color: this.config.colors[i], index: i},
           {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
           {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
           {x: this.param.sdBarLeafR, y: 0},
           {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}]
+          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}
+        ]
       }
     }
     this.sdBarPalms.data(this.sdBarLeafData)
@@ -410,9 +414,7 @@ class Sidebar {
     sideBar.selectAll('.sideBarText')
       .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarLeafR * 2 + this.param.sdBarColorBarsW)
       .attr('y', this.param.sdBarElemH / 2)
-      .style('fill', (d, i) => {
-        return this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000'
-      })
+      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000' })
 
     sideBar.selectAll('.sideBarFrond')
       .attr('transform', 'translate(' + this.param.sdBarElemH / 2 + ',' + this.param.sdBarElemH / 2 + ')')
