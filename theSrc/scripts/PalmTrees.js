@@ -652,7 +652,7 @@ class PalmTrees {
   hideTooltip ({ palmTreeIndex }) {
     this.showTooltipActualState = false
     this.currentlyDisplayedTooltipIndex = null
-    this.tip.hide()
+    if (this.tip) { this.tip.hide() }
     d3.select('#littleTriangle').style('visibility', 'hidden')
     // TODO: this compute leafdata code is repeated in three places
     let i = palmTreeIndex
@@ -1041,11 +1041,13 @@ class PalmTrees {
           _this.mouseOutLeaf(d)
         })
         .on('click', (d) => {
-          if (d3.event.defaultPrevented) return // click suppressed
-
           let index = d[0].j
+          // if (d3.event.defaultPrevented) return // click suppressed
+          tooltipLogger.debug('clickLeaf')
+          this.showTooltipDesiredState = false
+          this.updateToolTipWithDebounce(d)
           this.plotState.toggleColumnState(index)
-          d3.event.stopPropagation()
+          // d3.event.stopPropagation()
         })
     }
 
