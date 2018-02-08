@@ -17,10 +17,6 @@ module.exports = function (el, width, height, stateChangedFn) {
   palm.width(w)
   palm.height(h)
 
-  // TODO NB we register the statecallback in renderValue not on constructor because we dont want to call the state
-  // changed callback during initialisation, but this causes this mess of state in the factory code
-  let haveRegisteredStateChangedCallback = false
-
   return {
     resize: function (width, height) {
       console.log('rhtmlPalmTree.resize()')
@@ -34,8 +30,7 @@ module.exports = function (el, width, height, stateChangedFn) {
       palm.reset()
       palm.setConfig(x.settings)
       palm.setData(x.data)
-      if (stateChangedFnPresent && !haveRegisteredStateChangedCallback) {
-        haveRegisteredStateChangedCallback = true
+      if (stateChangedFnPresent) {
         palm.stateSaver(stateChangedFn)
       }
       if (state && palm.checkState(state)) {
