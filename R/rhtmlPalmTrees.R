@@ -64,6 +64,7 @@
 #'
 #'
 #' @import htmlwidgets
+#' @importFrom jsonlite unbox
 #' @export
 PalmTrees <- function(
     data = NULL,
@@ -229,7 +230,7 @@ PalmTrees <- function(
         digits = digits,
         colors = colors,
         barHeights = bar.heights,
-        order = order,
+        order = unbox(order),
         prefix = prefix,
         suffix = suffix
     )
@@ -240,7 +241,7 @@ PalmTrees <- function(
         settings = settings
     )
     attr(x, "TOJSON_ARGS") = list(auto_unbox = FALSE)
-    
+
     # create the widget
     htmlwidgets::createWidget(
         name = "rhtmlPalmTrees",
