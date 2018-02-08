@@ -1,5 +1,6 @@
-import d3 from 'd3'
+import $ from 'jquery'
 import _ from 'lodash'
+import d3 from 'd3'
 import * as log from 'loglevel'
 
 import PlotState from './PlotState'
@@ -27,10 +28,19 @@ const defaultSettings = {
 }
 
 class PalmTrees {
+  static uniqueId () {
+    return this._palmTreeInstanceCounter++
+  }
+
+  static initClass () {
+    this._palmTreeInstanceCounter = 0
+  }
+
   constructor () {
     log.info('PalmTree.constructor()')
     this.viewerWidth = 600 // default width
     this.viewerHeight = 600 // default height
+    this.palmTreeId = PalmTrees.uniqueId()
     this.init()
   }
 
@@ -104,8 +114,15 @@ class PalmTrees {
 
   reset () {
     log.info('PalmTree.reset()')
+    this.removeOrphanedTooltips()
     this.init()
     return this
+  }
+
+  // NB seeing orphaned tips in Displayr caused by stateUpdate->renderValue issue (see VIS-393)
+  removeOrphanedTooltips () {
+    $(`.d3-tip-palmtree-${this.palmTreeId}`).remove()
+    $('#littleTriangle').remove()
   }
 
   // settings getter/setter
@@ -1015,7 +1032,7 @@ class PalmTrees {
     // work on tooltip
     if (this.settings.tooltips) {
       makeTipData()
-      this.tip = d3Tip().attr('class', 'd3-tip')
+      this.tip = d3Tip().attr('class', `d3-tip d3-tip-palmtree-${this.palmTreeId}`)
 
       baseSvg.call(this.tip)
 
@@ -1315,4 +1332,5 @@ class PalmTrees {
   }
 }
 
+PalmTrees.initClass()
 module.exports = PalmTrees

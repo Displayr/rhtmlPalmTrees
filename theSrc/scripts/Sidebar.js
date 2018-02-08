@@ -32,8 +32,6 @@ class Sidebar {
       .interpolate('cardinal-closed')
       .x(function (d) { return d.x })
       .y(function (d) { return d.y })
-
-    this.initSidebarParam()
   }
 
   // TODO rename to this.dimensions and computeDimensions
@@ -62,22 +60,14 @@ class Sidebar {
     this.param.sdBarHdY = this.param.sdBarHdH / 2
     this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
 
-    for (let i = 0; i < this.config.columnNames.length; i++) {
-      let sdBarLeafDatum = {}
-      let sdBarLeaf = []
-      for (let j = 0; j < this.config.columnNames.length; j++) {
-        sdBarLeaf.push([
-          {x: 0, y: 0, color: this.config.colors[i], index: i},
-          {x: this.param.sdBarLeafR * 0.25, y: -this.param.sdBarLeafR * 0.07},
-          {x: this.param.sdBarLeafR * 0.75, y: -this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR, y: 0},
-          {x: this.param.sdBarLeafR * 0.75, y: this.param.sdBarLeafR * 0.13},
-          {x: this.param.sdBarLeafR * 0.25, y: this.param.sdBarLeafR * 0.07}
-        ])
+    this.sdBarLeafData = _.range(this.frondCount).map((frondGroupIndex) => {
+      return {
+        leaves: _.range(this.frondCount), // fill leave paths in later
+        colName: this.config.columnNames[frondGroupIndex],
+        color: this.config.colors[frondGroupIndex],
+        index: frondGroupIndex
       }
-      sdBarLeafDatum = {leaves: sdBarLeaf, colName: this.config.columnNames[i], color: this.config.colors[i], index: i}
-      this.sdBarLeafData.push(sdBarLeafDatum)
-    }
+    })
   }
 
   getDimensions () {
@@ -100,15 +90,18 @@ class Sidebar {
     log.info('sidebar.draw()')
     const _this = this
     const sideBar = this.element
+    this.initSidebarParam()
 
+    // TODO not needed (just need to add border to "Order" then delete
     sideBar.append('rect')
       .attr('x', 0)
       .attr('y', 0)
       .attr('class', 'sideBar')
 
     let sdBarCtrl = sideBar.append('g').attr('id', 'g_sdBarControl').style('display', 'none')
+    this.sdBarCtrl = sdBarCtrl
     let sdBarDisp = sideBar.append('g').attr('id', 'g_sideBarDisp')
-
+    this.sdBarDisp = sdBarDisp
     // all on all off selector
     sdBarCtrl.selectAll('option')
       .data([1, 2])
@@ -211,6 +204,14 @@ class Sidebar {
       .style('font-family', this.config.fontFamily)
 
     this.adjustDimensionsToFit()
+    this.registerInteractionHandlers()
+  }
+
+  registerInteractionHandlers () {
+    log.info('sidebar.registerInteractionHandlers()')
+    const _this = this
+    const sideBar = this.element
+    const sdBarCtrl = this.sdBarCtrl
 
     function toggleColumn () {
       if (d3.event.defaultPrevented) return // click suppressed
@@ -685,17 +686,6 @@ class Sidebar {
 
     const newRadius = (rowHeight - 2) / 2
     this.param.sdBarLeafR = newRadius
-    for (let frondGroupIndex = 0; frondGroupIndex < this.frondCount; frondGroupIndex++) {
-      for (let frondIndex = 0; frondIndex < this.frondCount; frondIndex++) {
-        this.sdBarLeafData[frondGroupIndex].leaves[frondIndex] = [
-          {x: 0, y: 0},
-          {x: newRadius * 0.25, y: -newRadius * 0.07},
-          {x: newRadius * 0.75, y: -newRadius * 0.13},
-          {x: newRadius, y: 0},
-          {x: newRadius * 0.75, y: newRadius * 0.13},
-          {x: newRadius * 0.25, y: newRadius * 0.07}]
-      }
-    }
 
     let frondGroups = sideBar.selectAll('.sideBarFrondGroup')
     let fronds = sideBar.selectAll('.sideBarFrond')
@@ -706,7 +696,18 @@ class Sidebar {
     }
 
     frondGroups.attr('transform', 'translate(' + rowHeight / 2 + ',' + rowHeight / 2 + ')')
-    fronds.attr('d', (d) => _this.line(_this.sdBarLeafData[d.frondGroupIndex].leaves[d.frondIndex]))
+    fronds.attr('d', (d) => _this.line(_this.makeFrondPath(newRadius)))
+  }
+
+  makeFrondPath (radius) {
+    return [
+      {x: 0, y: 0},
+      {x: radius * 0.25, y: -radius * 0.07},
+      {x: radius * 0.75, y: -radius * 0.13},
+      {x: radius, y: 0},
+      {x: radius * 0.75, y: radius * 0.13},
+      {x: radius * 0.25, y: radius * 0.07}
+    ]
   }
 }
 
