@@ -95,6 +95,7 @@ class PalmTrees {
     this.commasFormatter = null
     this.commasFormatterE = null
 
+    this.tooltipDebounceTime = 50
     this.showTooltipDesiredState = false
     this.showTooltipActualState = false
     this.currentlyDisplayedTooltipIndex = null
@@ -532,9 +533,12 @@ class PalmTrees {
   }
 
   mouseOverLeaf (d, i) {
-    tooltipLogger.debug('mouseOverLeaf')
-    d3.selectAll(`.tip-column`).classed('selected', false)
-    d3.selectAll(`.tip-column-${i}`).classed('selected', true)
+    // NB the timeout here is to ensure that the tooltip has had a chance to render before running the CSS selector
+    setTimeout(() => {
+      tooltipLogger.debug('mouseOverLeaf')
+      d3.selectAll(`.tip-column`).classed('selected', false)
+      d3.selectAll(`.tip-column-${i}`).classed('selected', true)
+    }, this.tooltipDebounceTime * 2)
   }
 
   mouseOutLeaf (d) {
@@ -564,7 +568,7 @@ class PalmTrees {
       } else if (this.showTooltipDesiredState && this.showTooltipActualState && this.currentlyDisplayedTooltipIndex !== params.palmTreeIndex) {
         this.showTooltip(params)
       }
-    }, 50) // NB TODO from a config somewhere
+    }, this.tooltipDebounceTime)
   }
 
   showTooltip ({ palmTreeIndex, html, yPos, xPos }) {

@@ -36,6 +36,7 @@ class PlotState {
   }
 
   callListeners () {
+    console.log(`PlotState.callListeners(). Calling ${_.keys(this.listeners).length} listeners`)
     _.each(this.listeners, (listenerFn) => { listenerFn(this.state) })
   }
 
