@@ -64,6 +64,7 @@
 #'
 #'
 #' @import htmlwidgets
+#' @importFrom jsonlite unbox
 #' @export
 PalmTrees <- function(
     data = NULL,
@@ -217,21 +218,21 @@ PalmTrees <- function(
         tooltipsFontFamily = tooltips.font.family,
         tooltipsHeadingFontSize = tooltips.heading.font.size,
         tooltipsHeadingFontFamily = tooltips.heading.font.family,
-        showYAxis = y.show,
-        ylab = y.lab,
-        yprefix = y.prefix,
-        ysuffix = y.suffix,
-        ydigits = y.digits,
-        yFontSize =  y.font.size,
-        yFontFamily =  y.font.family,
-        yLabFontSize = y.lab.font.size,
-        yLabFontFamily = y.lab.font.family,
+        showYAxis = unbox(y.show),
+        ylab = unbox(y.lab),
+        yprefix = unbox(y.prefix),
+        ysuffix = unbox(y.suffix),
+        ydigits = unbox(y.digits),
+        yFontSize =  unbox(y.font.size),
+        yFontFamily =  unbox(y.font.family),
+        yLabFontSize = unbox(y.lab.font.size),
+        yLabFontFamily = unbox(y.lab.font.family),
         digits = digits,
         colors = colors,
         barHeights = bar.heights,
-        order = order,
-        prefix = prefix,
-        suffix = suffix
+        order = unbox(order),
+        prefix = unbox(prefix),
+        suffix = unbox(suffix)
     )
 
     # pass the data and settings using 'x'
@@ -240,7 +241,7 @@ PalmTrees <- function(
         settings = settings
     )
     attr(x, "TOJSON_ARGS") = list(auto_unbox = FALSE)
-    
+
     # create the widget
     htmlwidgets::createWidget(
         name = "rhtmlPalmTrees",
