@@ -43,6 +43,10 @@
     color: #000;
 }
 
+.tipTable tr.column-off td {
+    color: #999;
+}
+
 .northTip {
 	width: 0;
 	height: 0;

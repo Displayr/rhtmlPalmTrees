@@ -13,11 +13,11 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
   tooltips.font.size = 11, tooltips.font.family = "sans-serif",
   tooltips.heading.font.size = 12,
   tooltips.heading.font.family = "sans-serif", y.show = TRUE,
-  y.lab = NULL, y.prefix = NULL, y.suffix = NULL, y.digits = 1,
-  y.font.size = 11, y.font.family = "sans-serif", y.lab.font.size = 12,
+  y.lab = NULL, y.digits = 1, y.font.size = 11,
+  y.font.family = "sans-serif", y.lab.font.size = 12,
   y.lab.font.family = "sans-serif", prefix = NULL, suffix = NULL,
-  column.as.heights = NULL, digits = 1, colors = NULL,
-  order = "descending", width = NULL, height = NULL)
+  digits = 1, colors = NULL, order = "descending", width = NULL,
+  height = NULL)
 }
 \arguments{
 \item{data}{numeric matrix or data frame}
@@ -62,10 +62,6 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{y.lab}{y axis label}
 
-\item{y.prefix}{prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.}
-
-\item{y.suffix}{suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.}
-
 \item{y.digits}{integer to control the number of decimal places of the y axis}
 
 \item{y.font.size}{Default y axis font size = 11}
@@ -76,11 +72,9 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{y.lab.font.family}{Default y axis label font family = "sans-serif"}
 
-\item{prefix}{prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.}
+\item{prefix}{prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis.}
 
-\item{suffix}{suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.}
-
-\item{column.as.heights}{Integer to specify which column can be used as tree heights.}
+\item{suffix}{suffix of numbers in the tooltips.}
 
 \item{digits}{integer to control the number of decimal places in the tooltips}
 

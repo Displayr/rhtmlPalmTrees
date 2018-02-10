@@ -14,20 +14,11 @@ This package uses a customised htmlwidget package that allows local state saving
 
 An example to verify installation:
 ```
-  data("CSDperceptions", package = "rhtmlPalmTrees")
-  weights = rep(1,ncol(CSDperceptions))
-  prefix = ""
-  suffix = "%"
-  rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
-                              weights = weights,
-                              row.names = rownames(CSDperceptions),
-                              row.heading = names(dimnames(CSDperceptions))[1],
-                              col.names = colnames(CSDperceptions),
-                              col.heading = names(dimnames(CSDperceptions))[2],
-                              prefix = prefix,
-                              suffix = suffix,
-                              tooltips = TRUE,
-                              colors = qColors)
+library(rhtmlPalmTrees)
+
+PalmTrees(data = matrix(seq(25), 5),
+                  col.heading.font.size = 20,
+                  col.font.size = 25)
 ```
 
 # Local Installation to Develop/Contribute

@@ -31,7 +31,7 @@ module.exports = function (el, width, height, stateChangedFn) {
       palm.setConfig(x.settings)
       palm.setData(x.data)
       if (stateChangedFnPresent) {
-        palm.stateSaver(stateChangedFn)
+        palm.saveStateChangedCallback(stateChangedFn)
       }
       if (state && palm.checkState(state)) {
         palm.restoreState(state)

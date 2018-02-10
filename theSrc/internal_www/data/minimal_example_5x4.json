@@ -7,7 +7,7 @@
     [1, 1, 1, 1]
   ],
   "settings": {
-    "weights": [1, 1, 1, 1],
+    "weights": [0.25, 0.25, 0.25, 0.25],
     "rowNames": [
       "Row0",
       "Row1",

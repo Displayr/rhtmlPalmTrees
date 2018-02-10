@@ -10,7 +10,7 @@
     "weights": [1, 1, 1, 1],
     "rowNames": [
       "Row0",
-      "Row1",
+      "Row1 Label Wrap",
       "Row2",
       "Row3",
       "Row4"
@@ -21,6 +21,7 @@
       "Col3",
       "Col4"
     ],
+    "ylab": "Y Label",
     "tooltips": true,
     "tooltipsFontSize": 11,
     "tooltipsFontFamily": "sans-serif",

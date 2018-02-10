@@ -6,6 +6,7 @@ import * as log from 'loglevel'
 import PlotState from './PlotState'
 import Sidebar from './Sidebar'
 import makeTipContent from './TipContentFactory'
+import {splitIntoLines} from './labelUtils'
 
 const d3Tip = require('d3-tip')
 d3Tip(d3)
@@ -24,7 +25,8 @@ const defaultSettings = {
   'rowHeading': '',
   'rowHeadingFontSize': 12,
   'rowHeadingFontFamily': 'sans-serif',
-  'order': 'descending'
+  'order': 'descending',
+  'ylab': ''
 }
 
 class PalmTrees {
@@ -60,8 +62,8 @@ class PalmTrees {
     log.info('PalmTree.init()')
     this.plotState = new PlotState(PalmTrees.defaultState())
     this.sidebar = null
-    this.plotWidth = 400
-    this.plotHeight = 400
+    this.plotWidth = null
+    this.plotHeight = null
     this.leftMargin = 35
     this.bottomMargin = 20
     this.yaxisFormat = 0
@@ -69,14 +71,13 @@ class PalmTrees {
     this.settings = {}
     this.plotMargin = {}
     this.param = {}
-    this.tempNorm = []
-    this.normData = []
+    this.normalizedData = [] // 2D array of values range [0-1]
+    this.normalizedDataMax = 0
+    this.normalizedDataMin = 1
     this.unweightedSums = []
     this.weightedSums = []
-    this.barData = []
-    this.frondData = []
-    this.maxVal = null // TODO rename
-    this.minVal = null // TODO rename
+    this.barData = [] // D3 data set for the vertical bars (palm tree trunks)
+    this.frondData = [] // D3 data set for the palm tree tops
     this.rindices = null
     this.duration = 600
     this.nticks = 10
@@ -84,11 +85,12 @@ class PalmTrees {
     this.rowNames = null
     this.weights = null
     this.colors = null
-    this.ncol = null
+    this.frondCount = null
+    this.palmTreeCount = null
     this.xscale = null
     this.yscale = null
-    this.linearRadialScale = null
-    this.tipBarScale = null
+    this.frondScale = d3.scale.linear()
+    this.tipBarScale = d3.scale.linear()
     this.dataMax = 0
     this.dataMin = 100000000
     this.xAxis = null
@@ -99,7 +101,6 @@ class PalmTrees {
 
     this.maxXaxisLines = 1
     this.xFontSize = 11
-    this.initR = []
     this.yPrefixText = ''
     this.leaves = null
     this.commasFormatter = null
@@ -125,60 +126,36 @@ class PalmTrees {
     $('#littleTriangle').remove()
   }
 
-  // settings getter/setter
-  setData (value) {
+  // settings getter/setter. dataPoints is 2D Array
+  setData (dataPoints) {
     if (!arguments.length) return this.data
 
-    if (!this.settings.rawData) {
-      this.settings.rawData = _.cloneDeep(value)
-    }
+    // NB in the R layer we replace all null values with zero
+    // but we preserve the null/NA values in rawData
+    if (!this.settings.rawData) { this.settings.rawData = _.cloneDeep(dataPoints) }
+    this.data = _.cloneDeep(dataPoints)
 
-    // TODO TEMP assuming all columns are on
-    let wtSum, unwtSum
-    // compute weighted sum
-    // TODO this is repeated in updatePlot and in constructor
-    for (let i = 0; i < this.rowNames.length; i++) {
-      wtSum = 0
-      unwtSum = 0
-      for (let j = 0; j < this.colNames.length; j++) {
-        wtSum += 1 * this.weights[j] * value[i][j]
-        unwtSum += 1 * value[i][j]
-      }
-      this.weightedSums.push(wtSum)
-      this.unweightedSums.push(unwtSum)
-      if (this.settings.barHeights) {
-        this.weightedSums[i] = this.settings.barHeights[i]
-      }
-    }
-
+    _.range(this.palmTreeCount).map(palmTreeIndex => {
+      this.weightedSums[palmTreeIndex] = _.sum(dataPoints[palmTreeIndex].map((val, frondIndex) => val * this.weights[frondIndex]))
+      this.unweightedSums[palmTreeIndex] = _.sum(dataPoints[palmTreeIndex])
+    })
     let maxSum = d3.max(this.unweightedSums)
+
+    this.normalizedData = dataPoints.map(frondValues => {
+      return frondValues.map(frondValue => {
+        const normalizedValue = Math.sqrt(frondValue / maxSum)
+        this.dataMax = Math.max(this.dataMax, frondValue)
+        this.dataMin = Math.min(this.dataMin, frondValue)
+        this.normalizedDataMax = Math.max(normalizedValue, this.normalizedDataMax)
+        this.normalizedDataMin = Math.min(normalizedValue, this.normalizedDataMin)
+        return normalizedValue
+      })
+    })
+
     this.rindices = d3.range(this.rowNames.length)
 
-    // normalize leaf data
-    this.maxVal = 0
-    this.minVal = 1
-    for (let i = 0; i < this.rowNames.length; i++) {
-      this.tempNorm = []
-      for (let j = 0; j < this.colNames.length; j++) {
-        this.tempNorm.push(Math.sqrt(value[i][j] / maxSum))
-      }
-      this.normData.push(this.tempNorm)
-      this.maxVal = Math.max(d3.max(this.normData[i]), this.maxVal)
-      this.minVal = Math.min(d3.min(this.normData[i]), this.minVal)
-    }
-
-    // now set the original data values for tips
-    for (let i = 0; i < this.rowNames.length; i++) {
-      let tempData = []
-      for (let j = 0; j < this.colNames.length; j++) {
-        tempData.push(value[i][j])
-      }
-      this.data.push(tempData)
-      this.dataMax = Math.max(this.dataMax, d3.max(tempData))
-      this.dataMin = Math.min(this.dataMin, d3.min(tempData))
-    }
-
-    this.tipBarScale = d3.scale.linear().domain([this.dataMin, this.dataMax]).range([2, 30])
+    this.frondScale.domain([this.normalizedDataMin, this.normalizedDataMax])
+    this.tipBarScale.domain([this.dataMin, this.dataMax]).range([2, 30])
 
     return this
   }
@@ -193,8 +170,10 @@ class PalmTrees {
     this.colNames = this.settings.colNames
     this.rowNames = this.settings.rowNames
     this.weights = this.settings.weights
-    this.ncol = this.settings.colNames.length
     this.colors = this.settings.colors
+
+    this.palmTreeCount = this.settings.rowNames.length
+    this.frondCount = this.settings.colNames.length
 
     this.commasFormatter = d3.format(',.' + this.settings.ydigits + 'f')
     this.commasFormatterE = d3.format(',.' + this.settings.ydigits + 'e')
@@ -237,13 +216,16 @@ class PalmTrees {
 
   checkState (previousUserState) {
     const previousData = _.get(previousUserState, 'data')
-    return !_.isNull(previousUserState) &&
+    const stateIsValid = !_.isNull(previousUserState) &&
       _.isEqual(previousData, this.data) &&
       _.has(previousUserState, 'sortBy') &&
       _.has(previousUserState, 'selectedColumns')
+    log.info(`PalmTree.checkState() returning ${stateIsValid}`)
+    return stateIsValid
   }
 
   resetState () {
+    log.info('PalmTree.resetState()')
     const selectedColumns = new Array(this.data[0].length) // want num columns, not num rows
     selectedColumns.fill(1)
     this.plotState.setState({
@@ -254,24 +236,19 @@ class PalmTrees {
     return this
   }
 
-  // loads the state of the widget if it is saved
   restoreState (previousUserState) {
+    log.info('PalmTree.restoreState()')
     this.plotState.initialiseState(previousUserState)
   }
 
-  // set the state saver function
-  stateSaver (stateChanged) {
+  saveStateChangedCallback (stateChanged) {
     // this.saveStatesFn = stateChanged
     this.deregisterExternalStateListenerFn = this.plotState.addListener(stateChanged)
   }
 
-  saveStates () {
-    throw new Error('saveStates is not a thing any more')
-  }
-
   registerInternalListeners () {
     this.plotState.addListener((newState) => {
-      this.updatePlot(this.duration, false)
+      this.updatePlot(false)
     })
   }
 
@@ -309,10 +286,8 @@ class PalmTrees {
     this.xscale.rangeRoundBands([0, this.plotWidth], 0.1, 0.3)
     // update leaf size
     this.param.maxLeafWidth = Math.min(this.plotMargin.top, Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4), 60)
-    this.linearRadialScale.range([this.param.maxLeafWidth * this.minVal / this.maxVal, this.param.maxLeafWidth])
+    this.frondScale.range([this.param.maxLeafWidth * this.normalizedDataMin / this.normalizedDataMax, this.param.maxLeafWidth])
     this.updateData()
-    this.palms.data(this.frondData)
-    this.leaves.data(function (d) { return d.leaves })
 
     baseSvg.select('.xaxis')
       .attr('transform', 'translate(0,' + this.plotHeight + ')')
@@ -320,7 +295,7 @@ class PalmTrees {
       .selectAll('.tick text')
       .style('font-size', this.settings.rowFontSize + 'px')
       .style('font-family', this.settings.rowFontFamily)
-      .call(this.wrapNew.bind(this), this.xscale.rangeBand())
+      .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
 
     this.plotMargin.bottom = this.bottomMargin + this.maxXaxisLines * this.xFontSize * 1.1
     this.plotHeight = this.viewerHeight - this.plotMargin.top - this.plotMargin.bottom
@@ -354,142 +329,46 @@ class PalmTrees {
       .attr('transform', function (d) {
         return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
       })
-    this.leaves.attr('d', this.line)
+
+    this.leaves.attr('d', this.makeFrondPath.bind(this))
 
     if (this.settings.tooltips) {
+      const ghostPadding = 4
       baseSvg.selectAll('.ghostCircle')
-        .attr('x', function (d) {
-          return Number(d3.select(this).attr('x')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
-        })
-        .attr('y', function (d) {
-          return Number(d3.select(this).attr('y')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
-        })
-        .attr('width', function (d) {
-          return Number(d3.select(this).attr('width')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
-        })
-        .attr('height', function (d) {
-          return Number(d3.select(this).attr('height')) * _this.linearRadialScale(d.tipMaxR) / _this.initR[d.index]
-        })
-        .each(function (d) { _this.initR[d.index] = _this.linearRadialScale(d.tipMaxR) })
+        .attr('x', function ({palmTreeIndex}) { return -1 * (ghostPadding + _this.maxFrondLength(palmTreeIndex)) })
+        .attr('y', function ({palmTreeIndex}) { return -1 * (ghostPadding + _this.maxFrondLength(palmTreeIndex)) })
+        .attr('width', function ({palmTreeIndex}) { return (_this.maxFrondLength(palmTreeIndex) + ghostPadding) * 2 })
+        .attr('height', function ({palmTreeIndex}) { return (_this.maxFrondLength(palmTreeIndex) + ghostPadding) * 2 })
     }
 
-    if (this.settings.barHeights) {
-      if (this.settings.yprefix || this.settings.ysuffix) {
-        this.updateUnitPosition()
-      }
-    } else {
-      if (this.settings.prefix || this.settings.suffix) {
-        this.updateUnitPosition()
-      }
+    if (this.settings.prefix || this.settings.suffix) {
+      this.updateUnitPosition()
     }
 
     return this
   }
 
-  wrapNew (text, width) {
-    let separators = {'-': 1, ' ': 1}
-    let lineNumbers = []
-    text.each(function () {
-      let text = d3.select(this)
-      let chars = text.text().split('').reverse()
-      let c
-      let c1
-      let isnum = /[0-9]/
-      let nextchar
-      let sep
-      let newline = []   // the chars from the current line that should be breaked and wrapped
-      let lineTemp = []  // the current, temporary line (tspan) that needs to be filled
-      let lineNumber = 0
-      let lineHeight = 1.1 // ems
-      let x = text.attr('x')
-      let y = text.attr('y')
-      let dy = parseFloat(text.attr('dy'))
-      let tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('dy', dy + 'em')
+  wrapAxisLabels (textElements, maxWidth) {
+    const fontSize = this.settings.rowFontSize
+    const fontFamily = this.settings.rowFontFamily
 
-      while (c = chars.pop()) { // eslint-disable-line no-cond-assign
-        // remove leading space
-        if (lineTemp.length === 0 && c === ' ') {
-          continue
-        }
-        lineTemp.push(c)
-        tspan.text(lineTemp.join(''))
-        if (tspan.node().getComputedTextLength() > width) {
-          // if no separator detected before c, wait until there is one
-          // otherwise, wrap texts
-          // The or case handles situations when the negative sign is the first char
-          if (sep === undefined || lineTemp[0] === '-') {
-            if (c in separators) {
-              if (c === ' ') {
-                lineTemp.pop()
-              } else if (c === '-') {
-                // check negation or hyphen
-                c1 = chars.pop()
-                if (c1) {
-                  if (isnum.test(c1)) {
-                    chars.push(c1)
-                    chars.push(lineTemp.pop())
-                  } else {
-                    chars.push(c1)
-                  }
-                }
-              }
-              // make new line
-              sep = undefined
-              tspan.text(lineTemp.join(''))
-              tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text('')
-              lineTemp = []
-              newline = []
-            }
-          } else {
-            // handles the case when the last char is a separator and c === sep
-            if (c in separators) {
-              newline.push(lineTemp.pop())
-            }
-            // pop chars until it reaches the previous separator recorded
-            nextchar = lineTemp.pop()
-            while (nextchar !== sep && lineTemp.length > 0) {
-              newline.push(nextchar)
-              nextchar = lineTemp.pop()
-            }
-            // handles negative sign and space
-            if (sep === '-') {
-              c1 = newline.pop()
-              if (c1) {
-                if (isnum.test(c1)) {
-                  newline.push(c1)
-                  newline.push(sep)
-                } else {
-                  lineTemp.push(sep)
-                  newline.push(c1)
-                }
-              } else {
-                lineTemp.push(sep)
-                newline.push(c1)
-              }
-            } else if (sep !== ' ') {
-              lineTemp.push(sep)
-            }
-            // put chars back into the string that needs to be wrapped
-            newline.reverse()
-            while (nextchar = newline.pop()) { // eslint-disable-line no-cond-assign
-              chars.push(nextchar)
-            }
-            // make new line
-            sep = undefined
-            tspan.text(lineTemp.join(''))
-            tspan = text.append('tspan').attr('x', x).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text('')
-            lineTemp = []
-            newline = []
-          }
-        } else {
-          if (c in separators) {
-            sep = c
-          }
-        }
-      }
-      lineNumbers.push(lineNumber + 1)
+    let maxXaxisLines = 0
+    textElements.each(function () {
+      let textElement = d3.select(this)
+      let textContent = textElement.text()
+      const lines = splitIntoLines(textContent, maxWidth, fontSize, fontFamily)
+      maxXaxisLines = Math.max(maxXaxisLines, lines.length)
+
+      const lineHeight = 1.1 // ems
+      const x = textElement.attr('x')
+      const y = textElement.attr('y')
+      const dy = parseFloat(textElement.attr('dy'))
+      textElement.text(null)
+      _(lines).forEach((lineContent, lineIndex) => {
+        textElement.append('tspan').attr('x', x).attr('y', y).attr('dy', lineIndex * lineHeight + dy + 'em').text(lineContent)
+      })
     })
-    this.maxXaxisLines = d3.max(lineNumbers)
+    this.maxXaxisLines = maxXaxisLines
   }
 
   width (value) {
@@ -507,40 +386,51 @@ class PalmTrees {
   }
 
   // update date on resize, column toggle and initialization
+  // TODO look at start of updatePlot, why is it updating data then calling update data ?
   updateData () {
     // TODO: this compute leafdata code is repeated in three places
     for (let i = 0; i < this.rowNames.length; i++) {
       this.barData[i].value = this.weightedSums[i]
       this.frondData[i].value = this.weightedSums[i]
-      for (let j = 0; j < this.colNames.length; j++) {
-        let leafValue = this.linearRadialScale(this.normData[i][j])
-        if (!this.settings.rawData[i][j]) {
-          leafValue = 0
-        }
-        if (this.plotState.isColumnOn(j) < 0.5) {
-          this.frondData[i].leaves[j] = [{x: 0, y: 0, i: i, j: j},
-            {x: leafValue * 0.25, y: -leafValue * 0.03},
-            {x: leafValue * 0.75, y: -leafValue * 0.05},
-            {x: leafValue, y: 0},
-            {x: leafValue * 0.75, y: leafValue * 0.05},
-            {x: leafValue * 0.25, y: leafValue * 0.03}]
-        } else {
-          this.frondData[i].leaves[j] = [{x: 0, y: 0, i: i, j: j},
-            {x: leafValue * 0.25, y: -leafValue * 0.07},
-            {x: leafValue * 0.75, y: -leafValue * 0.13},
-            {x: leafValue, y: 0},
-            {x: leafValue * 0.75, y: leafValue * 0.13},
-            {x: leafValue * 0.25, y: leafValue * 0.07}]
-        }
-      }
     }
   }
 
+  makeFrondPath ({palmTreeIndex, frondIndex, amplifier = 1}) {
+    const frondValue = this.frondScale(this.normalizedData[palmTreeIndex][frondIndex])
+    const frondIsSelected = this.plotState.isColumnOn(frondIndex)
+    const pathData = (frondIsSelected)
+      ? this.makeEnabledFrondPath(frondValue * amplifier)
+      : this.makeDisabledFrondPath(frondValue * amplifier)
+    return this.line(pathData)
+  }
+
+  makeDisabledFrondPath (frondValue) {
+    return [
+      {x: 0, y: 0},
+      {x: frondValue * 0.25, y: -frondValue * 0.03},
+      {x: frondValue * 0.75, y: -frondValue * 0.05},
+      {x: frondValue, y: 0},
+      {x: frondValue * 0.75, y: frondValue * 0.05},
+      {x: frondValue * 0.25, y: frondValue * 0.03}
+    ]
+  }
+
+  makeEnabledFrondPath (frondValue) {
+    return [
+      {x: 0, y: 0},
+      {x: frondValue * 0.25, y: -frondValue * 0.07},
+      {x: frondValue * 0.75, y: -frondValue * 0.13},
+      {x: frondValue, y: 0},
+      {x: frondValue * 0.75, y: frondValue * 0.13},
+      {x: frondValue * 0.25, y: frondValue * 0.07}
+    ]
+  }
+
   // create ghost rectangle tooltip
-  mouseOverFrond (d, el, sel) {
+  mouseOverFrond (d) {
     tooltipLogger.debug('mouseOverFrond')
     this.showTooltipDesiredState = true
-    this.updateToolTipWithDebounce(d, el, sel)
+    this.updateToolTipWithDebounce(d)
   }
 
   mouseOutFrond (d) {
@@ -558,23 +448,45 @@ class PalmTrees {
     }, this.tooltipDebounceTime * 2)
   }
 
-  mouseOutLeaf (d) {
+  mouseOutLeaf () {
     tooltipLogger.debug('mouseOutLeaf')
     d3.selectAll(`.tip-column`).classed('selected', false)
   }
 
-  updateToolTipWithDebounce (d, el, sel) {
+  updateToolTipWithDebounce ({palmTreeIndex, name, value} = {}) {
     if (this.updateToolTipWithDebounceTimeoutHandler) {
       clearTimeout(this.updateToolTipWithDebounceTimeoutHandler)
       delete this.updateToolTipWithDebounceTimeoutHandler
     }
 
+    let htmlContent = null
+    if (this.showTooltipDesiredState) {
+      htmlContent = makeTipContent({
+        rowName: this.rowNames[palmTreeIndex],
+        rowIndex: palmTreeIndex,
+        rowTotal: this.weightedSums[palmTreeIndex].toFixed(this.settings.digits),
+        yLabel: this.settings.ylab,
+        columnNames: this.colNames,
+        columnStates: this.plotState.getState().selectedColumns,
+        hFamily: this.settings.tooltipsHeadingFontFamily,
+        hSize: this.settings.tooltipsHeadingFontSize,
+        fFamily: this.settings.tooltipsFontFamily,
+        fSize: this.settings.tooltipsFontSize,
+        digits: this.settings.digits,
+        prefix: this.settings.prefix,
+        suffix: this.settings.suffix,
+        data: this.settings.rawData[palmTreeIndex],
+        tipScale: this.tipBarScale,
+        colors: this.colors
+      })
+    }
+
     // NB make copies of these now, when the timeout below is called d, el, and sel will be undefined
     const params = {
-      palmTreeIndex: d.index,
-      yPos: d.value,
-      xPos: d.name,
-      html: d.tip
+      palmTreeIndex,
+      yPos: value,
+      xPos: name,
+      html: htmlContent
     }
 
     this.updateToolTipWithDebounceTimeoutHandler = setTimeout(() => {
@@ -589,6 +501,7 @@ class PalmTrees {
   }
 
   showTooltip ({ palmTreeIndex, html, yPos, xPos }) {
+    const _this = this
     this.showTooltipActualState = true
     this.currentlyDisplayedTooltipIndex = palmTreeIndex
     let ghostRect = this.baseSvg.select('#ghost' + palmTreeIndex)
@@ -648,33 +561,13 @@ class PalmTrees {
       .style('top', `${triangleTop}px`)
       .style('left', `${triangleLeft}px`)
 
-    // TODO: this compute leafdata code is repeated in three places
-    let i = palmTreeIndex
-    let s = 1.1
-    for (let j = 0; j < this.colNames.length; j++) {
-      let leafValue = this.linearRadialScale(this.normData[i][j])
-      if (!this.settings.rawData[i][j]) {
-        leafValue = 0
-      }
-      if (this.plotState.isColumnOn(j) < 0.5) {
-        this.frondData[i].leaves[j] = [{x: 0, y: 0, i: i, j: j},
-          {x: leafValue * 0.25 * s, y: -leafValue * 0.03 * s},
-          {x: leafValue * 0.75 * s, y: -leafValue * 0.05 * s},
-          {x: leafValue * s, y: 0},
-          {x: leafValue * 0.75 * s, y: leafValue * 0.05 * s},
-          {x: leafValue * 0.25 * s, y: leafValue * 0.03 * s}]
-      } else {
-        this.frondData[i].leaves[j] = [{x: 0, y: 0, i: i, j: j},
-          {x: leafValue * 0.25 * s, y: -leafValue * 0.07 * s},
-          {x: leafValue * 0.75 * s, y: -leafValue * 0.13 * s},
-          {x: leafValue * s, y: 0},
-          {x: leafValue * 0.75 * s, y: leafValue * 0.13 * s},
-          {x: leafValue * 0.25 * s, y: leafValue * 0.07 * s}]
-      }
-    }
-    this.palms.data(this.frondData)
-    this.leaves.data(function (d) { return d.leaves })
-    d3.select('#frond' + palmTreeIndex).selectAll('path').transition('leafSize').duration(this.duration / 2).attr('d', this.line)
+    d3.select('#frond' + palmTreeIndex)
+      .selectAll('path')
+      .transition('leafSize')
+      .duration(this.duration / 2)
+      .attr('d', function ({palmTreeIndex, frondIndex}) {
+        return _this.makeFrondPath({palmTreeIndex, frondIndex, amplifier: 1.1})
+      })
   }
 
   hideTooltip ({ palmTreeIndex }) {
@@ -682,36 +575,12 @@ class PalmTrees {
     this.currentlyDisplayedTooltipIndex = null
     if (this.tip) { this.tip.hide() }
     d3.select('#littleTriangle').style('visibility', 'hidden')
-    // TODO: this compute leafdata code is repeated in three places
-    let i = palmTreeIndex
-    for (let j = 0; j < this.colNames.length; j++) {
-      let leafValue = this.linearRadialScale(this.normData[i][j])
-      if (!this.settings.rawData[i][j]) {
-        leafValue = 0
-      }
-      if (this.plotState.isColumnOn(j) < 0.5) {
-        this.frondData[i].leaves[j] = [{x: 0, y: 0, i: i, j: j},
-          {x: leafValue * 0.25, y: -leafValue * 0.03},
-          {x: leafValue * 0.75, y: -leafValue * 0.05},
-          {x: leafValue, y: 0},
-          {x: leafValue * 0.75, y: leafValue * 0.05},
-          {x: leafValue * 0.25, y: leafValue * 0.03}]
-      } else {
-        this.frondData[i].leaves[j] = [{x: 0, y: 0, i: i, j: j},
-          {x: leafValue * 0.25, y: -leafValue * 0.07},
-          {x: leafValue * 0.75, y: -leafValue * 0.13},
-          {x: leafValue, y: 0},
-          {x: leafValue * 0.75, y: leafValue * 0.13},
-          {x: leafValue * 0.25, y: leafValue * 0.07}]
-      }
-    }
-    this.palms.data(this.frondData)
-    this.leaves.data(function (d) { return d.leaves })
+
     d3.select('#frond' + palmTreeIndex)
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)
-      .attr('d', this.line)
+      .attr('d', this.makeFrondPath.bind(this))
   }
 
   // update the position of y axis unit on resize
@@ -723,6 +592,11 @@ class PalmTrees {
         if (len < _this.plotMargin.left - 10) { return -len - 10 } else { return -_this.plotMargin.left }
       })
       .attr('y', -_this.plotMargin.top / 2)
+  }
+
+  // TODO placement (file organization)
+  maxFrondLength (palmTreeIndex) {
+    return _(this.normalizedData[palmTreeIndex]).map(this.frondScale).max()
   }
 
   // update side bar content on initialization and resize
@@ -781,34 +655,18 @@ class PalmTrees {
       this.leftMargin = 10
     }
 
-    if (this.settings.barHeights) {
-      if (this.settings.yprefix && this.settings.ysuffix && this.settings.showYAxis) {
-        this.yPrefixText = this.settings.yprefix
-        let prefixLength = 0
-        plotArea.append('text')
-          .style('font-size', '11px')
-          .style('font-family', 'sans-serif')
-          .text(this.settings.yprefix)
-          .each(function () {
-            prefixLength = this.getComputedTextLength()
-          })
-          .remove()
-        this.leftMargin = this.leftMargin + prefixLength
-      }
-    } else {
-      if (this.settings.prefix && this.settings.suffix && this.settings.showYAxis) {
-        this.yPrefixText = this.settings.prefix
-        let prefixLength = 0
-        plotArea.append('text')
-          .style('font-size', '11px')
-          .style('font-family', 'sans-serif')
-          .text(this.settings.prefix)
-          .each(function () {
-            prefixLength = this.getComputedTextLength()
-          })
-          .remove()
-        this.leftMargin = this.leftMargin + prefixLength
-      }
+    if (this.settings.prefix && this.settings.suffix && this.settings.showYAxis) {
+      this.yPrefixText = this.settings.prefix
+      let prefixLength = 0
+      plotArea.append('text')
+        .style('font-size', '11px')
+        .style('font-family', 'sans-serif')
+        .text(this.settings.prefix)
+        .each(function () {
+          prefixLength = this.getComputedTextLength()
+        })
+        .remove()
+      this.leftMargin = this.leftMargin + prefixLength
     }
 
     this.plotMargin = {
@@ -857,50 +715,25 @@ class PalmTrees {
       })
 
     this.param.maxLeafWidth = Math.min(this.plotMargin.top, Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4), 60)
-    this.linearRadialScale = d3.scale.linear()
-      .domain([this.minVal, this.maxVal])
-      .range([this.param.maxLeafWidth * this.minVal / this.maxVal, this.param.maxLeafWidth])
+    this.frondScale.range([this.param.maxLeafWidth * this.normalizedDataMin / this.normalizedDataMax, this.param.maxLeafWidth])
 
-    // TODO: this compute leafdata code is repeated in three places
-    for (let i = 0; i < this.rowNames.length; i++) {
-      let frondDatum = {}
-      let leafData = []
-      for (let j = 0; j < this.colNames.length; j++) {
-        let leafValue = this.linearRadialScale(this.normData[i][j])
-        if (!this.settings.rawData[i][j]) {
-          leafValue = 0
-        }
-        if (this.plotState.isColumnOn(j) < 0.5) { // this means IF column is selected ...
-          leafData.push([{x: 0, y: 0, i: i, j: j},
-            {x: leafValue * 0.25, y: -leafValue * 0.03},
-            {x: leafValue * 0.75, y: -leafValue * 0.05},
-            {x: leafValue, y: 0},
-            {x: leafValue * 0.75, y: leafValue * 0.05},
-            {x: leafValue * 0.25, y: leafValue * 0.03}])
-        } else {
-          leafData.push([{x: 0, y: 0, i: i, j: j},
-            {x: leafValue * 0.25, y: -leafValue * 0.07},
-            {x: leafValue * 0.75, y: -leafValue * 0.13},
-            {x: leafValue, y: 0},
-            {x: leafValue * 0.75, y: leafValue * 0.13},
-            {x: leafValue * 0.25, y: leafValue * 0.07}])
-        }
+    this.frondData = _.range(this.palmTreeCount).map((palmTreeIndex) => {
+      return {
+        name: this.rowNames[palmTreeIndex],
+        value: this.weightedSums[palmTreeIndex],
+        index: palmTreeIndex, // TODO remove this once everything uses palmTreeIndex
+        palmTreeIndex: palmTreeIndex
       }
-      frondDatum = {
-        leaves: leafData,
-        name: this.rowNames[i],
-        value: this.weightedSums[i],
-        index: i,
-        tip: 's',
-        tipR: d3.mean(this.normData[i]),
-        tipMaxR: d3.max(this.normData[i])
-      }
-      this.frondData.push(frondDatum)
-    }
+    })
 
-    for (let i = 0; i < this.rowNames.length; i++) {
-      this.barData.push({name: this.rowNames[i], value: this.weightedSums[i], index: i})
-    }
+    // TODO can I just use frondData ?
+    this.barData = _.range(this.palmTreeCount).map((palmTreeIndex) => {
+      return {
+        name: this.rowNames[palmTreeIndex],
+        value: this.weightedSums[palmTreeIndex],
+        index: palmTreeIndex // TODO remove this once everything uses palmTreeIndex
+      }
+    })
 
     /* stop computing stuff / start drawing stuff */
 
@@ -934,7 +767,7 @@ class PalmTrees {
       .attr('id', function (d, i) { return 'tickTxt' + i })
       .style('font-size', this.settings.rowFontSize + 'px')
       .style('font-family', this.settings.rowFontFamily)
-      .call(this.wrapNew.bind(this), this.xscale.rangeBand())
+      .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
 
     // update bottom margin based on x axis
     this.plotMargin.bottom = this.bottomMargin + this.maxXaxisLines * this.xFontSize * 1.1
@@ -982,56 +815,33 @@ class PalmTrees {
     if (this.settings.tooltips) {
       palmEnter.append('rect')
         .attr('class', 'ghostCircle')
+        .attr('id', function ({palmTreeIndex}) { return `ghost${palmTreeIndex}` })
     }
 
     this.leaves = palmEnter.attr('class', 'leaf')
       .attr('id', function (d) { return 'frond' + d.index })
       .selectAll('path')
-      .data(function (d) { return d.leaves })
+      .data(function (palmTreeData) {
+        return _.range(_this.frondCount).map((frondIndex) => _.merge({}, palmTreeData, { frondIndex }))
+      })
 
-    this.leaves.enter().append('path')
+    this.leaves.enter()
+      .append('path')
       .style('cursor', 'pointer')
-      .attr('class', function (d, i) { return `actual-leaf actual-leaf-${i}` })
-      .attr('d', this.line)
+      .attr('class', ({frondIndex}) => `actual-leaf actual-leaf-${frondIndex}`)
+      .attr('transform', ({frondIndex}) => 'rotate(' + (frondIndex * 360 / _this.frondCount - 90) + ')')
 
     plotArea.selectAll('.leaf')
       .attr('transform', function (d) {
         return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
       })
 
-    this.leaves.attr('transform', function (d, i) {
-      return 'rotate(' + (i * 360 / _this.ncol - 90) + ')'
-    })
-
     this.leaves.style('fill', function (d, i) {
       return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
     })
 
-    // update html tip content on ghost rectangle
-    const makeTipData = () => {
-      for (let i = 0; i < this.rowNames.length; i++) {
-        this.frondData[i].tip = makeTipContent({
-          rowName: this.rowNames[i],
-          rowIndex: i,
-          columnNames: this.colNames,
-          hFamily: this.settings.tooltipsHeadingFontFamily,
-          hSize: this.settings.tooltipsHeadingFontSize,
-          fFamily: this.settings.tooltipsFontFamily,
-          fSize: this.settings.tooltipsFontSize,
-          digits: this.settings.digits,
-          prefix: this.settings.prefix,
-          suffix: this.settings.suffix,
-          data: this.settings.rawData[i],
-          columnState: this.plotState.getState().selectedColumns,
-          tipScale: this.tipBarScale,
-          colors: this.colors
-        })
-      }
-    }
-
     // work on tooltip
     if (this.settings.tooltips) {
-      makeTipData()
       this.tip = d3Tip().attr('class', `d3-tip d3-tip-palmtree-${this.palmTreeId}`)
 
       baseSvg.call(this.tip)
@@ -1041,24 +851,11 @@ class PalmTrees {
         .attr('id', 'littleTriangle')
         .style('visibility', 'hidden')
 
-      const ghostPadding = 4
-      baseSvg.selectAll('.ghostCircle')
-        .attr('id', function (d, i) { return 'ghost' + i })
-        .attr('x', function (d) {
-          return -1 * (ghostPadding + this.parentNode.getBoundingClientRect().width / 2)
-        })
-        .attr('y', function (d) {
-          return -1 * (ghostPadding + this.parentNode.getBoundingClientRect().height / 2)
-        })
-        .attr('width', function (d) { return this.parentNode.getBoundingClientRect().width + 2 * ghostPadding })
-        .attr('height', function (d) { return this.parentNode.getBoundingClientRect().height + 2 * ghostPadding })
-        .each((d) => { this.initR.push(this.linearRadialScale(d.tipMaxR)) })
-
       baseSvg.selectAll('.leaf')
-        .on('mouseover', function (d, i) {
-          _this.mouseOverFrond(d, this, baseSvg)
+        .on('mouseover', function (d) {
+          _this.mouseOverFrond(d)
         })
-        .on('mouseout', function (d, i) {
+        .on('mouseout', function (d) {
           _this.mouseOutFrond(d)
         })
 
@@ -1066,64 +863,41 @@ class PalmTrees {
         .on('mouseover', function (leafData, leafIndex) {
           _this.mouseOverLeaf(leafData, leafIndex)
         })
-        .on('mouseout', function (d, leafIndex) {
+        .on('mouseout', function (d) {
           _this.mouseOutLeaf(d)
         })
         .on('click', (d) => {
-          let index = d[0].j
-          // if (d3.event.defaultPrevented) return // click suppressed
           tooltipLogger.debug('clickLeaf')
           this.showTooltipDesiredState = false
+          // TODO can i reverse order of below ?
           this.updateToolTipWithDebounce(d)
-          this.plotState.toggleColumnState(index)
-          // d3.event.stopPropagation()
+          this.plotState.toggleColumnState(d.frondIndex)
         })
     }
 
-    if (this.settings.barHeights) {
-      if (this.settings.showYAxis) {
-        if (this.settings.yprefix || this.settings.ysuffix) {
-          if (!this.settings.ysuffix) {
-            plotArea.append('text')
-              .attr('class', 'suffixText')
-              .text(this.settings.yprefix)
-              .style('font-size', this.settings.yFontSize + 'px')
-              .style('font-family', this.settings.yFontFamily)
-          } else {
-            plotArea.append('text')
-              .attr('class', 'suffixText')
-              .text(this.settings.ysuffix)
-              .style('font-size', this.settings.yFontSize + 'px')
-              .style('font-family', this.settings.yFontFamily)
-          }
-          this.updateUnitPosition()
+    if (this.settings.showYAxis) {
+      if (this.settings.prefix || this.settings.suffix) {
+        if (!this.settings.suffix) {
+          plotArea.append('text')
+            .attr('class', 'suffixText')
+            .text(this.settings.prefix)
+            .style('font-size', this.settings.yFontSize + 'px')
+            .style('font-family', this.settings.yFontFamily)
+        } else {
+          plotArea.append('text')
+            .attr('class', 'suffixText')
+            .text(this.settings.suffix)
+            .style('font-size', this.settings.yFontSize + 'px')
+            .style('font-family', this.settings.yFontFamily)
         }
-      }
-    } else {
-      if (this.settings.showYAxis) {
-        if (this.settings.prefix || this.settings.suffix) {
-          if (!this.settings.suffix) {
-            plotArea.append('text')
-              .attr('class', 'suffixText')
-              .text(this.settings.prefix)
-              .style('font-size', this.settings.yFontSize + 'px')
-              .style('font-family', this.settings.yFontFamily)
-          } else {
-            plotArea.append('text')
-              .attr('class', 'suffixText')
-              .text(this.settings.suffix)
-              .style('font-size', this.settings.yFontSize + 'px')
-              .style('font-family', this.settings.yFontFamily)
-          }
-          this.updateUnitPosition()
-        }
+        this.updateUnitPosition()
       }
     }
 
-    this.updatePlot(this.duration, true)
+    this.updatePlot(true)
   }
 
-  updatePlot (duration, initialization) {
+  updatePlot (initialization) {
     log.info('PalmTree.updatePlot()')
     const _this = this
     const baseSvg = this.baseSvg
@@ -1136,9 +910,6 @@ class PalmTrees {
       for (let j = 0; j < this.colNames.length; j++) {
         this.unweightedSums[i] += this.plotState.isColumnOn(j) * this.data[i][j]
         this.weightedSums[i] += this.plotState.isColumnOn(j) * this.weights[j] * this.data[i][j]
-      }
-      if (this.settings.barHeights) {
-        this.weightedSums[i] = this.settings.barHeights[i]
       }
     }
 
@@ -1159,6 +930,19 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', this.settings.yFontSize + 'px')
         .style('font-family', this.settings.yFontFamily)
+
+      this.leaves
+        .attr('d', this.makeFrondPath.bind(this))
+        .style('fill', function (d, i) {
+          return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
+        })
+
+      const ghostPadding = 4
+      baseSvg.selectAll('.ghostCircle')
+        .attr('x', function ({palmTreeIndex}) { return -1 * (ghostPadding + _this.maxFrondLength(palmTreeIndex)) })
+        .attr('y', function ({palmTreeIndex}) { return -1 * (ghostPadding + _this.maxFrondLength(palmTreeIndex)) })
+        .attr('width', function ({palmTreeIndex}) { return (_this.maxFrondLength(palmTreeIndex) + ghostPadding) * 2 })
+        .attr('height', function ({palmTreeIndex}) { return (_this.maxFrondLength(palmTreeIndex) + ghostPadding) * 2 })
     } else {
       plotArea.select('.yaxis')
         .transition()
@@ -1167,18 +951,17 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', this.settings.yFontSize + 'px')
         .style('font-family', this.settings.yFontFamily)
+
+      this.leaves
+        .transition('leafColor')
+        .duration(_this.duration)
+        .attr('d', this.makeFrondPath.bind(this))
+        .style('fill', function (d, i) {
+          return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
+        })
     }
 
     this.bars.data(this.barData)
-    this.palms.data(this.frondData)
-    this.leaves.data(function (d) { return d.leaves })
-
-    this.leaves.transition('leafColor')
-      .duration(_this.duration)
-      .attr('d', _this.line)
-      .style('fill', function (d, i) {
-        return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
-      })
 
     // TODO this should be handled bv the sidebar !
     baseSvg.selectAll('.sideBarColorBox').transition('boxColor')
@@ -1265,7 +1048,7 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', _this.settings.rowFontSize + 'px')
         .style('font-family', _this.settings.rowFontFamily)
-        .call(_this.wrapNew.bind(_this), _this.xscale.rangeBand())
+        .call(_this.wrapAxisLabels.bind(_this), _this.xscale.rangeBand())
 
       plotArea.selectAll('.leaf')
         .sort(sortfun)
@@ -1288,7 +1071,7 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', _this.settings.rowFontSize + 'px')
         .style('font-family', _this.settings.rowFontFamily)
-        .call(_this.wrapNew.bind(_this), _this.xscale.rangeBand())
+        .call(_this.wrapAxisLabels.bind(_this), _this.xscale.rangeBand())
 
       plotArea.selectAll('.leaf')
         .sort(sortfun)

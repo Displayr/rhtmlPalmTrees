@@ -1,5 +1,6 @@
 {
   "settings": {
+    "digits": 1,
     "tooltips": true,
     "tooltipsFontSize": 11,
     "tooltipsFontFamily": "sans-serif",
