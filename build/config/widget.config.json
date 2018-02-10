@@ -7,7 +7,7 @@
     "includeDimensionsOnWidgetDiv": true,
     "default_border": true,
     "css": [
-      "/styles/rhtmlPalmTree.css"
+      "/style/rhtmlPalmTrees.css"
     ]
   },
   "visualRegressionSuite": {

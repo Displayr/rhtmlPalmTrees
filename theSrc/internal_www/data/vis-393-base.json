@@ -1,0 +1,92 @@
+{
+  "data": [
+    [
+      1,
+      6,
+      11,
+      16,
+      21
+    ],
+    [
+      2,
+      7,
+      12,
+      17,
+      22
+    ],
+    [
+      3,
+      8,
+      13,
+      18,
+      23
+    ],
+    [
+      4,
+      9,
+      14,
+      19,
+      24
+    ],
+    [
+      5,
+      10,
+      15,
+      20,
+      25
+    ]
+  ],
+  "settings": {
+    "weights": [
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2
+    ],
+    "rowNames": [
+      "row1",
+      "row2",
+      "row3",
+      "row4",
+      "row5"
+    ],
+    "rowFontSize": 11,
+    "rowFontFamily": "sans-serif",
+    "rowHeading": "Rows",
+    "rowHeadingFontSize": 12,
+    "rowHeadingFontFamily": "sans-serif",
+    "colNames": [
+      "column1",
+      "column2",
+      "column3",
+      "column4",
+      "column5"
+    ],
+    "colFontSize": 15,
+    "colFontFamily": "sans-serif",
+    "colHeading": "Columns",
+    "colHeadingFontSize": 0,
+    "colHeadingFontFamily": "sans-serif",
+    "tooltips": true,
+    "tooltipsFontSize": 11,
+    "tooltipsFontFamily": "sans-serif",
+    "tooltipsHeadingFontSize": 12,
+    "tooltipsHeadingFontFamily": "sans-serif",
+    "showYAxis": true,
+    "ylab": null,
+    "yprefix": null,
+    "ysuffix": null,
+    "ydigits": 1,
+    "yFontSize": 11,
+    "yFontFamily": "sans-serif",
+    "yLabFontSize": 12,
+    "yLabFontFamily": "sans-serif",
+    "digits": 1,
+    "colors": null,
+    "barHeights": null,
+    "order": "descending",
+    "prefix": null,
+    "suffix": null
+  }
+}
