@@ -1,46 +1,22 @@
-## Concerns / Questions
+## Concerns / TODOs
 
-* why data and settings.rawData ?
-* when two palmtree on same page, 1 row, 2 col, second suffix text does not get x=-20 y=-20 causing the % to sit in wrong spot
+* Refactor: the CSS classes leaf vs front vs palmtree etc need to be cleaned up, and a readme note needs to be added that defines terminology
+  ** palmTreePlot.js -> still referencing old sort classes, and toggle all on/off old classes
+* Refactor: More use of functions to clean up the main draw() and resize() code. Try to reuse more accross resize() and updatePlot(). Break updatePlot() into more modular units  
+* BUG TO JIRA: when two palmtree on same page, 1 row, 2 col, second suffix text does not get x=-20 y=-20 causing the % to sit in wrong spot
+* BUG TO JIRA: bug: when there is only one row the leafs do not render
+* TODO BDD: test north / east / west tooltips (only south is tested)
+* TODO BDD: test multiple calls to renderValue
+* TODO BDD: test that when i disable a frond, the sort order sometimes changes
+* Concern: extensive use of inaccurate math to determine text sizes when doing layout:
+** example : this.leftMargin = ((Math.floor(this.param.ymax)).toString().length + this.settings.ydigits) * 7 + 25
+* Refactor: plotWidth and plotHeight appear to be computed fields
+* Refactor: this.minVal and this.maxVal are terrible names
+* Refactor: this.linearRadialScale does not imply what it is used for
+* Refactor: selectColumns should be a boolean
+* Refactor : barData : can I just use frondData ?
+* To Test : handling R "na" do they result in a "No data" in the tooltip 
 
-
+NB line by line review you are here : PalmTrees.js : resize (line 256), Sidebar needs review too
 
 ## Overview
-
-## Code Path
-
-From the `chart` function called in factory.js:
-
-* 
-
-### Factory initialisation:
-
-    let palm = new PalmTrees().width(w).height(h).stateSaver(stateChanged)
-   
-This calls the constructor. The constructor is responsible for:
-    
- * creates a lot of private (via closure) variables and functions
- * then registers a series of methods on a function/object called chart
- * returns chart object as the new instance of PalmTrees 
-
-Interestingly the PalTrees class returns another JS object called chart which is both a function and an object. This serves as the class instance. 
-
-### Factory renderValue call:
-
-In the code below `palm` is the `chart` instance returned by the PalmTrees constructor
-
-    palm = palm.reset()
-    palm = palm.settings(x.settings)
-    palm = palm.data(x.data)
-    d3.select(el).call(palm)
-
-
-In factory.js when we pass chart to d3 (via `d3.select(el).call(palm)`) we are invoking the chart function defined in PalmTrees (i.e. `function chart(chartWindowSelection) ...`).
-
-## Main Data Structures and Modules
-
-## Relevent Config Options To Test
-
-* barHeights
-
-## Relevent User State To Test

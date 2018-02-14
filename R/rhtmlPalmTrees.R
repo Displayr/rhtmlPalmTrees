@@ -21,16 +21,13 @@
 #' @param tooltips.heading.font.family Default tooltip heading font family = "sans-serif"
 #' @param y.show Logical. Show y axis?
 #' @param y.lab y axis label
-#' @param y.prefix prefix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case prefix is used.
-#' @param y.suffix suffix of y axis ticks. This argument is ignored when column.as.heights is NULL (default), in which case suffix is used.
 #' @param y.digits integer to control the number of decimal places of the y axis
 #' @param y.font.size Default y axis font size = 11
 #' @param y.font.family Default y axis font family = "sans-serif"
 #' @param y.lab.font.size Default y axis label font size = 12
 #' @param y.lab.font.family Default y axis label font family = "sans-serif"
-#' @param prefix prefix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same prefix. If suffix is not provided, prefix will take suffix' place on the y axis.
-#' @param suffix suffix of numbers in the tooltips. If column.as.heights is NULL (default), the y axis will also have the same suffix.
-#' @param column.as.heights Integer to specify which column can be used as tree heights.
+#' @param prefix prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis.
+#' @param suffix suffix of numbers in the tooltips.
 #' @param colors colors of the leaves. D3 colors will be used if no values are provided.
 #' @param digits integer to control the number of decimal places in the tooltips
 #' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".
@@ -88,8 +85,6 @@ PalmTrees <- function(
     tooltips.heading.font.family = "sans-serif",
     y.show = TRUE,
     y.lab = NULL,
-    y.prefix = NULL,
-    y.suffix = NULL,
     y.digits = 1,
     y.font.size = 11,
     y.font.family = "sans-serif",
@@ -97,7 +92,6 @@ PalmTrees <- function(
     y.lab.font.family = "sans-serif",
     prefix = NULL,
     suffix = NULL,
-    column.as.heights = NULL,
     digits = 1,
     colors = NULL,
     order = "descending",
@@ -180,23 +174,6 @@ PalmTrees <- function(
         colors = a[1,]
     }
 
-    if (!is.null(column.as.heights)) {
-        if (!is.vector(data)) {
-            bar.heights = data[,column.as.heights]
-            names(bar.heights) = NULL
-            if (nc == length(col.names)) {
-                if (is.null(y.lab))
-                    y.lab = col.names[column.as.heights]
-                col.names = col.names[-column.as.heights]
-            }
-            data = data[,-column.as.heights]
-        } else {
-            stop("Input data must have > 1 columns to use as fixed trees")
-        }
-    } else {
-        bar.heights = NULL
-    }
-
     # create a list that contains the settings
     settings <- list(
         rawData = raw.data,
@@ -220,8 +197,6 @@ PalmTrees <- function(
         tooltipsHeadingFontFamily = tooltips.heading.font.family,
         showYAxis = unbox(y.show),
         ylab = unbox(y.lab),
-        yprefix = unbox(y.prefix),
-        ysuffix = unbox(y.suffix),
         ydigits = unbox(y.digits),
         yFontSize =  unbox(y.font.size),
         yFontFamily =  unbox(y.font.family),
@@ -229,7 +204,6 @@ PalmTrees <- function(
         yLabFontFamily = unbox(y.lab.font.family),
         digits = digits,
         colors = colors,
-        barHeights = bar.heights,
         order = unbox(order),
         prefix = unbox(prefix),
         suffix = unbox(suffix)
