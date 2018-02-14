@@ -687,7 +687,7 @@ class PalmTrees {
 
     // bottom
     if (this.settings.rowHeading) {
-      this.bottomMargin = this.bottomMargin + 20
+      this.bottomMargin = this.bottomMargin + this.settings.rowHeadingFontSize
       this.plotMargin.bottom = this.bottomMargin
       this.plotHeight = this.viewerHeight - this.plotMargin.top - this.plotMargin.bottom
     }
