@@ -16,8 +16,8 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
   y.lab = NULL, y.digits = 1, y.font.size = 11,
   y.font.family = "sans-serif", y.lab.font.size = 12,
   y.lab.font.family = "sans-serif", prefix = NULL, suffix = NULL,
-  digits = 1, colors = NULL, order = "descending", width = NULL,
-  height = NULL)
+  digits = 1, colors = NULL, order = "descending",
+  sidebar.maxProportion = 0.25, width = NULL, height = NULL)
 }
 \arguments{
 \item{data}{numeric matrix or data frame}
@@ -81,6 +81,8 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 \item{colors}{colors of the leaves. D3 colors will be used if no values are provided.}
 
 \item{order}{= c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".}
+
+\item{sidebar.maxProportion}{Max proportion of sidebar width to plot width. Default = 0.25}
 
 \item{height}{}
 }

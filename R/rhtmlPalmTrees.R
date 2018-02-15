@@ -14,6 +14,7 @@
 #' @param col.heading character vector specifying the heading
 #' @param col.heading.font.size Default column heading font size = 12
 #' @param col.heading.font.family Default column heading font family = "sans-serif"
+#' @param sidebar.maxProportion Max proportion of sidebar width to plot width. Default = 0.25
 #' @param tooltips logical, whether to attach tooltips on mouseover, default true.
 #' @param tooltips.font.size Default tooltip font size = 11
 #' @param tooltips.font.family Default tooltip font family = "sans-serif"
@@ -95,6 +96,7 @@ PalmTrees <- function(
     digits = 1,
     colors = NULL,
     order = "descending",
+    sidebar.maxProportion = 0.25,
     width = NULL,
     height = NULL) {
 
@@ -190,6 +192,7 @@ PalmTrees <- function(
         colHeading = col.heading,
         colHeadingFontSize = col.heading.font.size,
         colHeadingFontFamily = col.heading.font.family,
+        sidebarMaxProportion = sidebar.maxProportion,
         tooltips = tooltips,
         tooltipsFontSize = tooltips.font.size,
         tooltipsFontFamily = tooltips.font.family,

@@ -17,11 +17,12 @@ const defaultSettings = {
   'digits': 0,
   'colFontSize': 11,
   'colFontFamily': 'sans-serif',
+  'columnHeading': '',
   'colHeadingFontSize': 0,
   'colHeadingFontFamily': 'sans-serif',
+  'sidebarMaxProportion': 0.25,
   'rowFontSize': 11,
   'rowFontFamily': 'sans-serif',
-  'columnHeading': '',
   'rowHeading': '',
   'rowHeadingFontSize': 12,
   'rowHeadingFontFamily': 'sans-serif',
@@ -273,7 +274,7 @@ class PalmTrees {
 
     // sidebar
     this.sidebar.resize({
-      maxWidth: Math.floor(this.viewerWidth * 0.25),
+      maxWidth: Math.floor(this.viewerWidth * this.settings.sidebarMaxProportion),
       maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
       containerWidth: this.viewerWidth
     })
@@ -626,7 +627,7 @@ class PalmTrees {
         colors: this.colors,
         columnNames: this.colNames,
         headingText: this.settings.colHeading,
-        maxWidth: Math.floor(this.viewerWidth * 0.25),
+        maxWidth: Math.floor(this.viewerWidth * this.settings.sidebarMaxProportion),
         maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
         containerWidth: this.viewerWidth,
         fontSize: this.settings.colFontSize,
