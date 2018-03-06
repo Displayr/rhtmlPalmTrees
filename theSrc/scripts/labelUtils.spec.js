@@ -1,16 +1,16 @@
 import _ from 'lodash'
-import {splitIntoLines, tokenizer} from './labelUtils'
+import {splitIntoLines, wordTokenizer} from './labelUtils'
 
 /* global expect */
 
-describe('tokenizer():', function () {
+describe('wordTokenizer():', function () {
   const tests = [
     {input: 'foo  bar  ', expected: ['foo', 'bar']}
   ]
 
   _(tests).each(({input, expected}) => {
     it(`${input} -> ${JSON.stringify(expected)}`, function () {
-      expect(tokenizer(input)).to.deep.equal(expected)
+      expect(wordTokenizer(input)).to.deep.equal(expected)
     })
   })
 })
