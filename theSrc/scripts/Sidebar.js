@@ -1,6 +1,7 @@
 import d3 from 'd3'
 import _ from 'lodash'
 import * as rootLog from 'loglevel'
+import {truncateD3TextSelection} from './labelUtils'
 const log = rootLog.getLogger('sidebar')
 
 class Sidebar {
@@ -13,11 +14,9 @@ class Sidebar {
       containerWidth: null,
       fontSize: 12,
       fontFamily: 'arial',
-      fontWeight: '600',
       headingText: null,
       headingFontSize: 14,
-      headingFontFamily: 'arial',
-      headingFontWeight: 800
+      headingFontFamily: 'arial'
     })
   }
 
@@ -25,74 +24,67 @@ class Sidebar {
     log.info('sidebar.constructor')
     this.element = element
     this.plotState = plotState
-    this.config = _.defaults(config, Sidebar.defaultSettings)
+    this.config = _.defaults({}, config, Sidebar.defaultSettings)
+    // this.config.fontSize = this._extractIntFromStringOrArray(this.config.fontSize)
+    // this.config.headingFontSize = this._extractIntFromStringOrArray(this.config.headingFontSize)
     this.frondCount = config.columnNames.length
-
-    this.line = d3.svg.line()
-      .interpolate('cardinal-closed')
-      .x(function (d) { return d.x })
-      .y(function (d) { return d.y })
-  }
-
-  // TODO rename to this.dimensions and computeDimensions
-  // remove all sdBar from vars, and make vars names that dont suck
-  initSidebarParam () {
-    this.sdBarLeafData = []
-
-    this.param = {}
-    this.param.sdBarMaxTxtL = _(this.config.columnNames).map('length').max()
-
-    this.param.sdBarFontSize = this.config.fontSize
-    this.param.sdBarHdFontSize = this.config.headingFontSize
-
-    this.param.sdBarMenuItems = 4
-    this.param.sdBarOuterMargin = 5
-    this.param.sdBarPadding = 3
-    this.param.sdBarHdivF = 2   // ratio of height divided by font size
-    this.param.sdBarY = this.param.sdBarOuterMargin + 0.5
-
-    this.param.sdBarHdH = this.config.headingFontSize * this.param.sdBarHdivF
-    this.param.sdBarElemH = this.config.fontSize * this.param.sdBarHdivF
-    this.param.sdBarColorBarsH = this.param.sdBarElemH - 2 * this.param.sdBarPadding
-    this.param.sdBarColorBarsW = Math.round(this.param.sdBarColorBarsH * 0.6)
-    this.param.sdBarLeafR = (this.param.sdBarElemH - 2) / 2
-
-    this.param.sdBarHdY = this.param.sdBarHdH / 2
-    this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
 
     this.sdBarLeafData = _.range(this.frondCount).map((frondGroupIndex) => {
       return {
-        leaves: _.range(this.frondCount), // fill leave paths in later
         colName: this.config.columnNames[frondGroupIndex],
         color: this.config.colors[frondGroupIndex],
         index: frondGroupIndex
       }
     })
+
+    this.line = d3.svg.line()
+      .interpolate('cardinal-closed')
+      .x(function (d) { return d.x })
+      .y(function (d) { return d.y })
+
+    this.constants = {
+      frondRowCount: this.frondCount, // NB constants.frondRowCount is not necessary but aids readability throughout code
+      controlRowCount: 6,
+      animationDuration: 200,
+      outerMargin: 5,
+      rowHorizontalPadding: 3, // TODO used for both vertical and horizontal ... (for calc of colorBarHeight)
+      rowMinVerticalPadding: 2,
+      rowMaxVerticalPadding: 5
+    }
   }
 
   getDimensions () {
     return {
-      width: this.param.sdBarWidth,
-      height: this.param.sdBarHeight,
-      x: this.param.sdBarX,
-      y: this.param.sdBarY
+      width: this.dim.width,
+      height: this.dim.height,
+      x: this.dim.x,
+      y: this.dim.y
     }
   }
 
   resize (sizeUpdates) {
     log.info('sidebar.resize()')
     _.assign(this.config, sizeUpdates)
-    this.initSidebarParam()
-    this.adjustDimensionsToFit()
+    this._restoreTruncatedText()
+    this._adjustDimensions()
+  }
+
+  _restoreTruncatedText () {
+    this.element.selectAll('.sideBarText')
+      .text((d, i) => { return this.config.columnNames[i] })
+
+    if (this.config.headingText) {
+      this.element.selectAll('.sdBarHeading')
+        .text(this.config.headingText)
+    }
   }
 
   draw () {
     log.info('sidebar.draw()')
     const _this = this
     const sideBar = this.element
-    this.initSidebarParam()
 
-    // TODO not needed (just need to add border to "Order" then delete
+    // TODO not needed (just need to add border to "Order" then delete)
     sideBar.append('rect')
       .attr('x', 0)
       .attr('y', 0)
@@ -109,6 +101,7 @@ class Sidebar {
       .append('rect')
       .attr('class', 'sdBarAllRect')
       .attr('id', function (d, i) { return 'sdAC' + i })
+      .attr('y', 0)
 
     sdBarCtrl.append('text')
       .attr('class', 'sdBarAllOn')
@@ -137,13 +130,16 @@ class Sidebar {
       .data(sortText)
       .enter()
       .append('g')
+      .attr('class', 'sideBarElemSortRow')
 
     sdBarCtrlEnter.append('rect')
       .attr('class', (d) => `sideBarElemSortRect ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 's' + i })
+      .attr('x', 0)
+      .attr('y', 0)
 
     sdBarCtrlEnter.append('circle')
-      .attr('class', (d) => `sdBarSortBox ${d.toLowerCase()}`)
+      .attr('class', (d) => `sdBarSortRadioButton ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 'sortC' + i })
       .style('fill', (d) => { return (d.toLowerCase() === initialSort) ? 'steelblue' : '#fff' })
       .style('stroke', (d) => { return (d.toLowerCase() === initialSort) ? 'steelblue' : '#999' })
@@ -156,13 +152,16 @@ class Sidebar {
       .text(function (d) { return d })
       .style('font-family', this.config.fontFamily)
 
-    sdBarDisp.append('text')
-      .attr('class', 'sdBarHeading')
-      .attr('dy', '0.35em')
-      .text(this.config.headingText)
-      .style('font-family', this.config.headingFontFamily)
+    if (this.config.headingText) {
+      sdBarDisp.append('text')
+        .attr('class', 'sdBarHeading')
+        .attr('dy', '0.35em')
+        .text(this.config.headingText)
+        .style('font-family', this.config.headingFontFamily)
+        .style('font-size', this.config.headingFontSize + 'px')
+    }
 
-    this.sdBarPalms = sdBarDisp.selectAll('sdBar.g')
+    this.sdBarPalms = sdBarDisp.selectAll('sdBarElem')
       .data(this.sdBarLeafData)
     let sdBarElemEnter = this.sdBarPalms.enter()
       .append('g')
@@ -171,6 +170,8 @@ class Sidebar {
     sdBarElemEnter.append('rect')
       .attr('class', 'sideBarElemRect')
       .attr('id', function (d, i) { return 'sbRect' + i })
+      .attr('x', 0)
+      .attr('y', 0)
 
     this.sdBarFrondGroup = sdBarElemEnter.append('g')
       .attr('class', 'sideBarFrondGroup')
@@ -187,23 +188,23 @@ class Sidebar {
       .append('path')
       .attr('class', 'sideBarFrond')
       .attr('d', this.line)
-      .attr('transform', (d, i) => {
-        return 'rotate(' + (i * 360 / this.config.columnNames.length - 90) + ')'
-      })
+      .attr('transform', (d, i) => { return 'rotate(' + (i * 360 / this.frondCount - 90) + ')' })
       .style('fill', function (d) { return (d.frondGroupIndex === d.frondIndex) ? '#000' : '#ccc' })
 
     sdBarElemEnter.append('rect')
       .attr('class', 'sideBarColorBox')
       .attr('id', function (d, i) { return 'sbColor' + i })
+      .attr('y', this.constants.rowHorizontalPadding + 0.5)
 
     sdBarElemEnter.append('text')
       .attr('class', 'sideBarText')
       .attr('id', function (d, i) { return 'sbTxt' + i })
       .attr('dy', '0.35em')
-      .text(function (d) { return d.colName })
+      .style('font-size', this.config.fontSize + 'px')
       .style('font-family', this.config.fontFamily)
+      .text(function (d) { return d.colName })
 
-    this.adjustDimensionsToFit()
+    this._adjustDimensions()
     this.registerInteractionHandlers()
   }
 
@@ -253,8 +254,8 @@ class Sidebar {
 
     function clickSort (sortValue) {
       // change selected sort Box
-      sdBarCtrl.selectAll('.sdBarSortBox').style('fill', '#fff').style('stroke', '#999')
-      sdBarCtrl.select(`.sdBarSortBox.${sortValue.toLowerCase()}`).style('fill', 'steelblue').style('stroke', 'steelblue')
+      sdBarCtrl.selectAll('.sdBarSortRadioButton').style('fill', '#fff').style('stroke', '#999')
+      sdBarCtrl.select(`.sdBarSortRadioButton.${sortValue.toLowerCase()}`).style('fill', 'steelblue').style('stroke', 'steelblue')
 
       // change selected sort Text
       sdBarCtrl.selectAll('.sdBarSortText').style('fill', '#999')
@@ -276,430 +277,240 @@ class Sidebar {
     sdBarCtrl.selectAll('.sideBarElemSortRect').on('click', clickSort.bind(this))
 
     sideBar
-      .on('mouseenter', this.mouseEnterSidebar.bind(this))
-      .on('mouseleave', this.mouseLeaveSidebar.bind(this))
+      .on('mouseenter', this._mouseEnterSidebar.bind(this))
+      .on('mouseleave', this._mouseLeaveSidebar.bind(this))
   }
 
-  adjustDimensionsToFit () {
-    log.info('sidebar.adjustDimensionsToFit()')
+  _calcVerticalRowPadding (fontSize) {
+    const halfFontSize = fontSize / 2
+    if (halfFontSize < this.constants.rowMinVerticalPadding) { return this.constants.rowMinVerticalPadding }
+    if (halfFontSize > this.constants.rowMaxVerticalPadding) { return this.constants.rowMaxVerticalPadding }
+    return halfFontSize
+  }
+
+  _adjustDimensions () {
+    log.info('sidebar._adjustDimensions()')
+    const _this = this
     const sideBar = this.element
 
-    const _this = this
-    this.param.sdBarMaxTextWidth = this.setFontSizeAndGetMaxTextWidth(this.param.sdBarFontSize)
-
-    this.param.sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth + 3 * this.param.sdBarPadding + this.param.sdBarColorBarsW + this.param.sdBarLeafR * 2)
-    this.param.sdBarHeight = Math.ceil(this.param.sdBarHdH + this.config.columnNames.length * this.param.sdBarElemH)
-
-    const origSdBarHdFontSize = this.param.sdBarHdFontSize
-    while (this.param.sdBarFontSize > 1 &&
-    (this.param.sdBarWidth > this.config.maxWidth || this.param.sdBarHeight > this.config.maxHeight)) {
-      log.debug([
-        'Shrinking sidebar dimensions phase 1:',
-        `because sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.config.maxWidth}) || sdBarHeight(${this.param.sdBarHeight}) > sdBarMaxHeight(${this.config.maxHeight})`,
-        `sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth(${this.param.sdBarMaxTextWidth}) + 3 * this.param.sdBarPadding(${this.param.sdBarPadding}) + this.param.sdBarColorBarsW(${this.param.sdBarColorBarsW}) + this.param.sdBarLeafR(${this.param.sdBarLeafR}) * 2)`,
-        `sdBarHeight = Math.ceil(this.param.sdBarHdH(${this.param.sdBarHdH}) + this.config.columnNames.length(${this.config.columnNames.length}) * this.param.sdBarElemH(${this.param.sdBarElemH}))`,
-        `sdBarFontSize(${this.param.sdBarFontSize})`,
-        `sdBarHdFontSize(${this.param.sdBarHdFontSize})`,
-        `sdBarHdH(${this.param.sdBarHdH})`,
-        `sdBarElemH(${this.param.sdBarElemH})`,
-        `sdBarLeafR(${this.param.sdBarLeafR})`,
-        `sdBarColorBarsH(${this.param.sdBarColorBarsH})`,
-        `sdBarColorBarsW(${this.param.sdBarColorBarsW})`
-      ].join('\n'))
-
-      this.param.sdBarFontSize = this.param.sdBarFontSize - 1
-      this.param.sdBarHdFontSize = Math.min(origSdBarHdFontSize, this.param.sdBarFontSize + 2)
-      this.param.sdBarHdH = this.param.sdBarHdFontSize * this.param.sdBarHdivF
-      this.param.sdBarElemH = this.param.sdBarFontSize * this.param.sdBarHdivF
-      this.param.sdBarColorBarsH = this.param.sdBarElemH - 2 * this.param.sdBarPadding
-      this.param.sdBarColorBarsW = Math.round(this.param.sdBarColorBarsH * 0.6)
-      this.param.sdBarLeafR = (this.param.sdBarElemH - 2) / 2
-      this.param.sdBarHdY = this.param.sdBarHdH / 2
-      this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
-      this.param.sdBarMaxTextWidth = 0
-
-      this.param.sdBarMaxTextWidth = this.setFontSizeAndGetMaxTextWidth(this.param.sdBarFontSize)
-
-      this.param.sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth + 3 * this.param.sdBarPadding + this.param.sdBarColorBarsW + this.param.sdBarLeafR * 2)
-      this.param.sdBarHeight = Math.ceil(this.param.sdBarHdH + this.config.columnNames.length * this.param.sdBarElemH)
+    // this.dim specifies dimensions during an initial draw
+    this.dim = {
+      x: null, // NB set later
+      y: this.constants.outerMargin + 0.5,
+      width: null, // NB set later
+      fontSize: this.config.fontSize,
+      rowHeight: this.config.fontSize + 2 * this._calcVerticalRowPadding(this.config.fontSize),
+      headerHeight: (this.config.headingText)
+        ? this.config.headingFontSize + 2 * this._calcVerticalRowPadding(this.config.headingFontSize)
+        : 0
     }
 
-    // account for heading
-    // TODO use setFontSizeAndGetMaxTextWidth (must extend to take in selector)
-    sideBar.select('.sdBarHeading')
-      .style('font-size', this.param.sdBarHdFontSize + 'px')
-      .each(function (d) {
-        _this.param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), _this.param.sdBarMaxTextWidth)
-      })
+    // second round of dimension settings that rely on first round
+    _.assign(this.dim, {
+      height: Math.ceil(this.dim.headerHeight + this.constants.frondRowCount * this.dim.rowHeight),
+      frondRadius: (this.dim.rowHeight - 2) / 2,
+      colorBarHeight: this.dim.rowHeight - 2 * this.constants.rowHorizontalPadding,
+      colorBarWidth: Math.round(this.dim.colorBarHeight * 0.6)
+    })
 
-    // if heading is too long
-    if (this.param.sdBarMaxTextWidth + 2 * this.param.sdBarPadding > this.param.sdBarWidth) {
-      this.param.sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth + 2 * this.param.sdBarPadding)
-    }
+    // third round of dimension settings that rely on second round
+    _.assign(this.dim, {
+      colorBarWidth: Math.round(this.dim.colorBarHeight * 0.6)
+    })
 
-    // reduce heading font size
-    while (this.param.sdBarWidth > this.config.maxWidth) {
-      log.debug([
-        'Shrinking sidebar dimensions phase 2 (col header phase):',
-        `sdBarWidth(${this.param.sdBarWidth}) > sdBarMaxWidth(${this.config.maxWidth})`,
-        `sdBarHdFontSize(${this.param.sdBarHdFontSize})`,
-        `sdBarHdH(${this.param.sdBarHdH})`,
-        `sdBarElemH(${this.param.sdBarElemH})`,
-        `sdBarColorBarsH(${this.param.sdBarColorBarsH})`,
-        `sdBarColorBarsW(${this.param.sdBarColorBarsW})`
-      ].join('\n'))
+    // determine width of sidebar, and truncate text as necessary
+    let sideBarRowDesiredWidths = []
 
-      this.param.sdBarHdFontSize = this.param.sdBarHdFontSize - 1
-      this.param.sdBarHdH = this.param.sdBarHdFontSize * this.param.sdBarHdivF
-      this.param.sdBarHdY = this.param.sdBarHdH / 2
-      this.param.sdBarColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
+    if (this.config.headingText) {
+      const headerTextWidth = this.element.select('.sdBarHeading').node().getComputedTextLength()
+      const headerWidth = headerTextWidth + 2 * this.constants.rowHorizontalPadding
+      sideBarRowDesiredWidths.push(headerWidth)
 
-      this.param.sdBarMaxTextWidth = 0
-      sideBar.select('.sdBarHeading')
-        .style('font-size', this.param.sdBarHdFontSize + 'px')
-        .each(function (d) {
-          _this.param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), _this.param.sdBarMaxTextWidth)
+      if (headerWidth > this.config.maxWidth) {
+        truncateD3TextSelection({
+          d3Selection: this.element.select('.sdBarHeading'),
+          maxTextWidth: this.config.maxWidth - 2 * this.constants.rowHorizontalPadding,
+          minTextCharacters: 1
         })
-      this.param.sdBarWidth = Math.ceil(this.param.sdBarMaxTextWidth + 2 * this.param.sdBarPadding)
-      this.param.sdBarHeight = Math.ceil(this.param.sdBarHdH + this.config.columnNames.length * this.param.sdBarElemH)
+      }
     }
 
-    this.param.sdBarX = this.config.containerWidth - this.param.sdBarOuterMargin - this.param.sdBarWidth - 0.5
-    this.param.sdBarElemW = this.param.sdBarWidth
+    const widthOfNonTextElementsInFrondRows =
+      3 * this.constants.rowHorizontalPadding +
+      this.dim.colorBarWidth +
+      2 * this.dim.frondRadius
+    const maxAllowedRowTextWidth = this.config.maxWidth - widthOfNonTextElementsInFrondRows
 
-    this.updateFrondSizes({ rowHeight: this.param.sdBarElemH })
+    this.element.selectAll('.sideBarText')
+      .each(function (d) {
+        const desiredRowWidth = this.getComputedTextLength() + widthOfNonTextElementsInFrondRows
+        sideBarRowDesiredWidths.push(desiredRowWidth)
 
-    sideBar.select('#g_sideBarDisp').attr('transform', 'translate(' + this.param.sdBarX + ',' + this.param.sdBarY + ')')
-    sideBar.select('#g_sdBarControl').attr('transform', 'translate(' + this.param.sdBarX + ',' + this.param.sdBarY + ')')
-    // set attributes
-    sideBar.select('.sideBar')
-      .attr('x', this.param.sdBarX)
-      .attr('y', this.param.sdBarY)
-      .attr('width', this.param.sdBarWidth + 'px')
-      .attr('height', this.param.sdBarHeight + 'px')
-
-    // heading
-    sideBar.select('.sdBarHeading')
-      .attr('x', this.param.sdBarPadding)
-      .attr('y', this.param.sdBarHdY)
-      .style('font-size', this.param.sdBarHdFontSize + 'px')
-
-    sideBar.selectAll('.sdBarElem')
-      .attr('transform', function (d, i) {
-        return 'translate(' + 0 + ',' + (_this.param.sdBarHdH + i * _this.param.sdBarElemH) + ')'
+        if (desiredRowWidth > _this.config.maxWidth) {
+          truncateD3TextSelection({
+            d3Selection: d3.select(this),
+            maxTextWidth: maxAllowedRowTextWidth,
+            minTextCharacters: 1
+          })
+        }
       })
 
-    // column names
-    sideBar.selectAll('.sideBarText')
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarLeafR * 2 + this.param.sdBarColorBarsW)
-      .attr('y', this.param.sdBarElemH / 2)
-      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000' })
+    this.dim.width = _.min([this.config.maxWidth, _.max(sideBarRowDesiredWidths)])
+    this.dim.x = this.config.containerWidth - this.constants.outerMargin - this.dim.width - 0.5
 
-    // column this.config.colors
-    sideBar.selectAll('.sideBarColorBox')
-      .attr('x', this.param.sdBarPadding + this.param.sdBarLeafR * 2 + 0.5)
-      .attr('y', this.param.sdBarPadding + 0.5)
-      .attr('width', this.param.sdBarColorBarsW - 1)
-      .attr('height', this.param.sdBarColorBarsH - 1)
-      .style('fill', (d, i) => {
-        return this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.config.colors[i]
-      })
+    // this.hoverDim specifies dimensions when mouse over sidebar and extra controls are shown
+    // reduce hover font size and row height until under the maxHeight
+    this.hoverDim = _.cloneDeep(this.dim)
+    this.hoverDim.radioButtonWidth = this.hoverDim.rowHeight / 2
+    this.hoverDim.height = this.dim.height + this.hoverDim.rowHeight * this.constants.controlRowCount
+    while (this.hoverDim.fontSize > 1 && (this.hoverDim.height > this.config.maxHeight - 2 * this.dim.y)) {
+      this.hoverDim.fontSize = this.hoverDim.fontSize - 1
+      this.hoverDim.rowHeight = this.hoverDim.fontSize + 2 * this._calcVerticalRowPadding(this.hoverDim.fontSize)
+      this.hoverDim.frondRadius = (this.hoverDim.rowHeight - 2) / 2
+      this.hoverDim.colorBarHeight = this.hoverDim.rowHeight - 2 * this.constants.rowHorizontalPadding
+      this.hoverDim.colorBarWidth = Math.round(this.hoverDim.colorBarHeight * 0.6)
+      this.hoverDim.radioButtonWidth = this.hoverDim.rowHeight / 2
 
-    sideBar.selectAll('.sideBarElemRect')
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', this.param.sdBarElemW + 'px')
-      .attr('height', this.param.sdBarElemH + 'px')
-
-    // set font size on hover: height
-    this.param.sdBarHoverFontSize = this.param.sdBarFontSize
-    this.param.sdBarHoverElemH = this.param.sdBarElemH
-    this.param.sdBarHoverColorBarsW = this.param.sdBarColorBarsW
-    this.param.sdBarHoverColorBarsH = this.param.sdBarColorBarsH
-    this.param.sdBarHoverColorBarsY = this.param.sdBarColorBarsY
-    this.param.sdBarHoverHeight = this.param.sdBarHeight
-    while (this.param.sdBarHoverFontSize > 1 &&
-    (this.param.sdBarHoverHeight + this.param.sdBarHoverElemH * (this.param.sdBarMenuItems + 2) > this.config.maxHeight - 2 * this.param.sdBarY)) {
-      this.param.sdBarHoverFontSize = this.param.sdBarHoverFontSize - 1
-      this.param.sdBarHoverElemH = this.param.sdBarHoverFontSize * this.param.sdBarHdivF
-      this.param.sdBarHoverColorBarsH = this.param.sdBarHoverElemH - 2 * this.param.sdBarPadding
-      this.param.sdBarHoverColorBarsW = Math.round(this.param.sdBarHoverColorBarsH * 0.6)
-
-      this.param.sdBarHoverColorBarsY = this.param.sdBarHdH + this.param.sdBarPadding
-      this.param.sdBarHoverHeight = Math.ceil(this.param.sdBarHdH + this.config.columnNames.length * this.param.sdBarHoverElemH)
+      const displaySectionHeight = Math.ceil(this.dim.headerHeight + this.constants.frondRowCount * this.hoverDim.rowHeight)
+      const controlSectionHeight = this.hoverDim.rowHeight * this.constants.controlRowCount
+      this.hoverDim.height = displaySectionHeight + controlSectionHeight
     }
 
-    // set font size on hover: width
-    this.param.sdBarHoverX = this.param.sdBarX
-    this.param.sdBarHoverDeltaX = 0
-    this.param.sdBarHoverWidth = this.param.sdBarWidth
-    this.param.sdBarHoverElemW = this.param.sdBarHoverWidth
-
-    this.param.sdBarMaxTextWidth = 0
+    // NB this appears out of order becasue we must set new font-size before computing maxSortTextSize
+    let sortTextWidths = []
     sideBar.selectAll('.sdBarSortText')
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarHoverColorBarsW)
-      .attr('y', function (d, i) {
-        return _this.param.sdBarHdH + _this.param.sdBarHoverElemH / 2 +
-          2 * _this.param.sdBarHoverElemH + i * _this.param.sdBarHoverElemH
-      })
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
+      .attr('x', 2 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
+      .attr('y', 0.5 * this.hoverDim.rowHeight)
+      .style('font-size', this.hoverDim.fontSize + 'px')
       .each(function () {
-        _this.param.sdBarMaxTextWidth = Math.max(this.getComputedTextLength(), _this.param.sdBarMaxTextWidth)
+        sortTextWidths.push(d3.select(this).node().getComputedTextLength())
       })
-    this.param.sdBarCtrlWidth = Math.ceil(this.param.sdBarMaxTextWidth + 3 * this.param.sdBarPadding + this.param.sdBarHoverColorBarsW)
 
-    if (this.param.sdBarCtrlWidth > this.param.sdBarHoverWidth) {
-      this.param.sdBarHoverWidth = this.param.sdBarCtrlWidth
-      this.param.sdBarHoverElemW = this.param.sdBarHoverWidth
-      this.param.sdBarHoverX = this.config.containerWidth - this.param.sdBarOuterMargin - this.param.sdBarHoverWidth - 0.5
-      this.param.sdBarHoverDeltaX = this.param.sdBarX - this.param.sdBarHoverX
+    console.log('sortTextWidths')
+    console.log(JSON.stringify(sortTextWidths, {}, 2))
+
+    const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
+
+    // TODO this is not respecting max width ...
+    if (maxControlRowWidth > this.hoverDim.width) {
+      this.hoverDim.width = maxControlRowWidth
+      this.hoverDim.x = this.config.containerWidth - this.constants.outerMargin - this.hoverDim.width - 0.5
     }
 
-    // All on and all off buttons
-    sideBar.selectAll('.sdBarAllRect')
-      .attr('x', function (d, i) {
-        return i === 0 ? 0 : Math.floor(_this.param.sdBarElemW / 2)
-      })
-      .attr('y', this.param.sdBarHdH)
-      .attr('width', function (d, i) {
-        return i === 0 ? Math.floor(_this.param.sdBarElemW / 2) : Math.ceil(_this.param.sdBarElemW / 2)
-      })
-      .attr('height', this.param.sdBarHoverElemH)
+    sideBar.select('.sdBarHeading')
+      .attr('x', this.constants.rowHorizontalPadding)
+      .attr('y', this.dim.headerHeight / 2)
+      .style('font-size', this.config.headingFontSize + 'px')
 
     sideBar.select('.sdBarAllOn')
-      .attr('x', this.param.sdBarElemW / 4)
-      .attr('y', this.param.sdBarHdH + this.param.sdBarHoverElemH / 2)
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
+      .style('font-size', this.hoverDim.fontSize + 'px')
 
     sideBar.select('.sdBarAllOff')
-      .attr('x', this.param.sdBarElemW * 3 / 4)
-      .attr('y', this.param.sdBarHdH + this.param.sdBarHoverElemH / 2)
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
-
-    sideBar.selectAll('.sdBarSortText')
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarColorBarsW)
+      .style('font-size', this.hoverDim.fontSize + 'px')
 
     sideBar.select('.sdBarSortHeading')
-      .attr('x', this.param.sdBarPadding)
-      .attr('y', this.param.sdBarHdH + this.param.sdBarHoverElemH / 2 + this.param.sdBarHoverElemH)
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
+      .attr('x', this.constants.rowHorizontalPadding)
+      .attr('y', this.hoverDim.rowHeight / 2 + this.hoverDim.rowHeight)
+      .style('font-size', this.hoverDim.fontSize + 'px')
+
+    sideBar.selectAll('.sdBarSortRadioButton')
+      .attr('cx', this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth * 0.5)
+      .attr('cy', 0.5 * this.hoverDim.rowHeight)
+      .attr('r', this.hoverDim.radioButtonWidth * 0.35)
 
     sideBar.selectAll('.sideBarElemSortRect')
-      .attr('x', 0)
-      .attr('y', function (d, i) {
-        return _this.param.sdBarHdH + 2 * _this.param.sdBarHoverElemH + i * _this.param.sdBarHoverElemH
-      })
-      .attr('width', this.param.sdBarElemW + 'px')
-      .attr('height', this.param.sdBarHoverElemH + 'px')
+      .attr('height', this.hoverDim.rowHeight + 'px')
 
-    sideBar.selectAll('.sdBarSortBox')
-      .attr('cx', this.param.sdBarPadding + 0.5 + this.param.sdBarHoverColorBarsW * 0.5)
-      .attr('cy', function (d, i) {
-        return _this.param.sdBarHdH + _this.param.sdBarHoverElemH / 2 +
-          2 * _this.param.sdBarHoverElemH + i * _this.param.sdBarHoverElemH
-      })
-      .attr('r', this.param.sdBarHoverColorBarsW * 0.35)
+    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false })
   }
 
-  mouseEnterSidebar () {
-    log.info('sidebar.mouseEnterSidebar()')
-    const sideBar = this.element
-    const dur = 200 // NB pull from config
+  _mouseEnterSidebar () {
+    log.info('sidebar._mouseEnterSidebar()')
+    this._applyDynamicDimensionsToDom({ dimensions: this.hoverDim, showControlPanel: true, animate: true })
+  }
 
-    this.updateFrondSizes({ rowHeight: this.param.sdBarHoverElemH, duration: dur })
+  _mouseLeaveSidebar () {
+    log.info('sidebar._mouseLeaveSidebar()')
+    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: true })
+  }
+
+  _applyDynamicDimensionsToDom ({ dimensions, showControlPanel, animate = false }) {
+    let sideBar = (animate)
+      ? this.element.transition().duration(this.constants.animationDuration)
+      : this.element
+
+    sideBar.select('.sideBar')
+      .attr('x', dimensions.x)
+      .attr('y', dimensions.y)
+      .attr('width', dimensions.width)
+      .attr('height', dimensions.height)
+
+    sideBar.selectAll('.sideBarFrondGroup')
+      .attr('transform', 'translate(' + dimensions.rowHeight / 2 + ',' + dimensions.rowHeight / 2 + ')')
+
+    sideBar.selectAll('.sideBarFrond')
+      .attr('d', this.line(this._makeFrondPath(dimensions.frondRadius)))
 
     sideBar.selectAll('.sdBarElem')
-      .transition()
-      .duration(dur)
       .attr('transform', (d, i) => {
-        return 'translate(' + 0 + ',' + (this.param.sdBarHdH + i * this.param.sdBarHoverElemH) + ')'
+        return 'translate(' + 0 + ',' + (dimensions.headerHeight + i * dimensions.rowHeight) + ')'
       })
 
     sideBar.selectAll('.sideBarElemRect')
-      .transition()
-      .duration(dur)
-      .attr('width', this.param.sdBarHoverElemW + 'px')
-      .attr('height', this.param.sdBarHoverElemH + 'px')
+      .attr('width', dimensions.width + 'px')
+      .attr('height', dimensions.rowHeight + 'px')
 
+    const frondRowColorBoxXOffset = dimensions.frondRadius * 2 + this.constants.rowHorizontalPadding
+    const frondRowTextOffset = frondRowColorBoxXOffset + this.constants.rowHorizontalPadding + dimensions.colorBarWidth
     sideBar.selectAll('.sideBarColorBox')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarPadding + this.param.sdBarLeafR * 2 + 0.5)
-      .attr('width', this.param.sdBarHoverColorBarsW - 1)
-      .attr('height', this.param.sdBarHoverColorBarsH - 1)
+      .attr('x', frondRowColorBoxXOffset)
+      .attr('width', dimensions.colorBarWidth - 1) // TODO why -1 ?
+      .attr('height', dimensions.colorBarHeight - 1) // TODO why -1 ?
+      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) ? this.config.colors[i] : '#ccc' })
 
     sideBar.selectAll('.sideBarText')
-      .transition()
-      .duration(dur)
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarLeafR * 2 + this.param.sdBarHoverColorBarsW)
-      .attr('y', this.param.sdBarHoverElemH / 2)
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
+      .attr('x', frondRowTextOffset)
+      .attr('y', dimensions.rowHeight / 2)
+      .style('font-size', dimensions.fontSize + 'px')
+      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000' })
 
-    sideBar.select('.sideBar')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarHoverX)
-      .attr('width', this.param.sdBarHoverWidth)
-      .attr('height', this.param.sdBarHoverHeight + this.param.sdBarHoverElemH * 6)
-
+    // TODO This is sus
     sideBar.selectAll('.sdBarAllRect')
-      .transition()
-      .duration(dur)
-      .attr('x', (d, i) => {
-        return i === 0 ? 0 : Math.floor(this.param.sdBarHoverElemW / 2)
-      })
-      .attr('width', (d, i) => {
-        return i === 0 ? Math.floor(this.param.sdBarHoverElemW / 2) : Math.ceil(this.param.sdBarHoverElemW / 2)
-      })
+      .attr('x', (d, i) => { return i === 0 ? 0 : Math.floor(dimensions.width / 2) })
+      .attr('width', (d, i) => { return i === 0 ? Math.floor(dimensions.width / 2) : Math.ceil(dimensions.width / 2) })
+      .attr('height', dimensions.rowHeight)
 
     sideBar.select('.sdBarAllOn')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarHoverElemW / 4)
+      .attr('x', dimensions.width / 4)
+      .attr('y', dimensions.rowHeight / 2)
 
     sideBar.select('.sdBarAllOff')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarHoverElemW * 3 / 4)
+      .attr('x', dimensions.width * 3 / 4)
+      .attr('y', dimensions.rowHeight / 2)
 
-    sideBar.selectAll('.sideBarElemSortRect')
-      .transition()
-      .duration(dur)
-      .attr('width', this.param.sdBarHoverElemW + 'px')
-
-    sideBar.selectAll('.sdBarSortText')
-      .transition()
-      .duration(dur)
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarHoverColorBarsW)
-
-    sideBar.select('#g_sdBarControl')
-      .transition()
-      .duration(dur)
-      .style('display', 'inline')
-      .attr('transform', 'translate(' + this.param.sdBarHoverX + ',' + (this.param.sdBarY + this.config.columnNames.length * this.param.sdBarHoverElemH) + ')')
-
-    sideBar.select('#g_sideBarDisp')
-      .transition()
-      .duration(dur)
-      .attr('transform', 'translate(' + this.param.sdBarHoverX + ',' + this.param.sdBarY + ')')
-  }
-
-  mouseLeaveSidebar () {
-    log.info('sidebar.mouseLeaveSidebar()')
-    const sideBar = this.element
-    const dur = 200 // NB pull from config
-
-    this.updateFrondSizes({ rowHeight: this.param.sdBarElemH, duration: dur })
-
-    sideBar.selectAll('.sdBarElem')
-      .transition()
-      .duration(dur)
+    sideBar.selectAll('.sideBarElemSortRow')
       .attr('transform', (d, i) => {
-        return 'translate(' + 0 + ',' + (this.param.sdBarHdH + i * this.param.sdBarElemH) + ')'
+        return 'translate(' + 0 + ',' + (2 + i) * dimensions.rowHeight + ')' // 2 is for two static rows above
       })
-
-    sideBar.selectAll('.sideBarElemRect')
-      .transition()
-      .duration(dur)
-      .attr('width', this.param.sdBarElemW + 'px')
-      .attr('height', this.param.sdBarElemH + 'px')
-
-    sideBar.selectAll('.sideBarColorBox')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarPadding + this.param.sdBarLeafR * 2 + 0.5)
-      .attr('width', this.param.sdBarColorBarsW - 1)
-      .attr('height', this.param.sdBarColorBarsH - 1)
-
-    sideBar.selectAll('.sideBarText')
-      .transition()
-      .duration(dur)
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarLeafR * 2 + this.param.sdBarColorBarsW)
-      .attr('y', this.param.sdBarElemH / 2)
-      .style('font-size', this.param.sdBarFontSize + 'px')
-
-    sideBar.selectAll('.sdBarAllRect')
-      .transition()
-      .duration(dur)
-      .attr('x', (d, i) => {
-        return i === 0 ? 0 : Math.floor(this.param.sdBarElemW / 2)
-      })
-      .attr('width', (d, i) => {
-        return i === 0 ? Math.floor(this.param.sdBarElemW / 2) : Math.ceil(this.param.sdBarElemW / 2)
-      })
-
-    sideBar.select('.sdBarAllOn')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarElemW / 4)
-
-    sideBar.select('.sdBarAllOff')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarElemW * 3 / 4)
 
     sideBar.selectAll('.sideBarElemSortRect')
-      .transition()
-      .duration(dur)
-      .attr('width', this.param.sdBarElemW + 'px')
+      .attr('width', dimensions.width + 'px')
 
-    sideBar.selectAll('.sdBarSortText')
-      .transition()
-      .duration(dur)
-      .style('font-size', this.param.sdBarHoverFontSize + 'px')
-      .attr('x', 2 * this.param.sdBarPadding + this.param.sdBarColorBarsW)
-
+    // NB control is initially hidden and placed just vertically below the header.
+    // It is placed below header as opposed to at zero to prevent an animation bug where
+    // the control panel can be seen through the header rect
+    const controlPanelY = (showControlPanel)
+      ? dimensions.y + dimensions.headerHeight + this.constants.frondRowCount * dimensions.rowHeight
+      : dimensions.headerHeight + 5
     sideBar.select('#g_sdBarControl')
-      .transition()
-      .duration(dur)
-      .attr('transform', 'translate(' + this.param.sdBarX + ',' + this.param.sdBarY + ')')
-      .style('display', 'none')
+      .style('display', (showControlPanel) ? 'inline' : 'none')
+      .attr('transform', 'translate(' + dimensions.x + ',' + controlPanelY + ')')
 
     sideBar.select('#g_sideBarDisp')
-      .transition()
-      .duration(dur)
-      .attr('transform', 'translate(' + this.param.sdBarX + ',' + this.param.sdBarY + ')')
-
-    sideBar.select('.sideBar')
-      .transition()
-      .duration(dur)
-      .attr('x', this.param.sdBarX)
-      .attr('width', this.param.sdBarWidth)
-      .attr('height', this.param.sdBarHeight)
+      .attr('transform', 'translate(' + dimensions.x + ',' + dimensions.y + ')')
   }
 
-  setFontSizeAndGetMaxTextWidth (newFontSize) {
-    const textWidths = []
-    this.element.selectAll('.sideBarText')
-      .style('font-size', newFontSize + 'px')
-      .each(function () {
-        textWidths.push(this.getComputedTextLength())
-      })
-    return _.max(textWidths)
-  }
-
-  updateFrondSizes ({ rowHeight, duration = null }) {
-    const _this = this
-    const sideBar = this.element
-
-    const newRadius = (rowHeight - 2) / 2
-    this.param.sdBarLeafR = newRadius
-
-    let frondGroups = sideBar.selectAll('.sideBarFrondGroup')
-    let fronds = sideBar.selectAll('.sideBarFrond')
-
-    if (duration) {
-      frondGroups = frondGroups.transition().duration(duration)
-      fronds = fronds.transition().duration(duration)
-    }
-
-    frondGroups.attr('transform', 'translate(' + rowHeight / 2 + ',' + rowHeight / 2 + ')')
-    fronds.attr('d', (d) => _this.line(_this.makeFrondPath(newRadius)))
-  }
-
-  makeFrondPath (radius) {
+  _makeFrondPath (radius) {
     return [
       {x: 0, y: 0},
       {x: radius * 0.25, y: -radius * 0.07},
@@ -709,6 +520,13 @@ class Sidebar {
       {x: radius * 0.25, y: radius * 0.07}
     ]
   }
+
+  // // TODO Delete once DS-1797 is addressed
+  // _extractIntFromStringOrArray (stringOrArray) {
+  //   if (_.isString(stringOrArray)) { return parseInt(stringOrArray) }
+  //   if (_.isArray(stringOrArray)) { return parseInt(stringOrArray[0]) }
+  //   return stringOrArray
+  // }
 }
 
 module.exports = Sidebar

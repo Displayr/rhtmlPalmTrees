@@ -8,14 +8,15 @@
 * TODO BDD: test north / east / west tooltips (only south is tested)
 * TODO BDD: test multiple calls to renderValue
 * TODO BDD: test that when i disable a frond, the sort order sometimes changes
+* TODO BDD: shrink and grow and ensure truncation of sidebar is reset on resize
 * Concern: extensive use of inaccurate math to determine text sizes when doing layout:
 ** example : this.leftMargin = ((Math.floor(this.param.ymax)).toString().length + this.settings.ydigits) * 7 + 25
 * Refactor: plotWidth and plotHeight appear to be computed fields
-* Refactor: this.minVal and this.maxVal are terrible names
-* Refactor: this.linearRadialScale does not imply what it is used for
 * Refactor: selectColumns should be a boolean
 * Refactor : barData : can I just use frondData ?
 * To Test : handling R "na" do they result in a "No data" in the tooltip 
+* Refactor: Sidebar: the code to add dimensions to all the objects occurs three times: adjustDimensionsToFit, mouseEnter, mouseLeave
+
 
 NB line by line review you are here : PalmTrees.js : resize (line 256), Sidebar needs review too
 

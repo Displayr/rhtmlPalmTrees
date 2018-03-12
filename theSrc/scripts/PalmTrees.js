@@ -17,7 +17,7 @@ const defaultSettings = {
   'digits': 0,
   'colFontSize': 11,
   'colFontFamily': 'sans-serif',
-  'columnHeading': '',
+  'colHeading': '',
   'colHeadingFontSize': 0,
   'colHeadingFontFamily': 'sans-serif',
   'sidebarMaxProportion': 0.25,
@@ -163,9 +163,12 @@ class PalmTrees {
 
   // settings getter/setter
   setConfig (value) {
+    console.log('setCOnfig called with:')
+    console.log(JSON.stringify(value, {}, 2))
+
     if (!arguments.length) return this.settings
 
-    this.settings = _.defaultsDeep(value, defaultSettings)
+    this.settings = _.defaultsDeep({}, value, defaultSettings)
 
     this.initLogger(this.settings.logger || this.settings.log)
     this.colNames = this.settings.colNames
