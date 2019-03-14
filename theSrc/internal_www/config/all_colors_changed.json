@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "hoverColor": "#FAED27",
+    "sidebarBackgroundColor": "#98FB98",
+    "sidebarBorderColor": "#f81894",
+    "frondColorUnselected": "#f81894",
+    "frondColorThis": "#f81894",
+    "frondColorThat": "#800080",
+    "colFontColor": "#ff0000",
+    "colFontColorUnselected": "#0000ff",
+    "colHeadingFontColor": "#ff0000",
+    "rowFontColor": "#ff0000",
+    "rowHeadingFontColor": "#ff0000",
+    "yFontColor": "#ff0000",
+    "yLabFontColor": "#ff0000"
+  }
+}

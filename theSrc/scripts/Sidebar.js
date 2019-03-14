@@ -8,15 +8,24 @@ class Sidebar {
   static defaultSettings () {
     return _.cloneDeep({
       colors: [],
+      backgroundColor: '#ffffff',
+      hoverColor: '#eeeeee',
+      borderColor: '#000000',
       columnNames: [],
       maxWidth: 200,
       maxHeight: 400,
       containerWidth: null,
+      frondColorUnselected: '#cccccc',
+      frondColorThis: '#000000',
+      frondColorThat: '#cccccc',
       fontSize: 12,
       fontFamily: 'arial',
+      fontColor: '#000000',
+      secondaryFontColor: '#aaaaaa',
       headingText: null,
       headingFontSize: 14,
-      headingFontFamily: 'arial'
+      headingFontFamily: 'arial',
+      headingFontColor: '#000000'
     })
   }
 
@@ -86,9 +95,11 @@ class Sidebar {
 
     // TODO not needed (just need to add border to "Order" then delete)
     sideBar.append('rect')
+      .attr('class', 'sideBar')
       .attr('x', 0)
       .attr('y', 0)
-      .attr('class', 'sideBar')
+      .style('stroke', this.config.borderColor)
+      .style('fill', this.config.backgroundColor)
 
     let sdBarCtrl = sideBar.append('g').attr('id', 'g_sdBarControl').style('display', 'none')
     this.sdBarCtrl = sdBarCtrl
@@ -101,6 +112,8 @@ class Sidebar {
       .append('rect')
       .attr('class', 'sdBarAllRect')
       .attr('id', function (d, i) { return 'sdAC' + i })
+      .style('stroke', this.config.borderColor)
+      .style('fill', this.config.backgroundColor)
       .attr('y', 0)
 
     sdBarCtrl.append('text')
@@ -109,6 +122,7 @@ class Sidebar {
       .text('All On')
       .style('text-anchor', 'middle')
       .style('font-family', this.config.fontFamily)
+      .style('fill', this.config.fontColor)
 
     sdBarCtrl.append('text')
       .attr('class', 'sdBarAllOff')
@@ -116,12 +130,14 @@ class Sidebar {
       .text('All Off')
       .style('text-anchor', 'middle')
       .style('font-family', this.config.fontFamily)
+      .style('fill', this.config.fontColor)
 
     sdBarCtrl.append('text')
       .attr('class', 'sdBarSortHeading')
       .attr('dy', '0.35em')
       .text('Order')
       .style('font-family', this.config.fontFamily)
+      .style('fill', this.config.fontColor)
 
     let sortText = ['Original', 'Alphabetical', 'Ascending', 'Descending']
     let initialSort = this.plotState.getState().sortBy
@@ -135,20 +151,22 @@ class Sidebar {
     sdBarCtrlEnter.append('rect')
       .attr('class', (d) => `sideBarElemSortRect ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 's' + i })
+      .style('stroke', this.config.borderColor)
+      .style('fill', this.config.backgroundColor)
       .attr('x', 0)
       .attr('y', 0)
 
     sdBarCtrlEnter.append('circle')
       .attr('class', (d) => `sdBarSortRadioButton ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 'sortC' + i })
-      .style('fill', (d) => { return (d.toLowerCase() === initialSort) ? 'steelblue' : '#fff' })
-      .style('stroke', (d) => { return (d.toLowerCase() === initialSort) ? 'steelblue' : '#999' })
+      .style('fill', (d) => (d.toLowerCase() === initialSort) ? 'steelblue' : this.config.backgroundColor)
+      .style('stroke', (d) => (d.toLowerCase() === initialSort) ? 'steelblue' : '#999')
 
     sdBarCtrlEnter.append('text')
       .attr('class', (d) => `sdBarSortText ${d.toLowerCase()}`)
       .attr('id', function (d, i) { return 'sortT' + i })
       .attr('dy', '0.35em')
-      .style('fill', (d) => { return (d.toLowerCase() === initialSort) ? '#000' : '#999' })
+      .style('fill', (d) => (d.toLowerCase() === initialSort) ? this.config.fontColor : this.config.secondaryFontColor)
       .text(function (d) { return d })
       .style('font-family', this.config.fontFamily)
 
@@ -158,6 +176,7 @@ class Sidebar {
         .attr('dy', '0.35em')
         .text(this.config.headingText)
         .style('font-family', this.config.headingFontFamily)
+        .style('fill', this.config.headingFontColor)
         .style('font-size', this.config.headingFontSize + 'px')
     }
 
@@ -170,6 +189,8 @@ class Sidebar {
     sdBarElemEnter.append('rect')
       .attr('class', 'sideBarElemRect')
       .attr('id', function (d, i) { return 'sbRect' + i })
+      .style('stroke', this.config.borderColor)
+      .style('fill', this.config.backgroundColor)
       .attr('x', 0)
       .attr('y', 0)
 
@@ -189,7 +210,7 @@ class Sidebar {
       .attr('class', 'sideBarFrond')
       .attr('d', this.line)
       .attr('transform', (d, i) => { return 'rotate(' + (i * 360 / this.frondCount - 90) + ')' })
-      .style('fill', function (d) { return (d.frondGroupIndex === d.frondIndex) ? '#000' : '#ccc' })
+      .style('fill', (d) => { return (d.frondGroupIndex === d.frondIndex) ? this.config.frondColorThis : this.config.frondColorThat })
 
     sdBarElemEnter.append('rect')
       .attr('class', 'sideBarColorBox')
@@ -200,6 +221,7 @@ class Sidebar {
       .attr('class', 'sideBarText')
       .attr('id', function (d, i) { return 'sbTxt' + i })
       .attr('dy', '0.35em')
+      .style('fill', this.config.fontColor)
       .style('font-size', this.config.fontSize + 'px')
       .style('font-family', this.config.fontFamily)
       .text(function (d) { return d.colName })
@@ -222,13 +244,16 @@ class Sidebar {
       d3.event.stopPropagation()
     }
 
+    const backgroundColor = this.config.backgroundColor
+    const hoverColor = this.config.hoverColor
+
     sideBar.selectAll('.sideBarElemRect')
       .on('mouseover', function () {
-        d3.select(this).style('fill', '#eee')
+        d3.select(this).style('fill', hoverColor)
         d3.event.stopPropagation()
       })
       .on('mouseout', function () {
-        d3.select(this).style('fill', 'white')
+        d3.select(this).style('fill', backgroundColor)
         d3.event.stopPropagation()
       })
       .on('click', toggleColumn)
@@ -243,34 +268,34 @@ class Sidebar {
 
     sideBar.selectAll('.sdBarAllRect')
       .on('mouseover', function () {
-        d3.select(this).style('fill', '#eee')
+        d3.select(this).style('fill', hoverColor)
         d3.event.stopPropagation()
       })
       .on('mouseout', function () {
-        d3.select(this).style('fill', 'white')
+        d3.select(this).style('fill', backgroundColor)
         d3.event.stopPropagation()
       })
       .on('click', clickAllToggle)
 
     function clickSort (sortValue) {
       // change selected sort Box
-      sdBarCtrl.selectAll('.sdBarSortRadioButton').style('fill', '#fff').style('stroke', '#999')
+      sdBarCtrl.selectAll('.sdBarSortRadioButton').style('fill', this.config.backgroundColor).style('stroke', '#999')
       sdBarCtrl.select(`.sdBarSortRadioButton.${sortValue.toLowerCase()}`).style('fill', 'steelblue').style('stroke', 'steelblue')
 
       // change selected sort Text
-      sdBarCtrl.selectAll('.sdBarSortText').style('fill', '#999')
-      sdBarCtrl.select(`.sdBarSortText.${sortValue.toLowerCase()}`).style('fill', '#000')
+      sdBarCtrl.selectAll('.sdBarSortText').style('fill', this.config.secondaryFontColor)
+      sdBarCtrl.select(`.sdBarSortText.${sortValue.toLowerCase()}`).style('fill', this.config.fontColor)
 
       this.plotState.sortBy(sortValue)
     }
 
     sideBar.selectAll('.sideBarElemSortRect')
       .on('mouseover', function () {
-        d3.select(this).style('fill', '#eee')
+        d3.select(this).style('fill', hoverColor)
         d3.event.stopPropagation()
       })
       .on('mouseout', function () {
-        d3.select(this).style('fill', 'white')
+        d3.select(this).style('fill', backgroundColor)
         d3.event.stopPropagation()
       })
 
@@ -466,13 +491,13 @@ class Sidebar {
       .attr('x', frondRowColorBoxXOffset)
       .attr('width', dimensions.colorBarWidth - 1) // TODO why -1 ?
       .attr('height', dimensions.colorBarHeight - 1) // TODO why -1 ?
-      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) ? this.config.colors[i] : '#ccc' })
+      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) ? this.config.colors[i] : this.config.secondaryFontColor })
 
     sideBar.selectAll('.sideBarText')
       .attr('x', frondRowTextOffset)
       .attr('y', dimensions.rowHeight / 2)
       .style('font-size', dimensions.fontSize + 'px')
-      .style('fill', (d, i) => { return this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000' })
+      .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.config.secondaryFontColor : this.config.fontColor)
 
     // TODO This is sus
     sideBar.selectAll('.sdBarAllRect')
@@ -520,13 +545,6 @@ class Sidebar {
       {x: radius * 0.25, y: radius * 0.07}
     ]
   }
-
-  // // TODO Delete once DS-1797 is addressed
-  // _extractIntFromStringOrArray (stringOrArray) {
-  //   if (_.isString(stringOrArray)) { return parseInt(stringOrArray) }
-  //   if (_.isArray(stringOrArray)) { return parseInt(stringOrArray[0]) }
-  //   return stringOrArray
-  // }
 }
 
 module.exports = Sidebar

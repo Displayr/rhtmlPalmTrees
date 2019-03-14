@@ -4,31 +4,42 @@
 \alias{PalmTrees}
 \title{Create a PalmTree plot}
 \usage{
-PalmTrees(data = NULL, weights = NULL, row.names = NULL,
-  row.font.size = 11, row.font.family = "sans-serif", row.heading = NULL,
+PalmTrees(data = NULL, weights = NULL, hover.color = "#eeeeee",
+  row.names = NULL, row.font.size = 11, row.font.family = "sans-serif",
+  row.font.color = "#000000", row.heading = NULL,
   row.heading.font.size = 12, row.heading.font.family = "sans-serif",
-  col.names = NULL, col.font.size = 11, col.font.family = "sans-serif",
-  col.heading = NULL, col.heading.font.size = 12,
-  col.heading.font.family = "sans-serif", tooltips = TRUE,
+  row.heading.font.color = "#000000", col.names = NULL,
+  col.font.size = 11, col.font.family = "sans-serif",
+  frond.color.unselected = "#cccccc", frond.color.this = "#000000",
+  frond.color.that = "#cccccc", col.font.color = "#000000",
+  col.font.color.unselected = "#aaaaaa", col.heading = NULL,
+  col.heading.font.size = 12, col.heading.font.family = "sans-serif",
+  col.heading.font.color = "#000000", tooltips = TRUE,
   tooltips.font.size = 11, tooltips.font.family = "sans-serif",
   tooltips.heading.font.size = 12,
   tooltips.heading.font.family = "sans-serif", y.show = TRUE,
   y.lab = NULL, y.digits = 1, y.font.size = 11,
-  y.font.family = "sans-serif", y.lab.font.size = 12,
-  y.lab.font.family = "sans-serif", prefix = NULL, suffix = NULL,
+  y.font.family = "sans-serif", y.font.color = "#000000",
+  y.lab.font.size = 12, y.lab.font.family = "sans-serif",
+  y.lab.font.color = "#000000", prefix = NULL, suffix = NULL,
   digits = 1, colors = NULL, order = "descending",
-  sidebar.maxProportion = 0.25, width = NULL, height = NULL)
+  legend.background.color = "#ffffff", legend.maxProportion = 0.25,
+  legend.border.color = "#000000", width = NULL, height = NULL)
 }
 \arguments{
 \item{data}{numeric matrix or data frame}
 
 \item{weights}{numeric vector specifying weights. Length must equal to \code{ncol(data)}}
 
-\item{row.names}{character vector specifying x ticks. Default value are obtained from \code{rownames(data)}.}
+\item{hover.color}{color of cells that are hilighted by mouse interaction}
 
-\item{row.font.size}{Default row font size = 11}
+\item{row.names}{character vector specifying x ticks. Default value are obtained from \code{rownames(data)}}
 
-\item{row.font.family}{Default row font family = "sans-serif"}
+\item{row.font.size}{Default x axis font size = 11}
+
+\item{row.font.family}{x axis font family = "sans-serif"}
+
+\item{row.font.color}{font color for x axis text}
 
 \item{row.heading}{character, used as x label}
 
@@ -36,11 +47,23 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{row.heading.font.family}{Default row heading font family = "sans-serif"}
 
-\item{col.names}{character vector specifying the legend. Default value obtained from \code{colnames(data)}.}
+\item{row.heading.font.color}{font color for x axis title text}
+
+\item{col.names}{character vector specifying the legend. Default value obtained from \code{colnames(data)}}
 
 \item{col.font.size}{Default column font size = 11}
 
 \item{col.font.family}{Default column font family = "sans-serif"}
+
+\item{frond.color.unselected}{color used on unselected fronds on the main plot}
+
+\item{frond.color.this}{color used in legend to show frond placement in each frond legend row}
+
+\item{frond.color.that}{color used in legend for other fronds in frond legend row}
+
+\item{col.font.color}{legend font color}
+
+\item{col.font.color.unselected}{legend fond color to indicate inactive selections (rows and orders)}
 
 \item{col.heading}{character vector specifying the heading}
 
@@ -48,7 +71,9 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{col.heading.font.family}{Default column heading font family = "sans-serif"}
 
-\item{tooltips}{logical, whether to attach tooltips on mouseover, default true.}
+\item{col.heading.font.color}{legend title font color}
+
+\item{tooltips}{logical, whether to attach tooltips on mouseover, default true}
 
 \item{tooltips.font.size}{Default tooltip font size = 11}
 
@@ -58,9 +83,9 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{tooltips.heading.font.family}{Default tooltip heading font family = "sans-serif"}
 
-\item{y.show}{Logical. Show y axis?}
+\item{y.show}{show the y axis}
 
-\item{y.lab}{y axis label}
+\item{y.lab}{y axis labels}
 
 \item{y.digits}{integer to control the number of decimal places of the y axis}
 
@@ -68,21 +93,29 @@ PalmTrees(data = NULL, weights = NULL, row.names = NULL,
 
 \item{y.font.family}{Default y axis font family = "sans-serif"}
 
+\item{y.font.color}{y axis title font color}
+
 \item{y.lab.font.size}{Default y axis label font size = 12}
 
 \item{y.lab.font.family}{Default y axis label font family = "sans-serif"}
 
-\item{prefix}{prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis.}
+\item{y.lab.font.color}{y axis labels font color}
 
-\item{suffix}{suffix of numbers in the tooltips.}
+\item{prefix}{prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis}
+
+\item{suffix}{suffix of numbers in the tooltips}
 
 \item{digits}{integer to control the number of decimal places in the tooltips}
 
-\item{colors}{colors of the leaves. D3 colors will be used if no values are provided.}
+\item{colors}{colors of the leaves. D3 colors will be used if no values are provided}
 
-\item{order}{= c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending".}
+\item{order}{= c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending"}
 
-\item{sidebar.maxProportion}{Max proportion of sidebar width to plot width. Default = 0.25}
+\item{legend.background.color}{the canvas background color}
+
+\item{legend.maxProportion}{Max proportion of legend width to plot width. Default = 0.25}
+
+\item{legend.border.color}{legend border color}
 
 \item{height}{}
 }
