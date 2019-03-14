@@ -41,6 +41,7 @@ module.exports = function (el, width, height, stateChangedFn) {
 
       palm.registerInternalListeners()
       d3.select(el).selectAll('g').remove()
+      // NB TODO the this in this.palm is suspect ?
       d3.select(el).call(this.palm.draw.bind(palm))
     },
 
