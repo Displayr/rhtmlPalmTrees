@@ -15,19 +15,32 @@ const tooltipLogger = log.getLogger('tooltip')
 
 const defaultSettings = {
   'digits': 0,
+  'hoverColor': '#eeeeee',
+  'frondColorUnselected': '#cccccc',
+  'frondColorThis': '#000000',
+  'frondColorThat': '#cccccc',
   'colFontSize': 11,
   'colFontFamily': 'sans-serif',
+  'colFontColor': '#000000',
+  'colFontColorUnselected': '#aaaaaa',
   'colHeading': '',
   'colHeadingFontSize': 0,
   'colHeadingFontFamily': 'sans-serif',
+  'colHeadingFontColor': '#000000',
+  'sidebarBackgroundColor': '#ffffff',
   'sidebarMaxProportion': 0.25,
+  'sidebarBorderColor': '#000000',
   'rowFontSize': 11,
   'rowFontFamily': 'sans-serif',
+  'rowFontColor': '#000000',
   'rowHeading': '',
   'rowHeadingFontSize': 12,
   'rowHeadingFontFamily': 'sans-serif',
+  'rowHeadingFontColor': '#000000',
   'order': 'descending',
-  'ylab': ''
+  'yFontColor': '#000000',
+  'ylab': '',
+  'yLabFontColor': '#000000'
 }
 
 class PalmTrees {
@@ -299,6 +312,7 @@ class PalmTrees {
       .selectAll('.tick text')
       .style('font-size', this.settings.rowFontSize + 'px')
       .style('font-family', this.settings.rowFontFamily)
+      .style('fill', this.settings.rowFontColor)
       .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
 
     this.plotMargin.bottom = this.bottomMargin + this.maxXaxisLines * this.xFontSize * 1.1
@@ -314,6 +328,7 @@ class PalmTrees {
       .selectAll('.tick text')
       .style('font-size', this.settings.yFontSize + 'px')
       .style('font-family', this.settings.yFontFamily)
+      .style('fill', this.settings.yFontColor)
 
     baseSvg.selectAll('.bar')
       .attr('x', function (d) { return _this.xscale(d.name) + Math.round(_this.xscale.rangeBand() / 2) })
@@ -447,14 +462,19 @@ class PalmTrees {
     // NB the timeout here is to ensure that the tooltip has had a chance to render before running the CSS selector
     setTimeout(() => {
       tooltipLogger.debug('mouseOverLeaf')
-      d3.selectAll(`.tip-column`).classed('selected', false)
-      d3.selectAll(`.tip-column-${i}`).classed('selected', true)
+      d3.selectAll(`.tip-column`)
+        .classed('selected', false)
+        .style('background-color', '#ffffff')
+      d3.selectAll(`.tip-column-${i}`)
+        .classed('selected', true)
+        .style('background-color', this.settings.hoverColor)
     }, this.tooltipDebounceTime * 2)
   }
 
   mouseOutLeaf () {
     tooltipLogger.debug('mouseOutLeaf')
     d3.selectAll(`.tip-column`).classed('selected', false)
+    d3.selectAll(`.tip-column`).style('background-color', '#ffffff')
   }
 
   updateToolTipWithDebounce ({palmTreeIndex, name, value} = {}) {
@@ -481,7 +501,8 @@ class PalmTrees {
         suffix: this.settings.suffix,
         data: this.settings.rawData[palmTreeIndex],
         tipScale: this.tipBarScale,
-        colors: this.colors
+        colors: this.colors,
+        unselectedColor: this.settings.frondColorUnselected
       })
     }
 
@@ -627,16 +648,25 @@ class PalmTrees {
       element: sideBar,
       plotState: this.plotState,
       config: {
+        borderColor: this.settings.sidebarBorderColor,
+        backgroundColor: this.settings.sidebarBackgroundColor,
+        hoverColor: this.settings.hoverColor,
         colors: this.colors,
         columnNames: this.colNames,
         headingText: this.settings.colHeading,
         maxWidth: Math.floor(this.viewerWidth * this.settings.sidebarMaxProportion),
         maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
         containerWidth: this.viewerWidth,
+        frondColorUnselected: this.settings.frondColorUnselected,
+        frondColorThis: this.settings.frondColorThis,
+        frondColorThat: this.settings.frondColorThat,
         fontSize: this.settings.colFontSize,
         fontFamily: this.settings.colFontFamily,
+        fontColor: this.settings.colFontColor,
+        secondaryFontColor: this.settings.colFontColorUnselected,
         headingFontSize: this.settings.colHeadingFontSize,
-        headingFontFamily: this.settings.colHeadingFontFamily
+        headingFontFamily: this.settings.colHeadingFontFamily,
+        headingFontColor: this.settings.colHeadingFontColor
       }
     })
     this.sidebar.draw()
@@ -771,6 +801,7 @@ class PalmTrees {
       .attr('id', function (d, i) { return 'tickTxt' + i })
       .style('font-size', this.settings.rowFontSize + 'px')
       .style('font-family', this.settings.rowFontFamily)
+      .style('fill', this.settings.rowFontColor)
       .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
 
     // update bottom margin based on x axis
@@ -789,6 +820,7 @@ class PalmTrees {
         .style('text-anchor', 'middle')
         .style('font-size', this.settings.rowHeadingFontSize + 'px')
         .style('font-family', this.settings.rowHeadingFontFamily)
+        .style('fill', this.settings.rowHeadingFontColor)
     }
 
     // y axis
@@ -802,6 +834,7 @@ class PalmTrees {
         .style('text-anchor', 'middle')
         .style('font-size', this.settings.yLabFontSize + 'px')
         .style('font-family', this.settings.yLabFontFamily)
+        .style('fill', this.settings.yLabFontColor)
     }
 
     plotArea.attr('transform', 'translate(' + this.plotMargin.left + ',' + this.plotMargin.top + ')')
@@ -813,6 +846,7 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', this.settings.yFontSize + 'px')
         .style('font-family', this.settings.yFontFamily)
+        .style('fill', this.settings.yFontColor)
     }
 
     // leaves
@@ -840,9 +874,7 @@ class PalmTrees {
         return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
       })
 
-    this.leaves.style('fill', function (d, i) {
-      return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
-    })
+    this.leaves.style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.settings.frondColorUnselected : this.colors[i])
 
     // work on tooltip
     if (this.settings.tooltips) {
@@ -887,12 +919,14 @@ class PalmTrees {
             .text(this.settings.prefix)
             .style('font-size', this.settings.yFontSize + 'px')
             .style('font-family', this.settings.yFontFamily)
+            .style('fill', this.settings.yFontColor)
         } else {
           plotArea.append('text')
             .attr('class', 'suffixText')
             .text(this.settings.suffix)
             .style('font-size', this.settings.yFontSize + 'px')
             .style('font-family', this.settings.yFontFamily)
+            .style('fill', this.settings.yFontColor)
         }
         this.updateUnitPosition()
       }
@@ -934,11 +968,12 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', this.settings.yFontSize + 'px')
         .style('font-family', this.settings.yFontFamily)
+        .style('fill', this.settings.yFontColor)
 
       this.leaves
         .attr('d', this.makeFrondPath.bind(this))
         .style('fill', function (d, i) {
-          return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
+          return _this.plotState.isColumnOn(i) === 0 ? _this.settings.frondColorUnselected : _this.colors[i]
         })
 
       const ghostPadding = 4
@@ -955,13 +990,14 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', this.settings.yFontSize + 'px')
         .style('font-family', this.settings.yFontFamily)
+        .style('fill', this.settings.yFontColor)
 
       this.leaves
         .transition('leafColor')
         .duration(_this.duration)
         .attr('d', this.makeFrondPath.bind(this))
         .style('fill', function (d, i) {
-          return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
+          return _this.plotState.isColumnOn(i) === 0 ? _this.settings.frondColorUnselected : _this.colors[i]
         })
     }
 
@@ -971,14 +1007,14 @@ class PalmTrees {
     baseSvg.selectAll('.sideBarColorBox').transition('boxColor')
       .duration(_this.duration)
       .style('fill', function (d, i) {
-        return _this.plotState.isColumnOn(i) === 0 ? '#ccc' : _this.colors[i]
+        return _this.plotState.isColumnOn(i) === 0 ? _this.settings.frondColorUnselected : _this.colors[i]
       })
 
     // TODO this should be handled bv the sidebar !
     baseSvg.selectAll('.sideBarText').transition('textColor')
       .duration(_this.duration)
-      .style('fill', function (d, i) {
-        return _this.plotState.isColumnOn(i) === 0 ? '#aaa' : '#000'
+      .style('fill', (d, i) => {
+        return _this.plotState.isColumnOn(i) === 0 ? this.settings.colFontColorUnselected : this.settings.colFontColor
       })
 
     if (d3.sum(_this.plotState.getState().selectedColumns) === 0) {
@@ -1052,6 +1088,7 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', _this.settings.rowFontSize + 'px')
         .style('font-family', _this.settings.rowFontFamily)
+        .style('fill', this.settings.rowFontColor)
         .call(_this.wrapAxisLabels.bind(_this), _this.xscale.rangeBand())
 
       plotArea.selectAll('.leaf')
@@ -1075,6 +1112,7 @@ class PalmTrees {
         .selectAll('.tick text')
         .style('font-size', _this.settings.rowFontSize + 'px')
         .style('font-family', _this.settings.rowFontFamily)
+        .style('fill', this.settings.rowFontColor)
         .call(_this.wrapAxisLabels.bind(_this), _this.xscale.rangeBand())
 
       plotArea.selectAll('.leaf')

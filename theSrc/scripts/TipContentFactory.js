@@ -26,7 +26,8 @@ function makeTipContent ({
     suffix = '',
     columnStates,
     tipScale,
-    colors
+    colors,
+    unselectedColor
   }) {
   const rowContent = data.map((columnValue, index) => {
     return makeTipContentRow({
@@ -39,7 +40,8 @@ function makeTipContent ({
       fFamily,
       fSize,
       barWidth: (columnValue) ? tipScale(columnValue) : 0,
-      barColor: colors[index]
+      barColor: colors[index],
+      unselectedColor
     })
   }).join('\n')
 
@@ -55,12 +57,24 @@ function makeTipContent ({
 }
 
 // TODO set class if valueEnabled == false
-function makeTipContentRow ({ columnIndex, value = 'No Data', valueEnabled, barWidth, barColor, name, prefix, suffix, fFamily, fSize }) {
+function makeTipContentRow ({
+  columnIndex,
+  value = 'No Data',
+  valueEnabled,
+  barWidth,
+  barColor,
+  name,
+  prefix,
+  suffix,
+  fFamily,
+  fSize,
+  unselectedColor
+}) {
   return `<tr class="tip-column tip-column-${columnIndex} ${(valueEnabled) ? '' : 'column-off"'}">
     <td style="text-align:right;font-family:${fFamily};font-size:${fSize}px">${prefix || ''}${value || ''}${suffix || ''}</td>
     <td style="text-align:left;font-family:${fFamily};font-size:${fSize}px">${name}</td>
     <td style="text-align:center">
-      <div style="width:${barWidth}px;height:8px;background-color:${(valueEnabled) ? barColor : '#ccc'}"></div>
+      <div style="width:${barWidth}px;height:8px;background-color:${(valueEnabled) ? barColor : unselectedColor}"></div>
     </td>
   </tr>`
 }
