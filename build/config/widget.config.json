@@ -3,14 +3,14 @@
   "widgetFactory": "theSrc/scripts/rhtmlPalmTrees.factory.js",
   "widgetName": "rhtmlPalmTrees",
   "rFunction": "rhtmlPalmTrees::PalmTrees",
+  "visualRegressionSuite": {},
   "internalWebSettings": {
     "includeDimensionsOnWidgetDiv": true,
-    "default_border": true,
+    "default_border": false,
+    "isReadySelector": "svg.svgContent",
     "css": [
       "/style/rhtmlPalmTrees.css"
-    ]
-  },
-  "visualRegressionSuite": {
-    "isReadySelector": "svg.svgContent"
+    ],
+    "singleWidgetSnapshotSelector": "#widget-container"
   }
 }
