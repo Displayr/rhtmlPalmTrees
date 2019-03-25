@@ -1,7 +1,8 @@
+@applitools
 Feature: State Interactions
 	Interactions with the sidebar and palmtrees cause the plot to update. The state is saved and can be restored.
 
-  @applitools @sidebar
+  @sidebar
   Scenario: User can interact with the palm tree plot sidebar to control the plot
     Given I am viewing "data.bdd_minimal_example" with dimensions 600x400
     Then the "interaction_baseline" snapshot matches the baseline

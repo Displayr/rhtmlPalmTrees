@@ -14,33 +14,34 @@ log.setLevel('info') // NB default, adjusted later in initLogger
 const tooltipLogger = log.getLogger('tooltip')
 
 const defaultSettings = {
-  'digits': 0,
-  'hoverColor': '#eeeeee',
-  'frondColorUnselected': '#cccccc',
-  'frondColorThis': '#000000',
-  'frondColorThat': '#cccccc',
-  'colFontSize': 11,
-  'colFontFamily': 'sans-serif',
-  'colFontColor': '#000000',
-  'colFontColorUnselected': '#aaaaaa',
-  'colHeading': '',
-  'colHeadingFontSize': 0,
-  'colHeadingFontFamily': 'sans-serif',
-  'colHeadingFontColor': '#000000',
-  'sidebarBackgroundColor': '#ffffff',
-  'sidebarMaxProportion': 0.25,
-  'sidebarBorderColor': '#000000',
-  'rowFontSize': 11,
-  'rowFontFamily': 'sans-serif',
-  'rowFontColor': '#000000',
-  'rowHeading': '',
-  'rowHeadingFontSize': 12,
-  'rowHeadingFontFamily': 'sans-serif',
-  'rowHeadingFontColor': '#000000',
-  'order': 'descending',
-  'yFontColor': '#000000',
-  'ylab': '',
-  'yLabFontColor': '#000000'
+  digits: 0,
+  hoverColor: '#eeeeee',
+  frondColorUnselected: '#cccccc',
+  frondColorThis: '#000000',
+  frondColorThat: '#cccccc',
+  colFontSize: 11,
+  colFontFamily: 'sans-serif',
+  colFontColor: '#000000',
+  colFontColorUnselected: '#aaaaaa',
+  colHeading: '',
+  colHeadingFontSize: 0,
+  colHeadingFontFamily: 'sans-serif',
+  colHeadingFontColor: '#000000',
+  order: 'descending',
+  rowFontSize: 11,
+  rowFontFamily: 'sans-serif',
+  rowFontColor: '#000000',
+  rowHeading: '',
+  rowHeadingFontSize: 12,
+  rowHeadingFontFamily: 'sans-serif',
+  rowHeadingFontColor: '#000000',
+  sidebarBackgroundColor: '#ffffff',
+  sidebarMaxProportion: 0.25,
+  sidebarBorderColor: '#000000',
+  tooltips: false,
+  yFontColor: '#000000',
+  ylab: '',
+  yLabFontColor: '#000000'
 }
 
 class PalmTrees {
@@ -176,9 +177,6 @@ class PalmTrees {
 
   // settings getter/setter
   setConfig (value) {
-    console.log('setCOnfig called with:')
-    console.log(JSON.stringify(value, {}, 2))
-
     if (!arguments.length) return this.settings
 
     this.settings = _.defaultsDeep({}, value, defaultSettings)
@@ -483,9 +481,14 @@ class PalmTrees {
       delete this.updateToolTipWithDebounceTimeoutHandler
     }
 
-    let htmlContent = null
+    const params = {
+      palmTreeIndex,
+      yPos: value,
+      xPos: name
+    }
+
     if (this.showTooltipDesiredState) {
-      htmlContent = makeTipContent({
+      params.html = makeTipContent({
         rowName: this.rowNames[palmTreeIndex],
         rowIndex: palmTreeIndex,
         rowTotal: this.weightedSums[palmTreeIndex].toFixed(this.settings.digits),
@@ -504,14 +507,10 @@ class PalmTrees {
         colors: this.colors,
         unselectedColor: this.settings.frondColorUnselected
       })
-    }
 
-    // NB make copies of these now, when the timeout below is called d, el, and sel will be undefined
-    const params = {
-      palmTreeIndex,
-      yPos: value,
-      xPos: name,
-      html: htmlContent
+      const { width, height } = getBoundsOfTip(params.html, this.settings.tooltipsFontSize, this.settings.tooltipsFontfamily)
+      params.width = width
+      params.height = height
     }
 
     this.updateToolTipWithDebounceTimeoutHandler = setTimeout(() => {
@@ -525,41 +524,48 @@ class PalmTrees {
     }, this.tooltipDebounceTime)
   }
 
-  showTooltip ({ palmTreeIndex, html, yPos, xPos }) {
+  showTooltip ({ palmTreeIndex, html, yPos, xPos, width: tipWidth, height: tipHeight }) {
     const _this = this
     this.showTooltipActualState = true
     this.currentlyDisplayedTooltipIndex = palmTreeIndex
     let ghostRect = this.baseSvg.select('#ghost' + palmTreeIndex)
     let ghostRectHtmlElement = ghostRect[0][0]
     let ghostRectDimensions = ghostRectHtmlElement.getBoundingClientRect()
+
     let barRectBboxDimensions = this.baseSvg.select('#bar' + palmTreeIndex)[0][0].getBoundingClientRect()
 
     this.tip.html(html)
-    let y = Number(ghostRect.attr('y'))
-    let h = Number(ghostRect.attr('height'))
+    let ghostRectYPosition = Number(ghostRect.attr('y'))
+    let ghostRectHeight = Number(ghostRect.attr('height'))
 
-    // NB TODO tipHeight and tipWidth are wrong on the very first time the tip is shown,
-    // because we have not shown it yet so it doesn't have dimensions
-    let tipHeight = parseFloat(this.tip.style('height'))
-    let tipWidth = parseFloat(this.tip.style('width'))
-    let tipSouth = y + h + 5 + this.yscale(yPos) + this.plotMargin.top
-    let tipNorth = y - 5 + this.yscale(yPos) + this.plotMargin.top
+    let frondLowerBound = ghostRectYPosition + ghostRectHeight + 5 + this.yscale(yPos) + this.plotMargin.top
+    let frondUpperBound = ghostRectYPosition - 5 + this.yscale(yPos) + this.plotMargin.top
 
-    tooltipLogger.debug(`tipHeight: ${tipHeight}, tipWidth: ${tipWidth}, tipSouth: ${tipSouth}, tipNorth: ${tipNorth} `)
+    tooltipLogger.debug(`tipHeight: ${tipHeight}, tipWidth: ${tipWidth}, tipSouth: ${frondLowerBound}, tipNorth: ${frondUpperBound} `)
 
     const halfWidthOfTriangle = 7
     const heightOfTriangle = 10
 
+    const availableWidthToLeft = barRectBboxDimensions.x
+    const availableWidthToRight = this.viewerWidth - barRectBboxDimensions.x
+    const requiredWidth = tipWidth / 2
+
+    let xTipOffset = 0
+    if (availableWidthToLeft < requiredWidth) { xTipOffset = requiredWidth - availableWidthToLeft }
+    if (availableWidthToRight < requiredWidth) { xTipOffset = -1 * (requiredWidth - availableWidthToRight) }
+
+    // TODO consider just supporting N and S
+    // TODO these conditions dont really make sense ?
     let direction, directionClass, offset, triangleTop, triangleLeft
-    if (this.viewerHeight - tipSouth >= tipHeight) {
+    if (this.viewerHeight - frondLowerBound >= tipHeight) {
       direction = 's'
-      offset = [10, 0]
+      offset = [10, xTipOffset]
       directionClass = 'southTip'
       triangleTop = ghostRectDimensions.y + ghostRectDimensions.height
       triangleLeft = barRectBboxDimensions.x - halfWidthOfTriangle
-    } else if (tipNorth - tipHeight >= 0) {
+    } else if (frondUpperBound - tipHeight >= 0) {
       direction = 'n'
-      offset = [-10, 0]
+      offset = [-10, xTipOffset]
       directionClass = 'northTip'
       triangleTop = ghostRectDimensions.y - heightOfTriangle
       triangleLeft = barRectBboxDimensions.x - halfWidthOfTriangle
@@ -577,7 +583,7 @@ class PalmTrees {
       triangleLeft = ghostRectDimensions.x + ghostRectDimensions.width
     }
 
-    tooltipLogger.debug(`chose ${directionClass} top: ${triangleTop}, left: ${triangleLeft}`)
+    tooltipLogger.debug(`chose ${directionClass} top: ${triangleTop}, left: ${triangleLeft} offset: ${offset}`)
 
     this.tip.direction(direction).offset(offset).show({}, ghostRectHtmlElement)
     d3.select('#littleTriangle')
@@ -1155,6 +1161,17 @@ class PalmTrees {
     }
     return output
   }
+}
+
+let uniqId = 1
+function getBoundsOfTip (tipContent, fontSize, fontFamily) {
+  const uniqueId = `tip-estimate-${uniqId++}`
+  const divWrapper = $(`<div id="${uniqueId}" style="display:inline-block; font-size: ${fontSize}px; font-family: ${fontFamily}">${tipContent}</div>`)
+  $(document.body).append(divWrapper)
+  const bounds = document.getElementById(uniqueId).getBoundingClientRect()
+  divWrapper.remove()
+
+  return bounds
 }
 
 PalmTrees.initClass()
