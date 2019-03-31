@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as rootLog from 'loglevel'
 const layoutLogger = rootLog.getLogger('layout')
-// layoutLogger.setLevel('debug')
+layoutLogger.setLevel('error')
 
 const cells = {
   PLOT: 'PLOT',

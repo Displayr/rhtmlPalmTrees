@@ -132,7 +132,7 @@ class Sidebar extends BaseComponent {
 
     return {
       width: Math.min(
-        _(sideBarRowDesiredWidths).max() + 2 * this.constants.rowHorizontalPadding,
+        _(sideBarRowDesiredWidths).max() + widthOfNonTextElementsInFrondRows + 2 * this.constants.rowHorizontalPadding,
         this.config.maxWidth
       ),
       height: 0
@@ -232,6 +232,9 @@ class Sidebar extends BaseComponent {
     this.element = this.parentContainer.append('g').attr('id', 'g_sideBar')
       .attr('transform', this.buildTransform(bounds))
     const sideBar = this.element
+
+    // this.dim.x = bounds.left
+    // this.dim.y = bounds.top
 
     // TODO not needed (just need to add border to "Order" then delete)
     sideBar.append('rect')
@@ -507,10 +510,11 @@ class Sidebar extends BaseComponent {
 
   _mouseLeaveSidebar () {
     log.info('sidebar._mouseLeaveSidebar()')
-    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: true })
+    // this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: true })
   }
 
   _applyDynamicDimensionsToDom ({ dimensions, showControlPanel, animate = false }) {
+    console.log({dimensions})
     let sideBar = (animate)
       ? this.element.transition().duration(this.constants.animationDuration)
       : this.element
