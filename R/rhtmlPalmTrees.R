@@ -36,13 +36,13 @@
 #' @param y.digits integer to control the number of decimal places of the y axis
 #' @param y.font.size Default y axis font size = 11
 #' @param y.font.family Default y axis font family = "sans-serif"
-#' @param y.font.color y axis title font color
+#' @param y.font.color y axis font color
 #' @param y.lab.font.size Default y axis label font size = 12
 #' @param y.lab.font.family Default y axis label font family = "sans-serif"
 #' @param y.lab.font.color y axis labels font color
 #' @param prefix prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis
 #' @param suffix suffix of numbers in the tooltips
-#' @param colors colors of the leaves. D3 colors will be used if no values are provided
+#' @param colors colors of the fronds. D3 colors will be used if no values are provided
 #' @param digits integer to control the number of decimal places in the tooltips
 #' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending"
 #' @param width

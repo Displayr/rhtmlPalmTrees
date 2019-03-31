@@ -17,10 +17,10 @@ function makeTipContent ({
     yLabel,
     columnNames,
     data,
-    hFamily,
-    hSize,
-    fFamily,
-    fSize,
+    headingFontFamily,
+    headingFontSize,
+    fontFamily,
+    fontSize,
     digits = 1,
     prefix = '',
     suffix = '',
@@ -37,8 +37,8 @@ function makeTipContent ({
       name: columnNames[index],
       prefix,
       suffix,
-      fFamily,
-      fSize,
+      fontFamily,
+      fontSize,
       barWidth: (columnValue) ? tipScale(columnValue) : 0,
       barColor: colors[index],
       unselectedColor
@@ -46,7 +46,7 @@ function makeTipContent ({
   }).join('\n')
 
   let headingText = `${rowName}${(_.isEmpty(yLabel) ? '' : ` - ${yLabel}`)} ${rowTotal}`
-  return `<div class="tipHeading tip-${rowIndex}" style="font-family:${hFamily};font-size:${hSize}px">${headingText}</div>
+  return `<div class="tipHeading tip-${rowIndex}" style="font-family:${headingFontFamily};font-size:${headingFontSize}px">${headingText}</div>
     <div class="tipTableContainer">
       <table class="tipTable">
         <tbody>
@@ -56,7 +56,6 @@ function makeTipContent ({
     </div>`
 }
 
-// TODO set class if valueEnabled == false
 function makeTipContentRow ({
   columnIndex,
   value = 'No Data',
@@ -66,13 +65,13 @@ function makeTipContentRow ({
   name,
   prefix,
   suffix,
-  fFamily,
-  fSize,
+  fontFamily,
+  fontSize,
   unselectedColor
 }) {
   return `<tr class="tip-column tip-column-${columnIndex} ${(valueEnabled) ? '' : 'column-off"'}">
-    <td style="text-align:right;font-family:${fFamily};font-size:${fSize}px">${prefix || ''}${value || ''}${suffix || ''}</td>
-    <td style="text-align:left;font-family:${fFamily};font-size:${fSize}px">${name}</td>
+    <td style="text-align:right;font-family:${fontFamily};font-size:${fontSize}px">${prefix || ''}${value || ''}${suffix || ''}</td>
+    <td style="text-align:left;font-family:${fontFamily};font-size:${fontSize}px">${name}</td>
     <td style="text-align:center">
       <div style="width:${barWidth}px;height:8px;background-color:${(valueEnabled) ? barColor : unselectedColor}"></div>
     </td>

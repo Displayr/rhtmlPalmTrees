@@ -296,8 +296,6 @@
     "yLabFontFamily": "sans-serif",
     "digits": 1,
     "colors": null,
-    "order": "descending",
-    "prefix": null,
-    "suffix": null
+    "order": "descending"
   }
 }
