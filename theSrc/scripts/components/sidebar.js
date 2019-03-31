@@ -1,10 +1,16 @@
 import d3 from 'd3'
 import _ from 'lodash'
 import * as rootLog from 'loglevel'
-import {truncateD3TextSelection} from './labelUtils'
+import BaseComponent from './baseComponent'
+import {
+  splitIntoLinesByWord,
+  getLabelDimensionsUsingSvgApproximation,
+  truncateD3TextSelection
+} from '../labelUtils'
+
 const log = rootLog.getLogger('sidebar')
 
-class Sidebar {
+class Sidebar extends BaseComponent {
   static defaultSettings () {
     return _.cloneDeep({
       colors: [],
@@ -29,9 +35,10 @@ class Sidebar {
     })
   }
 
-  constructor ({ element, plotState, config }) {
+  constructor ({ parentContainer, plotState, config }) {
+    super()
     log.info('sidebar.constructor')
-    this.element = element
+    this.parentContainer = parentContainer
     this.plotState = plotState
     this.config = _.defaults({}, config, Sidebar.defaultSettings)
     // this.config.fontSize = this._extractIntFromStringOrArray(this.config.fontSize)
@@ -60,14 +67,75 @@ class Sidebar {
       rowMinVerticalPadding: 2,
       rowMaxVerticalPadding: 5
     }
+
+    this.dim = {
+      width: null, // NB set later
+      rowHeight: this.config.fontSize + 2 * this._calcVerticalRowPadding(this.config.fontSize),
+      headerHeight: (this.config.headingText)
+        ? this.config.headingFontSize + 2 * this._calcVerticalRowPadding(this.config.headingFontSize)
+        : 0
+    }
+
+    // second round of dimension settings that rely on first round
+    const colorBarHeight = this.dim.rowHeight - 2 * this.constants.rowHorizontalPadding
+    _.assign(this.dim, {
+      height: Math.ceil(this.dim.headerHeight + this.constants.frondRowCount * this.dim.rowHeight),
+      frondRadius: (this.dim.rowHeight - 2) / 2,
+      colorBarHeight: colorBarHeight,
+      colorBarWidth: Math.round(colorBarHeight * 0.6)
+    })
   }
 
-  getDimensions () {
+  // TODO implement this fn
+  computePreferredDimensions () {
+
+    // determine maximum width of:
+    // * column heading
+    // * columnNames
+
+    // determine width of sidebar, and truncate text as necessary
+    let sideBarRowDesiredWidths = []
+
+    const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, maxWidth, fontSize, fontFamily, rotation = 0}) => {
+      const lines = splitIntoLinesByWord({parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation})
+      const dimensions = getLabelDimensionsUsingSvgApproximation({text: lines[0], parentContainer, fontSize, fontFamily, rotation})
+      return dimensions
+    }
+
+    if (this.config.headingText) {
+      const dimensions = estimateDimensionsOfSingleLineSplitByWord({
+        parentContainer: this.parentContainer,
+        text: this.config.headingText,
+        maxWidth: this.maxWidth,
+        fontSize: this.config.headingFontSize,
+        fontFamily: this.config.headingFontFamily
+      })
+      sideBarRowDesiredWidths.push(dimensions.width)
+    }
+
+    const widthOfNonTextElementsInFrondRows =
+      3 * this.constants.rowHorizontalPadding +
+      this.dim.colorBarWidth +
+      2 * this.dim.frondRadius
+    const maxAllowedRowTextWidth = this.config.maxWidth - widthOfNonTextElementsInFrondRows
+
+    this.config.columnNames.forEach(text => {
+      const dimensions = estimateDimensionsOfSingleLineSplitByWord({
+        parentContainer: this.parentContainer,
+        text: this.config.headingText,
+        maxWidth: maxAllowedRowTextWidth,
+        fontSize: this.config.fontSize,
+        fontFamily: this.config.fontFamily
+      })
+      sideBarRowDesiredWidths.push(dimensions.width)
+    })
+
     return {
-      width: this.dim.width,
-      height: this.dim.height,
-      x: this.dim.x,
-      y: this.dim.y
+      width: Math.min(
+        _(sideBarRowDesiredWidths).max() + 2 * this.constants.rowHorizontalPadding,
+        this.config.maxWidth
+      ),
+      height: 0
     }
   }
 
@@ -88,24 +156,9 @@ class Sidebar {
     }
   }
 
-  draw () {
-    log.info('sidebar.draw()')
-    const _this = this
-    const sideBar = this.element
-
-    // TODO not needed (just need to add border to "Order" then delete)
-    sideBar.append('rect')
-      .attr('class', 'sideBar')
-      .attr('x', 0)
-      .attr('y', 0)
-      .style('stroke', this.config.borderColor)
-      .style('fill', this.config.backgroundColor)
-
-    let sdBarCtrl = sideBar.append('g').attr('id', 'g_sdBarControl').style('display', 'none')
+  drawControl () {
+    let sdBarCtrl = this.element.append('g').attr('id', 'g_sdBarControl').style('display', 'none')
     this.sdBarCtrl = sdBarCtrl
-    let sdBarDisp = sideBar.append('g').attr('id', 'g_sideBarDisp')
-    this.sdBarDisp = sdBarDisp
-    // all on all off selector
     sdBarCtrl.selectAll('option')
       .data([1, 2])
       .enter()
@@ -169,6 +222,30 @@ class Sidebar {
       .style('fill', (d) => (d.toLowerCase() === initialSort) ? this.config.fontColor : this.config.secondaryFontColor)
       .text(function (d) { return d })
       .style('font-family', this.config.fontFamily)
+  }
+
+  draw (bounds) {
+    log.info('sidebar.draw()')
+    const _this = this
+    this.bounds = bounds
+
+    this.element = this.parentContainer.append('g').attr('id', 'g_sideBar')
+      .attr('transform', this.buildTransform(bounds))
+    const sideBar = this.element
+
+    // TODO not needed (just need to add border to "Order" then delete)
+    sideBar.append('rect')
+      .attr('class', 'sideBar')
+      .attr('x', 0)
+      .attr('y', 0)
+      .style('stroke', this.config.borderColor)
+      .style('fill', this.config.backgroundColor)
+
+    let sdBarDisp = sideBar.append('g').attr('id', 'g_sideBarDisp')
+    this.sdBarDisp = sdBarDisp
+    // all on all off selector
+
+    this.drawControl()
 
     if (this.config.headingText) {
       sdBarDisp.append('text')
@@ -318,31 +395,6 @@ class Sidebar {
     const _this = this
     const sideBar = this.element
 
-    // this.dim specifies dimensions during an initial draw
-    this.dim = {
-      x: null, // NB set later
-      y: this.constants.outerMargin + 0.5,
-      width: null, // NB set later
-      fontSize: this.config.fontSize,
-      rowHeight: this.config.fontSize + 2 * this._calcVerticalRowPadding(this.config.fontSize),
-      headerHeight: (this.config.headingText)
-        ? this.config.headingFontSize + 2 * this._calcVerticalRowPadding(this.config.headingFontSize)
-        : 0
-    }
-
-    // second round of dimension settings that rely on first round
-    _.assign(this.dim, {
-      height: Math.ceil(this.dim.headerHeight + this.constants.frondRowCount * this.dim.rowHeight),
-      frondRadius: (this.dim.rowHeight - 2) / 2,
-      colorBarHeight: this.dim.rowHeight - 2 * this.constants.rowHorizontalPadding,
-      colorBarWidth: Math.round(this.dim.colorBarHeight * 0.6)
-    })
-
-    // third round of dimension settings that rely on second round
-    _.assign(this.dim, {
-      colorBarWidth: Math.round(this.dim.colorBarHeight * 0.6)
-    })
-
     // determine width of sidebar, and truncate text as necessary
     let sideBarRowDesiredWidths = []
 
@@ -381,14 +433,13 @@ class Sidebar {
       })
 
     this.dim.width = _.min([this.config.maxWidth, _.max(sideBarRowDesiredWidths)])
-    this.dim.x = this.config.containerWidth - this.constants.outerMargin - this.dim.width - 0.5
 
     // this.hoverDim specifies dimensions when mouse over sidebar and extra controls are shown
     // reduce hover font size and row height until under the maxHeight
     this.hoverDim = _.cloneDeep(this.dim)
     this.hoverDim.radioButtonWidth = this.hoverDim.rowHeight / 2
     this.hoverDim.height = this.dim.height + this.hoverDim.rowHeight * this.constants.controlRowCount
-    while (this.hoverDim.fontSize > 1 && (this.hoverDim.height > this.config.maxHeight - 2 * this.dim.y)) {
+    while (this.hoverDim.fontSize > 1 && (this.hoverDim.height > this.config.maxHeight - 2 * this.bounds.top)) {
       this.hoverDim.fontSize = this.hoverDim.fontSize - 1
       this.hoverDim.rowHeight = this.hoverDim.fontSize + 2 * this._calcVerticalRowPadding(this.hoverDim.fontSize)
       this.hoverDim.frondRadius = (this.hoverDim.rowHeight - 2) / 2

@@ -1,32 +1,22 @@
 import PalmTrees from './PalmTrees'
-import d3 from 'd3'
 
-module.exports = function (el, width, height, stateChangedFn) {
+module.exports = function (el, w, h, stateChangedFn) {
   const stateChangedFnPresent = (typeof stateChangedFn === 'function') ? 'present' : 'absent'
-  console.log(`rhtmlPalmtrees.factory called width=${width}, height=${height}, stateChangedFn=${stateChangedFnPresent}`)
-  const w = width < 200 ? 200 : width
-  const h = height < 100 ? 100 : height
+  console.log(`rhtmlPalmtrees.factory called stateChangedFn=${stateChangedFnPresent}`)
 
-  d3.select(el).append('svg')
-    .attr('class', 'svgContent')
-    .attr('width', w)
-    .attr('height', h)
 
   // an empty instance of the PalmPlot object with width and height initialized
   let palm = new PalmTrees()
-  palm.width(w)
-  palm.height(h)
 
   return {
-    resize: function (width, height) {
+    resize: function () {
       console.log('rhtmlPalmTree.resize()')
-      palm.width(width)
-      palm.height(height)
       return palm.resize(el)
     },
 
     renderValue: function (x, state) {
       console.log('rhtmlPalmTree.renderValue()')
+      el.innerHTML = ''
       palm.reset()
       palm.setConfig(x.settings)
       palm.setData(x.data)
@@ -39,10 +29,9 @@ module.exports = function (el, width, height, stateChangedFn) {
         palm.resetState()
       }
 
-      palm.registerInternalListeners()
-      d3.select(el).selectAll('g').remove()
-      // NB TODO the this in this.palm is suspect ?
-      d3.select(el).call(this.palm.draw.bind(palm))
+      // palm.registerInternalListeners()
+      // d3.select(el).selectAll('g').remove() <-- TODO shouldn't be needed any more
+      palm.draw(el)
     },
 
     palm: palm

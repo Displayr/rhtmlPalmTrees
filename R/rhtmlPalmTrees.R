@@ -36,7 +36,7 @@
 #' @param y.digits integer to control the number of decimal places of the y axis
 #' @param y.font.size Default y axis font size = 11
 #' @param y.font.family Default y axis font family = "sans-serif"
-#' @param y.font.color y axis title font color
+#' @param y.font.color y axis font color
 #' @param y.lab.font.size Default y axis label font size = 12
 #' @param y.lab.font.family Default y axis label font family = "sans-serif"
 #' @param y.lab.font.color y axis labels font color
