@@ -19,7 +19,7 @@ log.setLevel('info') // NB default, adjusted later in initLogger
 // log.setLevel('debug') // NB default, adjusted later in initLogger
 
 class PalmTrees {
-  static uniqueId() {
+  static uniqueId () {
     return this._palmTreeInstanceCounter++
   }
 
@@ -621,8 +621,11 @@ class PalmTrees {
   }
 
   buildLayout () {
-    // TODO wire in outer padding
-    this.layout = new Layout(this.viewerWidth, this.viewerHeight, 2)
+    // TODO wire in inner and outer padding
+    const innerPadding = 5
+    const outerPadding = 10
+
+    this.layout = new Layout(this.viewerWidth, this.viewerHeight, innerPadding, outerPadding)
 
     this.components[CellNames.SIDEBAR] = new Sidebar({
       parentContainer: this.baseSvg,

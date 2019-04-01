@@ -26,7 +26,7 @@ const HeatmapRows = [
 ]
 
 class Layout {
-  constructor (canvasWidth, canvasHeight, padding = 0) {
+  constructor (canvasWidth, canvasHeight, padding = 0, outerPadding = 2) {
     this.cellInfo = _.transform(_.keys(cells), (result, key) => {
       result[key] = {
         name: key,
@@ -41,7 +41,7 @@ class Layout {
     this.canvasWidth = canvasWidth
     this.canvasHeight = canvasHeight
     this.padding = padding
-    this.outerPadding = 2
+    this.outerPadding = outerPadding
 
     // non-standard / cant be modelled exceptions, that are run once all components are registered
     //   contains things where one cell depends on presence or absence of other cells
