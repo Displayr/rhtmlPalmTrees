@@ -695,6 +695,7 @@ class PalmTrees {
         fontSize: this.settings.rowHeadingFontSize,
         fontFamily: this.settings.rowHeadingFontFamily,
         fontColor: this.settings.rowHeadingFontColor,
+        innerPadding: 1 // TODO make configurable
       })
 
       // TODO do something better here for estimated width

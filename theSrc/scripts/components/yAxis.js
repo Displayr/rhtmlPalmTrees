@@ -66,7 +66,7 @@ class YAxis extends BaseComponent {
 
     const axisContainer = this.parentContainer.append('g')
       .classed('yaxis', true)
-      .attr('transform', this.buildTransform(bounds))
+      .attr('transform', `translate(${bounds.left + bounds.width},${bounds.top})`)
     this.axisContainer = axisContainer
 
     axisContainer

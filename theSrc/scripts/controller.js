@@ -2,15 +2,12 @@ import _ from 'lodash'
 import { CellNames } from './layout'
 
 const {
-  LEFT_COLUMN,
-  RIGHT_COLUMN,
-  TOP_XAXIS,
-  BOTTOM_XAXIS,
-  LEFT_YAXIS,
-  RIGHT_YAXIS,
-  COLORMAP,
-  TOP_DENDROGRAM,
-  LEFT_DENDROGRAM
+  PLOT,
+  SIDEBAR,
+  YAXIS_TITLE,
+  YAXIS,
+  XAXIS,
+  XAXIS_TITLE
 } = CellNames
 
 class Controller {
@@ -23,27 +20,13 @@ class Controller {
     }
   }
 
-  get colormap () { return this.components[COLORMAP] }
-  get xaxis () { return this.components[TOP_XAXIS] || this.components[BOTTOM_XAXIS] }
-  get yaxis () { return this.components[LEFT_YAXIS] || this.components[RIGHT_YAXIS] }
-  get leftColumn () { return this.components[LEFT_COLUMN] }
-  get rightColumn () { return this.components[RIGHT_COLUMN] }
-  get top_dendrogram () { return this.components[TOP_DENDROGRAM] }
-  get left_dendrogram () { return this.components[LEFT_DENDROGRAM] }
+  get plot () { return this.components[PLOT] }
+  get sidebar () { return this.components[SIDEBAR] }
+  get xaxis () { return this.components[XAXIS] }
+  get yaxis () { return this.components[YAXIS] }
 
   addComponents (components) {
     this.components = components
-  }
-
-  addOuter (outer) {
-    this.outer = outer
-    this.outer.on('click', () => {
-      if (this.isAnythingHighlighted()) {
-        this.clearHighlightedColumn()
-        this.clearHighlightedRow()
-        this.updateHighlights()
-      }
-    })
   }
 
   isRowHighlighted (index = null) {
