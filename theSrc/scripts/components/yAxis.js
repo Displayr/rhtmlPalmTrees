@@ -1,6 +1,6 @@
 import BaseComponent from './baseComponent'
 import _ from 'lodash'
-import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord} from '../labelUtils'
+// import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord} from '../labelUtils'
 import d3 from 'd3'
 
 // TODO account for resize
@@ -24,11 +24,11 @@ class YAxis extends BaseComponent {
 
   // TODO must account for prefix and suffix and formatting
   computePreferredDimensions (estimatedWidth) {
-    const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, maxWidth, fontSize, fontFamily, rotation = 0}) => {
-      const lines = splitIntoLinesByWord({parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation})
-      const dimensions = getLabelDimensionsUsingSvgApproximation({text: lines[0], parentContainer, fontSize, fontFamily, rotation})
-      return dimensions
-    }
+    // const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, maxWidth, fontSize, fontFamily, rotation = 0}) => {
+    //   const lines = splitIntoLinesByWord({parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation})
+    //   const dimensions = getLabelDimensionsUsingSvgApproximation({text: lines[0], parentContainer, fontSize, fontFamily, rotation})
+    //   return dimensions
+    // }
 
     // const dimensions = this.values.map(value => {
     //   return estimateDimensionsOfSingleLineSplitByWord({
@@ -96,9 +96,6 @@ class YAxis extends BaseComponent {
 }
 
 module.exports = YAxis
-
-
-
 
 // if (this.settings.showYAxis) {
 //   if (this.settings.prefix || this.settings.suffix) {

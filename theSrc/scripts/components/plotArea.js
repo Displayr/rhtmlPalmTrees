@@ -27,7 +27,7 @@ class PlotArea extends BaseComponent {
     palmTreeId,
     plotState,
     colors,
-    duration,
+    duration
 
   }) {
     super()
@@ -176,7 +176,6 @@ class PlotArea extends BaseComponent {
       // TODO can i use this.plotArea here ?
       this.parentContainer.call(this.tip)
 
-
       // TODO can i use this.plotArea here ?
       d3.select('body')
         .append('div')
@@ -271,19 +270,19 @@ class PlotArea extends BaseComponent {
   }
 
 // create ghost rectangle tooltip
-  mouseOverFrond(d) {
+  mouseOverFrond (d) {
     tooltipLogger.debug('mouseOverFrond')
     this.showTooltipDesiredState = true
     this.updateToolTipWithDebounce(d)
   }
 
-  mouseOutFrond(d) {
+  mouseOutFrond (d) {
     tooltipLogger.debug('mouseOutFrond')
     this.showTooltipDesiredState = false
     this.updateToolTipWithDebounce(d)
   }
 
-  mouseOverLeaf(d, i) {
+  mouseOverLeaf (d, i) {
     // NB the timeout here is to ensure that the tooltip has had a chance to render before running the CSS selector
     setTimeout(() => {
       tooltipLogger.debug('mouseOverLeaf')
@@ -296,13 +295,13 @@ class PlotArea extends BaseComponent {
     }, this.tooltipDebounceTime * 2)
   }
 
-  mouseOutLeaf() {
+  mouseOutLeaf () {
     tooltipLogger.debug('mouseOutLeaf')
     d3.selectAll(`.tip-column`).classed('selected', false)
     d3.selectAll(`.tip-column`).style('background-color', '#ffffff')
   }
 
-  updateToolTipWithDebounce({palmTreeIndex, name, value} = {}) {
+  updateToolTipWithDebounce ({palmTreeIndex, name, value} = {}) {
     if (this.updateToolTipWithDebounceTimeoutHandler) {
       clearTimeout(this.updateToolTipWithDebounceTimeoutHandler)
       delete this.updateToolTipWithDebounceTimeoutHandler
@@ -351,7 +350,7 @@ class PlotArea extends BaseComponent {
     }, this.tooltipDebounceTime)
   }
 
-  showTooltip({palmTreeIndex, html, yPos, xPos, width: tipWidth, height: tipHeight}) {
+  showTooltip ({palmTreeIndex, html, yPos, xPos, width: tipWidth, height: tipHeight}) {
     const _this = this
     this.showTooltipActualState = true
     this.currentlyDisplayedTooltipIndex = palmTreeIndex
@@ -432,7 +431,7 @@ class PlotArea extends BaseComponent {
       })
   }
 
-  hideTooltip({palmTreeIndex}) {
+  hideTooltip ({palmTreeIndex}) {
     this.showTooltipActualState = false
     this.currentlyDisplayedTooltipIndex = null
     if (this.tip) {
@@ -447,8 +446,7 @@ class PlotArea extends BaseComponent {
       .attr('d', this.makeFrondPath.bind(this))
   }
 
-
-  makeFrondPath({palmTreeIndex, frondIndex, amplifier = 1}) {
+  makeFrondPath ({palmTreeIndex, frondIndex, amplifier = 1}) {
     const frondValue = this.frondScale(this.normalizedData[palmTreeIndex][frondIndex])
     const frondIsSelected = this.plotState.isColumnOn(frondIndex)
     const pathData = (frondIsSelected)
@@ -457,7 +455,7 @@ class PlotArea extends BaseComponent {
     return this.line(pathData)
   }
 
-  makeDisabledFrondPath(frondValue) {
+  makeDisabledFrondPath (frondValue) {
     return [
       {x: 0, y: 0},
       {x: frondValue * 0.25, y: -frondValue * 0.03},
@@ -468,7 +466,7 @@ class PlotArea extends BaseComponent {
     ]
   }
 
-  makeEnabledFrondPath(frondValue) {
+  makeEnabledFrondPath (frondValue) {
     return [
       {x: 0, y: 0},
       {x: frondValue * 0.25, y: -frondValue * 0.07},

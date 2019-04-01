@@ -11,7 +11,6 @@ import YAxis from './components/yAxis'
 import YTitle from './components/yTItle'
 import Title from './components/title'
 
-import {splitIntoLinesByWord} from './labelUtils'
 import buildConfig from './buildConfig'
 import { Layout, CellNames } from './layout'
 
@@ -23,21 +22,21 @@ class PalmTrees {
     return this._palmTreeInstanceCounter++
   }
 
-  static initClass() {
+  static initClass () {
     this._palmTreeInstanceCounter = 0
   }
 
-  constructor() {
+  constructor () {
     log.info('PalmTree.constructor()')
     this.palmTreeId = PalmTrees.uniqueId()
     this.init()
   }
 
-  static getLoggerNames() {
+  static getLoggerNames () {
     return ['tooltip', 'sidebar', 'plotarea']
   }
 
-  static defaultState() {
+  static defaultState () {
     return _.cloneDeep({
       selectedColumns: [],
       sortBy: 'descending',
@@ -45,25 +44,18 @@ class PalmTrees {
     })
   }
 
-  init() {
+  init () {
     log.info('PalmTree.init()')
     this.components = {}
     this.plotState = new PlotState(PalmTrees.defaultState())
-    this.plotWidth = null
-    this.plotHeight = null
-    this.leftMargin = 35
-    this.bottomMargin = 20
     this.data = []
     this.settings = {}
-    this.plotMargin = {}
     this.param = {}
     this.normalizedData = [] // 2D array of values range [0-1]
     this.normalizedDataMax = 0
     this.normalizedDataMin = 1
     this.unweightedSums = []
     this.weightedSums = []
-    this.barData = [] // D3 data set for the vertical bars (palm tree trunks)
-    this.frondData = [] // D3 data set for the palm tree tops
     this.rindices = null
     this.duration = 600
     this.nticks = 10
@@ -71,31 +63,9 @@ class PalmTrees {
     this.rowNames = null
     this.weights = null
     this.colors = null
-    this.frondCount = null
     this.palmTreeCount = null
-    this.xscale = null
-    this.yscale = null
-    this.frondScale = d3.scale.linear()
-    this.tipBarScale = d3.scale.linear()
     this.dataMax = 0
     this.dataMin = 100000000
-    this.xAxis = null
-    this.yAxis = null
-    this.bars = null
-    this.palms = null
-
-    this.maxXaxisLines = 1
-    this.xFontSize = 11
-    this.yPrefixText = ''
-    this.leaves = null
-    this.commasFormatter = null
-    this.commasFormatterE = null
-
-    this.tooltipDebounceTime = 50
-    this.showTooltipDesiredState = false
-    this.showTooltipActualState = false
-    this.currentlyDisplayedTooltipIndex = null
-    this.tip = null
   }
 
   reset () {
@@ -105,13 +75,13 @@ class PalmTrees {
   }
 
   // NB seeing orphaned tips in Displayr caused by stateUpdate->renderValue issue (see VIS-393)
-  removeOrphanedTooltips() {
+  removeOrphanedTooltips () {
     $(`.d3-tip-palmtree-${this.palmTreeId}`).remove()
     $('#littleTriangle').remove()
   }
 
   // dataPoints is 2D Array
-  setData(dataPoints) {
+  setData (dataPoints) {
     // NB in the R layer we replace all null values with zero
     // but we preserve the null/NA values in rawData
     if (!this.settings.rawData) {
@@ -138,13 +108,10 @@ class PalmTrees {
 
     this.rindices = d3.range(this.rowNames.length)
 
-    this.frondScale.domain([this.normalizedDataMin, this.normalizedDataMax])
-    this.tipBarScale.domain([this.dataMin, this.dataMax]).range([2, 30])
-
     return this
   }
 
-  setConfig(value) {
+  setConfig (value) {
     this.settings = buildConfig(value, 600, 600)
 
     this.initLogger(this.settings.logger || this.settings.log)
@@ -164,7 +131,7 @@ class PalmTrees {
   }
 
   // set up default this.colors
-  setupColors() {
+  setupColors () {
     let _tempCol = d3.scale.category20().range()
     if (this.colNames.length > _tempCol.length) {
       let _l = _tempCol.length
@@ -175,7 +142,7 @@ class PalmTrees {
     return _tempCol
   }
 
-  initLogger(loggerSettings) {
+  initLogger (loggerSettings) {
     if (_.isNull(loggerSettings)) {
       return
     }
@@ -195,7 +162,7 @@ class PalmTrees {
     })
   }
 
-  checkState(previousUserState) {
+  checkState (previousUserState) {
     const previousData = _.get(previousUserState, 'data')
     const stateIsValid = !_.isNull(previousUserState) &&
       _.isEqual(previousData, this.data) &&
@@ -205,7 +172,7 @@ class PalmTrees {
     return stateIsValid
   }
 
-  resetState() {
+  resetState () {
     log.info('PalmTree.resetState()')
     const selectedColumns = new Array(this.data[0].length) // want num columns, not num rows
     selectedColumns.fill(1)
@@ -217,180 +184,35 @@ class PalmTrees {
     return this
   }
 
-  restoreState(previousUserState) {
+  restoreState (previousUserState) {
     log.info('PalmTree.restoreState()')
     this.plotState.initialiseState(previousUserState)
   }
 
-  saveStateChangedCallback(stateChanged) {
+  saveStateChangedCallback (stateChanged) {
     // this.saveStatesFn = stateChanged
     this.deregisterExternalStateListenerFn = this.plotState.addListener(stateChanged)
   }
 
-  registerInternalListeners() {
+  registerInternalListeners () {
     this.plotState.addListener((newState) => {
       this.updatePlot(false)
     })
   }
 
   // resize
-  resize(rootElement) {
+  resize (rootElement) {
     log.info('PalmTree.resize()')
-    const _this = this
-    const baseSvg = this.baseSvg
 
     const {width, height} = getContainerDimensions(_.has(rootElement, 'length') ? rootElement[0] : rootElement)
     this.viewerWidth = width
     this.viewerHeight = height
 
-    if (this.viewerHeight < 100) {
-      return
-    }
-
-    if (this.viewerWidth < 200) {
-      return
-    }
-
-    baseSvg
-      .attr('width', this.viewerWidth)
-      .attr('height', this.viewerHeight)
-
-    // sidebar
-    this.components[CellNames.SIDEBAR].resize({
-      maxWidth: Math.floor(this.viewerWidth * this.settings.sidebarMaxProportion),
-      maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
-      containerWidth: this.viewerWidth
-    })
-
-    // main plot area
-    this.plotMargin.top = this.viewerHeight * 0.1
-    this.plotMargin.right = 10 + this.layout.getCellBounds(CellNames.SIDEBAR).width
-    this.plotWidth = this.viewerWidth - this.plotMargin.left - this.plotMargin.right
-    this.plotHeight = this.viewerHeight - this.plotMargin.top - this.plotMargin.bottom
-    this.xscale.rangeRoundBands([0, this.plotWidth], 0.1, 0.3)
-    // update leaf size
-    this.param.maxLeafWidth = Math.min(this.plotMargin.top, Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4), 60)
-    this.frondScale.range([this.param.maxLeafWidth * this.normalizedDataMin / this.normalizedDataMax, this.param.maxLeafWidth])
-
-    // TODO dont forget to do something with this (moved to plotArea.updatePlot
-    this.updateData()
-
-    baseSvg.select('.xaxis')
-      .attr('transform', 'translate(0,' + this.plotHeight + ')')
-      .call(this.xAxis)
-      .selectAll('.tick text')
-      .style('font-size', this.settings.rowFontSize + 'px')
-      .style('font-family', this.settings.rowFontFamily)
-      .style('fill', this.settings.rowFontColor)
-      .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
-
-    this.plotMargin.bottom = this.bottomMargin + this.maxXaxisLines * this.xFontSize * 1.1
-    this.plotHeight = this.viewerHeight - this.plotMargin.top - this.plotMargin.bottom
-    baseSvg.select('.xaxis').attr('transform', 'translate(0,' + this.plotHeight + ')')
-    baseSvg.select('#g_plotArea').attr('transform', 'translate(' + this.plotMargin.left + ',' + this.plotMargin.top + ')')
-
-    this.yscale.range([this.plotHeight, 0])
-    this.yAxis.scale(this.yscale)
-    this.xAxis.scale(this.xscale)
-    baseSvg.select('.yaxis')
-      .call(this.yAxis)
-      .selectAll('.tick text')
-      .style('font-size', this.settings.yFontSize + 'px')
-      .style('font-family', this.settings.yFontFamily)
-      .style('fill', this.settings.yFontColor)
-
-    baseSvg.selectAll('.bar')
-      .attr('x', function (d) {
-        return _this.xscale(d.name) + Math.round(_this.xscale.rangeBand() / 2)
-      })
-      .attr('y', function (d) {
-        return _this.yscale(d.value)
-      })
-      .attr('height', function (d) {
-        return _this.plotHeight - _this.yscale(d.value)
-      })
-
-    baseSvg.selectAll('.plotAreaHeading')
-      .attr('x', this.plotWidth / 2)
-      .attr('y', this.plotHeight + this.plotMargin.bottom - 10)
-
-    baseSvg.selectAll('.plotAreaYLab')
-      .attr('transform', 'rotate(-90,' + (-this.plotMargin.left + 20) + ',' + (this.plotHeight / 2) + ')')
-      .attr('x', -this.plotMargin.left + 20)
-      .attr('y', this.plotHeight / 2)
-
-    baseSvg.selectAll('.leaf')
-      .attr('transform', function (d) {
-        return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
-      })
-
-    this.leaves.attr('d', this.makeFrondPath.bind(this))
-
-    if (this.settings.tooltips) {
-      const ghostPadding = 4
-      baseSvg.selectAll('.ghostCircle')
-        .attr('x', function ({palmTreeIndex}) {
-          return -1 * (ghostPadding + _this.maxFrondLength(palmTreeIndex))
-        })
-        .attr('y', function ({palmTreeIndex}) {
-          return -1 * (ghostPadding + _this.maxFrondLength(palmTreeIndex))
-        })
-        .attr('width', function ({palmTreeIndex}) {
-          return (_this.maxFrondLength(palmTreeIndex) + ghostPadding) * 2
-        })
-        .attr('height', function ({palmTreeIndex}) {
-          return (_this.maxFrondLength(palmTreeIndex) + ghostPadding) * 2
-        })
-    }
-
-    if (this.settings.prefix || this.settings.suffix) {
-      this.updateUnitPosition()
-    }
-
-    return this
-  }
-
-  wrapAxisLabels(textElements, maxWidth) {
-    const fontSize = this.settings.rowFontSize
-    const fontFamily = this.settings.rowFontFamily
-    const baseSvg = this.baseSvg
-
-    let maxXaxisLines = 0
-    textElements.each(function () {
-      let textElement = d3.select(this)
-      let textContent = textElement.text()
-      const lines = splitIntoLinesByWord({ parentContainer: baseSvg, text: textContent, maxWidth, fontSize, fontFamily })
-      maxXaxisLines = Math.max(maxXaxisLines, lines.length)
-
-      const lineHeight = 1.1 // ems
-      const x = textElement.attr('x')
-      const y = textElement.attr('y')
-      const dy = parseFloat(textElement.attr('dy'))
-      textElement.text(null)
-      _(lines).forEach((lineContent, lineIndex) => {
-        textElement.append('tspan').attr('x', x).attr('y', y).attr('dy', lineIndex * lineHeight + dy + 'em').text(lineContent)
-      })
-    })
-    this.maxXaxisLines = maxXaxisLines
-  }
-
-  // update the position of y axis unit on resize
-  updateUnitPosition() {
-    const _this = this
-    d3.select('.suffixText')
-      .attr('x', function () {
-        let len = this.getComputedTextLength()
-        if (len < _this.plotMargin.left - 10) {
-          return -len - 10
-        } else {
-          return -_this.plotMargin.left
-        }
-      })
-      .attr('y', -_this.plotMargin.top / 2)
+    throw new Error('resize not implemented')
   }
 
   // update side bar content on initialization and resize
-  draw(rootElement) {
+  draw (rootElement) {
     log.info('PalmTree.draw()')
 
     const {width, height} = getContainerDimensions(_.has(rootElement, 'length') ? rootElement[0] : rootElement)
@@ -403,7 +225,6 @@ class PalmTrees {
       .attr('height', height)
 
     this.baseSvg = baseSvg
-    const _this = this
 
     this.param.ymax = d3.max(this.weightedSums)
     this.param.ymin = 0
@@ -428,7 +249,6 @@ class PalmTrees {
 
     // start old stuff
 
-
     /* stop computing stuff / start drawing stuff */
 
     this.updatePlot(true)
@@ -436,11 +256,9 @@ class PalmTrees {
 
   updatePlot (initialization) {
     log.info('PalmTree.updatePlot()')
-    const _this = this
-    const baseSvg = this.baseSvg
 
     // TODO this is repeated in updatePlot and in constructor
-    for (let i = 0; i < _this.rowNames.length; i++) {
+    for (let i = 0; i < this.rowNames.length; i++) {
       this.unweightedSums[i] = 0
       this.weightedSums[i] = 0
       for (let j = 0; j < this.colNames.length; j++) {
@@ -453,28 +271,14 @@ class PalmTrees {
     this.param.ymin = 0
 
     this.components[CellNames.PLOT].setParam(this.param)
-    this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
-
     this.components[CellNames.YAXIS].setParam(this.param)
+
+    this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
     this.components[CellNames.YAXIS].updatePlot(initialization)
-
-
-    // TODO this should be handled bv the sidebar !
-    baseSvg.selectAll('.sideBarColorBox').transition('boxColor')
-      .duration(_this.duration)
-      .style('fill', function (d, i) {
-        return _this.plotState.isColumnOn(i) === 0 ? _this.settings.frondColorUnselected : _this.colors[i]
-      })
-
-    // TODO this should be handled bv the sidebar !
-    baseSvg.selectAll('.sideBarText').transition('textColor')
-      .duration(_this.duration)
-      .style('fill', (d, i) => {
-        return _this.plotState.isColumnOn(i) === 0 ? this.settings.colFontColorUnselected : this.settings.colFontColor
-      })
+    this.components[CellNames.SIDEBAR].updatePlot(initialization)
   }
 
-  sortBars(initialization) {
+  sortBars (initialization) {
     log.info('PalmTree.sortBars()')
     const _this = this
     const plotArea = this.plotArea
@@ -584,7 +388,7 @@ class PalmTrees {
   }
 
   // sort and return sort indices
-  sortWithIndices(toSort, mode) {
+  sortWithIndices (toSort, mode) {
     for (let i = 0; i < toSort.length; i++) {
       toSort[i] = [toSort[i], i]
     }
@@ -606,7 +410,7 @@ class PalmTrees {
   }
 
   // sort using supplied indices
-  sortFromIndices(toSort, indices) {
+  sortFromIndices (toSort, indices) {
     let output = []
     for (let i = 0; i < toSort.length; i++) {
       output.push(toSort[indices[i]])
@@ -614,7 +418,7 @@ class PalmTrees {
     return output
   }
 
-  wireupController() {
+  wireupController () {
     _(this.components).each(component => component.setController(this.controller))
     // this.controller.addComponents(this.components)
     // this.controller.addOuter(this.inner)
@@ -670,7 +474,7 @@ class PalmTrees {
       palmTreeId: this.palmTreeId,
       plotState: this.plotState,
       colors: this.colors,
-      duration: this.duration,
+      duration: this.duration
     })
     this.layout.enable(CellNames.PLOT)
     this.layout.setFillCell(CellNames.PLOT)
@@ -683,7 +487,7 @@ class PalmTrees {
       placement: 'bottom',
       fontSize: this.settings.rowFontSize,
       fontFamily: this.settings.rowFontFamily,
-      fontColor: this.settings.rowFontColor,
+      fontColor: this.settings.rowFontColor
     })
 
     // TODO do something better here for estimated width
@@ -715,7 +519,7 @@ class PalmTrees {
         fontFamily: this.settings.yLabFontFamily,
         fontSize: this.settings.yLabFontSize,
         fontColor: this.settings.yLabFontColor,
-        maxHeight: 1000, // hard code
+        maxHeight: 1000 // hard code
       })
 
       const dimensions = this.components[CellNames.YAXIS_TITLE].computePreferredDimensions()

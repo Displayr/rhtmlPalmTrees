@@ -24,7 +24,8 @@ class Controller {
   get sidebar () { return this.components[SIDEBAR] }
   get xaxis () { return this.components[XAXIS] }
   get yaxis () { return this.components[YAXIS] }
-
+  get xaxisTitle () { return this.components[XAXIS_TITLE] }
+  get yaxisTitle () { return this.components[YAXIS_TITLE] }
   addComponents (components) {
     this.components = components
   }

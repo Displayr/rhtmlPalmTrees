@@ -87,7 +87,6 @@ class Sidebar extends BaseComponent {
   }
 
   computePreferredDimensions () {
-
     // determine maximum width of:
     // * column heading
     // * columnNames
@@ -463,9 +462,8 @@ class Sidebar extends BaseComponent {
     console.log('sortTextWidths')
     console.log(JSON.stringify(sortTextWidths, {}, 2))
 
-    const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
-
     // // TODO this is not respecting max width ...
+    // const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
     // if (maxControlRowWidth > this.hoverDim.width) {
     //   this.hoverDim.width = maxControlRowWidth
     // }
@@ -590,6 +588,18 @@ class Sidebar extends BaseComponent {
       {x: radius * 0.75, y: radius * 0.13},
       {x: radius * 0.25, y: radius * 0.07}
     ]
+  }
+
+  updatePlot () {
+    this.element.selectAll('.sideBarColorBox')
+      .transition('boxColor')
+      .duration(this.duration)
+      .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.config.frondColorUnselected : this.config.colors[i])
+
+    this.element.selectAll('.sideBarText')
+      .transition('textColor')
+      .duration(this.duration)
+      .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.config.secondaryFontColor : this.config.fontColor)
   }
 }
 

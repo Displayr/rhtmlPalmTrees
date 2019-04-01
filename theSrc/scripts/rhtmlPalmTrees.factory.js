@@ -4,7 +4,6 @@ module.exports = function (el, w, h, stateChangedFn) {
   const stateChangedFnPresent = (typeof stateChangedFn === 'function') ? 'present' : 'absent'
   console.log(`rhtmlPalmtrees.factory called stateChangedFn=${stateChangedFnPresent}`)
 
-
   // an empty instance of the PalmPlot object with width and height initialized
   let palm = new PalmTrees()
 
