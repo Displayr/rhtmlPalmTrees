@@ -1,6 +1,6 @@
 import BaseComponent from './baseComponent'
 import _ from 'lodash'
-// import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord} from '../labelUtils'
+import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord} from '../labelUtils'
 import d3 from 'd3'
 
 // TODO account for resize
@@ -10,8 +10,11 @@ class YAxis extends BaseComponent {
     super()
     _.assign(this, {parentContainer, weightedSums, nTicks, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits})
 
-    this.commasFormatter = d3.format(',.' + this.yDigits + 'f')
-    this.commasFormatterE = d3.format(',.' + this.yDigits + 'e')
+    const commasFormatter = d3.format(',.' + this.yDigits + 'f')
+    const commasFormatterE = d3.format(',.' + this.yDigits + 'e')
+    this.tickFormatterFactory = (ymax) => (y) => this.yPrefixText + (ymax >= 10000)
+      ? commasFormatterE(y)
+      : commasFormatter(y)
 
     // TODO hack
     this.setParam({ ymin: 0, ymax: d3.max(this.weightedSums) })
@@ -24,25 +27,29 @@ class YAxis extends BaseComponent {
 
   // TODO must account for prefix and suffix and formatting
   computePreferredDimensions (estimatedWidth) {
-    // const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, maxWidth, fontSize, fontFamily, rotation = 0}) => {
-    //   const lines = splitIntoLinesByWord({parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation})
-    //   const dimensions = getLabelDimensionsUsingSvgApproximation({text: lines[0], parentContainer, fontSize, fontFamily, rotation})
-    //   return dimensions
-    // }
+    const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, fontSize, fontFamily, rotation = 0}) => {
+      const lines = splitIntoLinesByWord({parentContainer, text, maxLines: 1, fontSize, fontFamily, rotation})
+      const dimensions = getLabelDimensionsUsingSvgApproximation({text: lines[0], parentContainer, fontSize, fontFamily, rotation})
+      return dimensions
+    }
 
-    // const dimensions = this.values.map(value => {
-    //   return estimateDimensionsOfSingleLineSplitByWord({
-    //     parentContainer: this.parentContainer,
-    //     text: value,
-    //     maxWidth: this.maxWidth,
-    //     fontSize: this.fontSize,
-    //     fontFamily: this.fontFamily
-    //   })
-    // })
+    const boundaryValues = [
+      this.tickFormatterFactory(this.param.ymax)(this.param.ymin),
+      this.tickFormatterFactory(this.param.ymax)(this.param.ymax)
+    ]
+
+    const dimensions = boundaryValues.map(value => {
+      return estimateDimensionsOfSingleLineSplitByWord({
+        parentContainer: this.parentContainer,
+        text: value,
+        maxWidth: this.maxWidth,
+        fontSize: this.fontSize,
+        fontFamily: this.fontFamily
+      })
+    })
 
     return {
-      // width: _(dimensions).map('width').max(),
-      width: 50, // TODO fix hard code here
+      width: _(dimensions).map('width').max(),
       height: 0
     }
   }
@@ -59,10 +66,7 @@ class YAxis extends BaseComponent {
       .scale(this.yscale)
       .orient('left')
       .ticks(this.nticks)
-      .tickFormat(d => this.yPrefixText + (this.param.ymax >= 10000)
-        ? this.commasFormatterE(d)
-        : this.commasFormatter(d)
-      )
+      .tickFormat(this.tickFormatterFactory(this.param.ymax).bind(this))
 
     const axisContainer = this.parentContainer.append('g')
       .classed('yaxis', true)
@@ -81,7 +85,10 @@ class YAxis extends BaseComponent {
     this.yscale.domain([this.param.ymin, this.param.ymax])
       .nice(this.nticks)
       .range([this.bounds.height, 0])
-    this.yAxis.scale(this.yscale)
+
+    this.yAxis
+      .scale(this.yscale)
+      .tickFormat(this.tickFormatterFactory(this.param.ymax).bind(this))
 
     if (initialization) {
       this.axisContainer
