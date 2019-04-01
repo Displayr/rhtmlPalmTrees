@@ -69,7 +69,7 @@ class Sidebar extends BaseComponent {
     }
 
     this.dim = {
-      width: null, // NB set later
+      fontSize: this.config.fontSize,
       rowHeight: this.config.fontSize + 2 * this._calcVerticalRowPadding(this.config.fontSize),
       headerHeight: (this.config.headingText)
         ? this.config.headingFontSize + 2 * this._calcVerticalRowPadding(this.config.headingFontSize)
@@ -86,7 +86,6 @@ class Sidebar extends BaseComponent {
     })
   }
 
-  // TODO implement this fn
   computePreferredDimensions () {
 
     // determine maximum width of:
@@ -143,7 +142,7 @@ class Sidebar extends BaseComponent {
     log.info('sidebar.resize()')
     _.assign(this.config, sizeUpdates)
     this._restoreTruncatedText()
-    this._adjustDimensions()
+    this._adjustRowSizes()
   }
 
   _restoreTruncatedText () {
@@ -233,6 +232,7 @@ class Sidebar extends BaseComponent {
       .attr('transform', this.buildTransform(bounds))
     const sideBar = this.element
 
+    // YOU ARE HERE - this breaks things
     // this.dim.x = bounds.left
     // this.dim.y = bounds.top
 
@@ -306,7 +306,7 @@ class Sidebar extends BaseComponent {
       .style('font-family', this.config.fontFamily)
       .text(function (d) { return d.colName })
 
-    this._adjustDimensions()
+    this._adjustRowSizes()
     this.registerInteractionHandlers()
   }
 
@@ -393,8 +393,8 @@ class Sidebar extends BaseComponent {
     return halfFontSize
   }
 
-  _adjustDimensions () {
-    log.info('sidebar._adjustDimensions()')
+  _adjustRowSizes () {
+    log.info('sidebar._adjustRowSizes()')
     const _this = this
     const sideBar = this.element
 
@@ -435,8 +435,6 @@ class Sidebar extends BaseComponent {
         }
       })
 
-    this.dim.width = _.min([this.config.maxWidth, _.max(sideBarRowDesiredWidths)])
-
     // this.hoverDim specifies dimensions when mouse over sidebar and extra controls are shown
     // reduce hover font size and row height until under the maxHeight
     this.hoverDim = _.cloneDeep(this.dim)
@@ -470,11 +468,10 @@ class Sidebar extends BaseComponent {
 
     const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
 
-    // TODO this is not respecting max width ...
-    if (maxControlRowWidth > this.hoverDim.width) {
-      this.hoverDim.width = maxControlRowWidth
-      this.hoverDim.x = this.config.containerWidth - this.constants.outerMargin - this.hoverDim.width - 0.5
-    }
+    // // TODO this is not respecting max width ...
+    // if (maxControlRowWidth > this.hoverDim.width) {
+    //   this.hoverDim.width = maxControlRowWidth
+    // }
 
     sideBar.select('.sdBarHeading')
       .attr('x', this.constants.rowHorizontalPadding)
@@ -500,7 +497,10 @@ class Sidebar extends BaseComponent {
     sideBar.selectAll('.sideBarElemSortRect')
       .attr('height', this.hoverDim.rowHeight + 'px')
 
-    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false })
+    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: false })
+
+    console.log(JSON.stringify({dim: this.dim}, {}, 2))
+    console.log(JSON.stringify({hoverDim: this.hoverDim}, {}, 2))
   }
 
   _mouseEnterSidebar () {
@@ -510,20 +510,17 @@ class Sidebar extends BaseComponent {
 
   _mouseLeaveSidebar () {
     log.info('sidebar._mouseLeaveSidebar()')
-    // this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: true })
+    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: true })
   }
 
   _applyDynamicDimensionsToDom ({ dimensions, showControlPanel, animate = false }) {
-    console.log({dimensions})
     let sideBar = (animate)
       ? this.element.transition().duration(this.constants.animationDuration)
       : this.element
 
     sideBar.select('.sideBar')
-      .attr('x', dimensions.x)
-      .attr('y', dimensions.y)
-      .attr('width', dimensions.width)
-      .attr('height', dimensions.height)
+      .attr('width', this.bounds.width)
+      .attr('height', this.bounds.height)
 
     sideBar.selectAll('.sideBarFrondGroup')
       .attr('transform', 'translate(' + dimensions.rowHeight / 2 + ',' + dimensions.rowHeight / 2 + ')')
@@ -537,7 +534,7 @@ class Sidebar extends BaseComponent {
       })
 
     sideBar.selectAll('.sideBarElemRect')
-      .attr('width', dimensions.width + 'px')
+      .attr('width', this.bounds.width + 'px')
       .attr('height', dimensions.rowHeight + 'px')
 
     const frondRowColorBoxXOffset = dimensions.frondRadius * 2 + this.constants.rowHorizontalPadding
@@ -556,16 +553,16 @@ class Sidebar extends BaseComponent {
 
     // TODO This is sus
     sideBar.selectAll('.sdBarAllRect')
-      .attr('x', (d, i) => { return i === 0 ? 0 : Math.floor(dimensions.width / 2) })
-      .attr('width', (d, i) => { return i === 0 ? Math.floor(dimensions.width / 2) : Math.ceil(dimensions.width / 2) })
+      .attr('x', (d, i) => { return i === 0 ? 0 : Math.floor(this.bounds.width / 2) })
+      .attr('width', (d, i) => { return i === 0 ? Math.floor(this.bounds.width / 2) : Math.ceil(this.bounds.width / 2) })
       .attr('height', dimensions.rowHeight)
 
     sideBar.select('.sdBarAllOn')
-      .attr('x', dimensions.width / 4)
+      .attr('x', this.bounds.width / 4)
       .attr('y', dimensions.rowHeight / 2)
 
     sideBar.select('.sdBarAllOff')
-      .attr('x', dimensions.width * 3 / 4)
+      .attr('x', this.bounds.width * 3 / 4)
       .attr('y', dimensions.rowHeight / 2)
 
     sideBar.selectAll('.sideBarElemSortRow')
@@ -574,20 +571,18 @@ class Sidebar extends BaseComponent {
       })
 
     sideBar.selectAll('.sideBarElemSortRect')
-      .attr('width', dimensions.width + 'px')
+      .attr('width', this.bounds.width + 'px')
 
     // NB control is initially hidden and placed just vertically below the header.
     // It is placed below header as opposed to at zero to prevent an animation bug where
     // the control panel can be seen through the header rect
     const controlPanelY = (showControlPanel)
-      ? dimensions.y + dimensions.headerHeight + this.constants.frondRowCount * dimensions.rowHeight
+      ? dimensions.headerHeight + this.constants.frondRowCount * dimensions.rowHeight
       : dimensions.headerHeight + 5
-    sideBar.select('#g_sdBarControl')
-      .style('display', (showControlPanel) ? 'inline' : 'none')
-      .attr('transform', 'translate(' + dimensions.x + ',' + controlPanelY + ')')
 
-    sideBar.select('#g_sideBarDisp')
-      .attr('transform', 'translate(' + dimensions.x + ',' + dimensions.y + ')')
+    this.sdBarCtrl
+      .style('display', (showControlPanel) ? 'inline' : 'none')
+      .attr('transform', `translate(0,${controlPanelY})`)
   }
 
   _makeFrondPath (radius) {

@@ -6,19 +6,21 @@ layoutLogger.setLevel('error')
 const cells = {
   PLOT: 'PLOT',
   SIDEBAR: 'SIDEBAR',
+  YAXIS_TITLE: 'YAXIS_TITLE',
   YAXIS: 'YAXIS',
   XAXIS: 'XAXIS',
   XAXIS_TITLE: 'XAXIS_TITLE'
 }
 
 const HeatmapColumns = [
+  { name: 'YAXIS_TITLE', cells: [cells.YAXIS_TITLE] },
   { name: 'YAXIS', cells: [cells.YAXIS] },
   { name: 'PLOT', cells: [cells.PLOT, cells.XAXIS, cells.XAXIS_TITLE] },
   { name: 'SIDEBAR', cells: [cells.SIDEBAR] }
 ]
 
 const HeatmapRows = [
-  { name: 'PLOT', cells: [cells.YAXIS, cells.PLOT, cells.SIDEBAR] },
+  { name: 'PLOT', cells: [cells.YAXIS_TITLE, cells.YAXIS, cells.PLOT, cells.SIDEBAR] },
   { name: 'XAXIS', cells: [cells.XAXIS] },
   { name: 'XAXIS_TITLE', cells: [cells.XAXIS_TITLE] }
 ]

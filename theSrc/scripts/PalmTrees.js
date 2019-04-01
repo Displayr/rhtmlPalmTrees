@@ -7,6 +7,8 @@ import PlotState from './PlotState'
 import PlotArea from './components/plotArea'
 import Sidebar from './components/sidebar'
 import XAxis from './components/xAxis'
+import YAxis from './components/yAxis'
+import YTitle from './components/yTItle'
 import Title from './components/title'
 
 import {splitIntoLinesByWord} from './labelUtils'
@@ -409,7 +411,7 @@ class PalmTrees {
     this.buildLayout()
     this.wireupController()
 
-    const simpleCells = _.omit(CellNames, [CellNames.PLOT])
+    const simpleCells = _.omit(CellNames, [CellNames.PLOT, CellNames.YAXIS])
     _(simpleCells).each(cellName => {
       if (this.layout.enabled(cellName)) {
         this.components[cellName].draw(this.layout.getCellBounds(cellName))
@@ -419,58 +421,15 @@ class PalmTrees {
     this.components[CellNames.PLOT].setParam(this.param)
     this.components[CellNames.PLOT].draw(this.layout.getCellBounds(CellNames.PLOT))
 
+    if (this.layout.enabled(CellNames.YAXIS)) {
+      this.components[CellNames.YAXIS].setParam(this.param)
+      this.components[CellNames.YAXIS].draw(this.layout.getCellBounds(CellNames.YAXIS))
+    }
+
     // start old stuff
 
 
     /* stop computing stuff / start drawing stuff */
-
-    // // y axis
-    // if (this.settings.ylab) {
-    //   plotArea.append('text')
-    //     .attr('class', 'plotAreaYLab')
-    //     .text(this.settings.ylab)
-    //     .attr('transform', 'rotate(-90,' + (-this.plotMargin.left + 20) + ',' + (this.plotHeight / 2) + ')')
-    //     .attr('x', -this.plotMargin.left + 20)
-    //     .attr('y', this.plotHeight / 2)
-    //     .style('text-anchor', 'middle')
-    //     .style('font-size', this.settings.yLabFontSize + 'px')
-    //     .style('font-family', this.settings.yLabFontFamily)
-    //     .style('fill', this.settings.yLabFontColor)
-    // }
-    //
-    // plotArea.attr('transform', 'translate(' + this.plotMargin.left + ',' + this.plotMargin.top + ')')
-    //
-    // if (this.settings.showYAxis) {
-    //   plotArea.append('g')
-    //     .attr('class', 'yaxis')
-    //     .call(this.yAxis)
-    //     .selectAll('.tick text')
-    //     .style('font-size', this.settings.yFontSize + 'px')
-    //     .style('font-family', this.settings.yFontFamily)
-    //     .style('fill', this.settings.yFontColor)
-    // }
-
-
-    // if (this.settings.showYAxis) {
-    //   if (this.settings.prefix || this.settings.suffix) {
-    //     if (!this.settings.suffix) {
-    //       plotArea.append('text')
-    //         .attr('class', 'suffixText')
-    //         .text(this.settings.prefix)
-    //         .style('font-size', this.settings.yFontSize + 'px')
-    //         .style('font-family', this.settings.yFontFamily)
-    //         .style('fill', this.settings.yFontColor)
-    //     } else {
-    //       plotArea.append('text')
-    //         .attr('class', 'suffixText')
-    //         .text(this.settings.suffix)
-    //         .style('font-size', this.settings.yFontSize + 'px')
-    //         .style('font-family', this.settings.yFontFamily)
-    //         .style('fill', this.settings.yFontColor)
-    //     }
-    //     this.updateUnitPosition()
-    //   }
-    // }
 
     this.updatePlot(true)
   }
@@ -495,28 +454,10 @@ class PalmTrees {
 
     this.components[CellNames.PLOT].setParam(this.param)
     this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
-    // this.yscale.domain([this.param.ymin, this.param.ymax])
-    //   .nice(this.nticks)
-    //   .range([this.plotHeight, 0])
-    // this.yAxis.scale(this.yscale)
 
-    if (initialization) {
-      // plotArea.select('.yaxis')
-      //   .call(this.yAxis)
-      //   .selectAll('.tick text')
-      //   .style('font-size', this.settings.yFontSize + 'px')
-      //   .style('font-family', this.settings.yFontFamily)
-      //   .style('fill', this.settings.yFontColor)
-    } else {
-      // plotArea.select('.yaxis')
-      //   .transition()
-      //   .duration(this.duration)
-      //   .call(this.yAxis)
-      //   .selectAll('.tick text')
-      //   .style('font-size', this.settings.yFontSize + 'px')
-      //   .style('font-family', this.settings.yFontFamily)
-      //   .style('fill', this.settings.yFontColor)
-    }
+    this.components[CellNames.YAXIS].setParam(this.param)
+    this.components[CellNames.YAXIS].updatePlot(initialization)
+
 
     // TODO this should be handled bv the sidebar !
     baseSvg.selectAll('.sideBarColorBox').transition('boxColor')
@@ -695,7 +636,7 @@ class PalmTrees {
         headingText: this.settings.colHeading,
         maxWidth: Math.floor(this.viewerWidth * this.settings.sidebarMaxProportion),
         maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
-        containerWidth: this.viewerWidth,
+        containerWidth: this.viewerWidth, // TODO can I pull this from bounds ?
         frondColorUnselected: this.settings.frondColorUnselected,
         frondColorThis: this.settings.frondColorThis,
         frondColorThat: this.settings.frondColorThat,
@@ -760,6 +701,41 @@ class PalmTrees {
       const axisTitleDimensions = this.components[CellNames.XAXIS_TITLE].computePreferredDimensions(this.viewerWidth * (1 - this.settings.sidebarMaxProportion))
       this.layout.enable(CellNames.XAXIS_TITLE)
       this.layout.setPreferredDimensions(CellNames.XAXIS_TITLE, axisTitleDimensions)
+    }
+
+    if (this.settings.ylab) {
+      this.components[CellNames.YAXIS_TITLE] = new YTitle({
+        parentContainer: this.baseSvg,
+        text: this.settings.ylab,
+        type: 'FOO', // TODO can I leave this out
+        fontFamily: this.settings.yLabFontFamily,
+        fontSize: this.settings.yLabFontSize,
+        fontColor: this.settings.yLabFontColor,
+        maxHeight: 1000, // hard code
+      })
+
+      const dimensions = this.components[CellNames.YAXIS_TITLE].computePreferredDimensions()
+      this.layout.enable(CellNames.YAXIS_TITLE)
+      this.layout.setPreferredDimensions(CellNames.YAXIS_TITLE, dimensions)
+    }
+
+    if (this.settings.showYAxis) {
+      this.components[CellNames.YAXIS] = new YAxis({
+        weightedSums: this.weightedSums,
+        parentContainer: this.baseSvg,
+        nTicks: this.nticks,
+        yDigits: this.settings.ydigits,
+        fontFamily: this.settings.yFontFamily,
+        fontSize: this.settings.yFontSize,
+        fontColor: this.settings.yFontColor,
+        maxWidth: 1000, // hard code
+        maxLines: 1,
+        innerPadding: 1
+      })
+
+      const dimensions = this.components[CellNames.YAXIS].computePreferredDimensions()
+      this.layout.enable(CellNames.YAXIS)
+      this.layout.setPreferredDimensions(CellNames.YAXIS, dimensions)
     }
   }
 }

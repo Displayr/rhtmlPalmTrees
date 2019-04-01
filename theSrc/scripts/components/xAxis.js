@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import d3 from 'd3'
 import BaseComponent from './baseComponent'
 
 import HorizontalWrappedLabel from './parts/horizontalWrappedLabel'
@@ -72,27 +71,6 @@ class XAxis extends BaseComponent {
       height: _(labelDimensions).map('height').max()
     }
 
-    // NB The intent of the conditional.rightmostMargin addition to dimensions:
-    // if Im diagonal labels, and Im the furthest component on the right
-    // then reserved space on the right to avoid truncation
-    // the rightmostMargin conditional will only be added if the columnSubtitles are the rightmost component
-    if (this.orientation === 'diagonal') {
-      const requiredExtraSpaceToRight = _(labelDimensions)
-        .map('width')
-        .map((labelWidth, i) => {
-          const availableWidthToRightOfColumn = (this.columnCount - 1 - i) * estimatedColumnWidth
-          const labelOverflow = Math.max(0, labelWidth - 0.5 * estimatedColumnWidth)
-          return Math.max(0, labelOverflow - availableWidthToRightOfColumn)
-        })
-        .max()
-
-      if (requiredExtraSpaceToRight > 0) {
-        preferredDimensions.conditional = {
-          rightmostMargin: requiredExtraSpaceToRight
-        }
-      }
-    }
-
     return preferredDimensions
   }
 
@@ -104,12 +82,6 @@ class XAxis extends BaseComponent {
 
     const columnWidth = bounds.width / this.columnCount
     this.labelObjects.map((labelObject, i) => {
-      // TODO instead of checking for existence of fn, really we should be checking that LabelFactory = DiagonalDownWrappedLabel OR DiagonalDownWrappedLabel
-      if (_.isFunction(labelObject.setAvailableSpaceToTheRight)) {
-        const widthOfColumnsToTheRight = ((this.columnCount - 1) - i) * columnWidth
-        const widthOfComponentsToTheRight = bounds.canvasWidth - (bounds.left + bounds.width)
-        labelObject.setAvailableSpaceToTheRight(widthOfColumnsToTheRight + widthOfComponentsToTheRight)
-      }
       labelObject.draw({
         container, // this is odd given we already supply parentContainer to constructor
         bounds: {
@@ -117,60 +89,9 @@ class XAxis extends BaseComponent {
           left: i * columnWidth,
           height: bounds.height,
           width: columnWidth
-        },
-        onClick: () => {
-          this.controller.xaxisClick(i)
-          d3.event.stopPropagation()
         }
       })
     })
-  }
-
-  // NB relies on CSS in heatmapcore.less
-  updateHighlights ({column = null} = {}) {
-    this.parentContainer.selectAll('.xaxis-label text')
-      .classed('highlight', (d, i) => column === i)
-  }
-
-  // Example call, upon selecting row [0,0]: column [1,2]
-  // {
-  //   "scale": [ 2, 7 ],
-  //   "translate": [ -450.1803455352783, 0 ],
-  //   "extent": [ [ 1, 0 ], [ 3, 1 ] ]
-  // }
-  updateZoom ({scale, translate, extent, zoom}) {
-    if (!zoom && !this.amIZoomed) {
-      return
-    }
-    if (zoom && this.amIZoomed) {
-      return
-    }
-    this.amIZoomed = zoom
-    if (this.amIZoomed) {
-      this.applyZoom({scale, translate, extent})
-    } else {
-      return this.resetZoom()
-    }
-  }
-
-  applyZoom ({scale, translate, extent}) {
-    const columnsInZoom = _.range(extent[0][0], extent[1][0])
-    const inFocusExtent = columnsInZoom.length
-    const numberCellsToLeftOutOfFocus = extent[0][0]
-    const newCellWidth = this.bounds.width / inFocusExtent
-    const newStartingPoint = -1 * numberCellsToLeftOutOfFocus * newCellWidth
-
-    // NB relies on CSS in heatmapcore.less
-    this.labelObjects.map((labelObject, i) => labelObject.applyHorizontalZoom({
-      xOffset: newStartingPoint + newCellWidth * i,
-      newCellWidth,
-      inZoom: _.includes(columnsInZoom, i)
-    }))
-  }
-
-  resetZoom () {
-    const columnWidth = this.bounds.width / this.columnCount
-    this.labelObjects.map((labelObject, i) => labelObject.resetHorizontalZoom({xOffset: columnWidth * i}))
   }
 }
 
