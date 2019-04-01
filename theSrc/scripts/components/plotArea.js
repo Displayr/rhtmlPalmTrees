@@ -83,28 +83,20 @@ class PlotArea extends BaseComponent {
       .domain(this.rowNames)
       .rangeRoundBands([0, bounds.width], 0.1, 0.3)
 
+    this.maxLeafSize = Math.min(
+      60,
+      bounds.height * 0.1,
+      Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4)
+    )
+
     this.yscale = d3.scale.linear()
       .domain([this.param.ymin, this.param.ymax])
       .nice(this.nticks)
-      .range([bounds.height, 0])
-
-    this.yAxis = d3.svg.axis()
-      .scale(this.yscale)
-      .orient('left')
-      .ticks(this.nticks)
-      .tickFormat(d => {
-        if (this.param.ymax >= 10000) {
-          return this.yPrefixText + d3.format(`,.${this.ydigits}f`)
-        } else {
-          return this.yPrefixText + d3.format(`,.${this.ydigits}e`)
-        }
-      })
-
-    this.maxLeafWidth = Math.min(60, bounds.height * 0.1, Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4))
+      .range([bounds.height, this.maxLeafSize])
 
     this.frondScale = d3.scale.linear()
     this.frondScale.domain([this.normalizedDataMin, this.normalizedDataMax])
-    this.frondScale.range([this.maxLeafWidth * this.normalizedDataMin / this.normalizedDataMax, this.maxLeafWidth])
+    this.frondScale.range([this.maxLeafSize * this.normalizedDataMin / this.normalizedDataMax, this.maxLeafSize])
 
     this.frondData = _.range(this.palmTreeCount).map((palmTreeIndex) => {
       return {
@@ -142,10 +134,11 @@ class PlotArea extends BaseComponent {
       .attr('y', d => this.yscale(d.value))
       .attr('height', d => bounds.height - this.yscale(d.value))
 
-    this.palms = plotArea.selectAll('.palm') // TODO there are no class palm ! ...
+    this.palms = plotArea.selectAll('.palm')
       .data(this.frondData)
 
-    let palmEnter = this.palms.enter().append('g')
+    let palmEnter = this.palms.enter()
+      .append('g')
 
 // leaves
     if (this.tooltips) {
@@ -182,21 +175,20 @@ class PlotArea extends BaseComponent {
         .attr('id', 'littleTriangle')
         .style('visibility', 'hidden')
 
-      // TODO turn this all back on
-      // this.plotArea.selectAll('.leaf')
-      //   .on('mouseover', d => this.mouseOverFrond(d))
-      //   .on('mouseout', d => this.mouseOutFrond(d))
-      //
-      // this.leaves
-      //   .on('mouseover', (leafData, leafIndex) => this.mouseOverLeaf(leafData, leafIndex))
-      //   .on('mouseout', d => this.mouseOutLeaf(d))
-      //   .on('click', d => {
-      //     tooltipLogger.debug('clickLeaf')
-      //     this.showTooltipDesiredState = false
-      //     // TODO can i reverse order of below ?
-      //     this.updateToolTipWithDebounce(d)
-      //     this.plotState.toggleColumnState(d.frondIndex)
-      //   })
+      this.plotArea.selectAll('.leaf')
+        .on('mouseover', d => this.mouseOverFrond(d))
+        .on('mouseout', d => this.mouseOutFrond(d))
+
+      this.leaves
+        .on('mouseover', (leafData, leafIndex) => this.mouseOverLeaf(leafData, leafIndex))
+        .on('mouseout', d => this.mouseOutLeaf(d))
+        .on('click', d => {
+          tooltipLogger.debug('clickLeaf')
+          this.showTooltipDesiredState = false
+          // TODO can i reverse order of below ?
+          this.updateToolTipWithDebounce(d)
+          this.plotState.toggleColumnState(d.frondIndex)
+        })
     }
   }
 
