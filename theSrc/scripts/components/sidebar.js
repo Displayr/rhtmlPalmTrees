@@ -68,7 +68,7 @@ class Sidebar extends BaseComponent {
       rowMaxVerticalPadding: 5
     }
 
-    this.dim = {
+    this.collapsedDimensions = {
       fontSize: this.config.fontSize,
       rowHeight: this.config.fontSize + 2 * this._calcVerticalRowPadding(this.config.fontSize),
       headerHeight: (this.config.headingText)
@@ -77,21 +77,17 @@ class Sidebar extends BaseComponent {
     }
 
     // second round of dimension settings that rely on first round
-    const colorBarHeight = this.dim.rowHeight - 2 * this.constants.rowHorizontalPadding
-    _.assign(this.dim, {
-      height: Math.ceil(this.dim.headerHeight + this.constants.frondRowCount * this.dim.rowHeight),
-      frondRadius: (this.dim.rowHeight - 2) / 2,
+    const colorBarHeight = this.collapsedDimensions.rowHeight - 2 * this.constants.rowHorizontalPadding
+    _.assign(this.collapsedDimensions, {
+      height: Math.ceil(this.collapsedDimensions.headerHeight + this.constants.frondRowCount * this.collapsedDimensions.rowHeight),
+      frondRadius: (this.collapsedDimensions.rowHeight - 2) / 2,
       colorBarHeight: colorBarHeight,
       colorBarWidth: Math.round(colorBarHeight * 0.6)
     })
   }
 
+  // NB assumes width of control rows always <= main rows
   computePreferredDimensions () {
-    // determine maximum width of:
-    // * column heading
-    // * columnNames
-
-    // determine width of sidebar, and truncate text as necessary
     let sideBarRowDesiredWidths = []
 
     const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, maxWidth, fontSize, fontFamily, rotation = 0}) => {
@@ -113,8 +109,8 @@ class Sidebar extends BaseComponent {
 
     const widthOfNonTextElementsInFrondRows =
       3 * this.constants.rowHorizontalPadding +
-      this.dim.colorBarWidth +
-      2 * this.dim.frondRadius
+      this.collapsedDimensions.colorBarWidth +
+      2 * this.collapsedDimensions.frondRadius
     const maxAllowedRowTextWidth = this.config.maxWidth - widthOfNonTextElementsInFrondRows
 
     this.config.columnNames.forEach(text => {
@@ -413,8 +409,8 @@ class Sidebar extends BaseComponent {
 
     const widthOfNonTextElementsInFrondRows =
       3 * this.constants.rowHorizontalPadding +
-      this.dim.colorBarWidth +
-      2 * this.dim.frondRadius
+      this.collapsedDimensions.colorBarWidth +
+      2 * this.collapsedDimensions.frondRadius
     const maxAllowedRowTextWidth = this.config.maxWidth - widthOfNonTextElementsInFrondRows
 
     this.element.selectAll('.sideBarText')
@@ -431,30 +427,30 @@ class Sidebar extends BaseComponent {
         }
       })
 
-    // this.hoverDim specifies dimensions when mouse over sidebar and extra controls are shown
+    // this.expandedDimensions specifies dimensions when mouse over sidebar and extra controls are shown
     // reduce hover font size and row height until under the maxHeight
-    this.hoverDim = _.cloneDeep(this.dim)
-    this.hoverDim.radioButtonWidth = this.hoverDim.rowHeight / 2
-    this.hoverDim.height = this.dim.height + this.hoverDim.rowHeight * this.constants.controlRowCount
-    while (this.hoverDim.fontSize > 1 && (this.hoverDim.height > this.config.maxHeight - 2 * this.bounds.top)) {
-      this.hoverDim.fontSize = this.hoverDim.fontSize - 1
-      this.hoverDim.rowHeight = this.hoverDim.fontSize + 2 * this._calcVerticalRowPadding(this.hoverDim.fontSize)
-      this.hoverDim.frondRadius = (this.hoverDim.rowHeight - 2) / 2
-      this.hoverDim.colorBarHeight = this.hoverDim.rowHeight - 2 * this.constants.rowHorizontalPadding
-      this.hoverDim.colorBarWidth = Math.round(this.hoverDim.colorBarHeight * 0.6)
-      this.hoverDim.radioButtonWidth = this.hoverDim.rowHeight / 2
+    this.expandedDimensions = _.cloneDeep(this.collapsedDimensions)
+    this.expandedDimensions.radioButtonWidth = this.expandedDimensions.rowHeight / 2
+    this.expandedDimensions.height = this.collapsedDimensions.height + this.expandedDimensions.rowHeight * this.constants.controlRowCount
+    while (this.expandedDimensions.fontSize > 1 && (this.expandedDimensions.height > this.config.maxHeight - 2 * this.bounds.top)) {
+      this.expandedDimensions.fontSize = this.expandedDimensions.fontSize - 1
+      this.expandedDimensions.rowHeight = this.expandedDimensions.fontSize + 2 * this._calcVerticalRowPadding(this.expandedDimensions.fontSize)
+      this.expandedDimensions.frondRadius = (this.expandedDimensions.rowHeight - 2) / 2
+      this.expandedDimensions.colorBarHeight = this.expandedDimensions.rowHeight - 2 * this.constants.rowHorizontalPadding
+      this.expandedDimensions.colorBarWidth = Math.round(this.expandedDimensions.colorBarHeight * 0.6)
+      this.expandedDimensions.radioButtonWidth = this.expandedDimensions.rowHeight / 2
 
-      const displaySectionHeight = Math.ceil(this.dim.headerHeight + this.constants.frondRowCount * this.hoverDim.rowHeight)
-      const controlSectionHeight = this.hoverDim.rowHeight * this.constants.controlRowCount
-      this.hoverDim.height = displaySectionHeight + controlSectionHeight
+      const displaySectionHeight = Math.ceil(this.collapsedDimensions.headerHeight + this.constants.frondRowCount * this.expandedDimensions.rowHeight)
+      const controlSectionHeight = this.expandedDimensions.rowHeight * this.constants.controlRowCount
+      this.expandedDimensions.height = displaySectionHeight + controlSectionHeight
     }
 
     // NB this appears out of order becasue we must set new font-size before computing maxSortTextSize
     let sortTextWidths = []
     sideBar.selectAll('.sdBarSortText')
-      .attr('x', 2 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
-      .attr('y', 0.5 * this.hoverDim.rowHeight)
-      .style('font-size', this.hoverDim.fontSize + 'px')
+      .attr('x', 2 * this.constants.rowHorizontalPadding + this.expandedDimensions.radioButtonWidth)
+      .attr('y', 0.5 * this.expandedDimensions.rowHeight)
+      .style('font-size', this.expandedDimensions.fontSize + 'px')
       .each(function () {
         sortTextWidths.push(d3.select(this).node().getComputedTextLength())
       })
@@ -463,49 +459,49 @@ class Sidebar extends BaseComponent {
     console.log(JSON.stringify(sortTextWidths, {}, 2))
 
     // // TODO this is not respecting max width ...
-    // const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth)
-    // if (maxControlRowWidth > this.hoverDim.width) {
-    //   this.hoverDim.width = maxControlRowWidth
+    // const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.expandedDimensions.radioButtonWidth)
+    // if (maxControlRowWidth > this.expandedDimensions.width) {
+    //   this.expandedDimensions.width = maxControlRowWidth
     // }
 
     sideBar.select('.sdBarHeading')
       .attr('x', this.constants.rowHorizontalPadding)
-      .attr('y', this.dim.headerHeight / 2)
+      .attr('y', this.collapsedDimensions.headerHeight / 2)
       .style('font-size', this.config.headingFontSize + 'px')
 
     sideBar.select('.sdBarAllOn')
-      .style('font-size', this.hoverDim.fontSize + 'px')
+      .style('font-size', this.expandedDimensions.fontSize + 'px')
 
     sideBar.select('.sdBarAllOff')
-      .style('font-size', this.hoverDim.fontSize + 'px')
+      .style('font-size', this.expandedDimensions.fontSize + 'px')
 
     sideBar.select('.sdBarSortHeading')
       .attr('x', this.constants.rowHorizontalPadding)
-      .attr('y', this.hoverDim.rowHeight / 2 + this.hoverDim.rowHeight)
-      .style('font-size', this.hoverDim.fontSize + 'px')
+      .attr('y', this.expandedDimensions.rowHeight / 2 + this.expandedDimensions.rowHeight)
+      .style('font-size', this.expandedDimensions.fontSize + 'px')
 
     sideBar.selectAll('.sdBarSortRadioButton')
-      .attr('cx', this.constants.rowHorizontalPadding + this.hoverDim.radioButtonWidth * 0.5)
-      .attr('cy', 0.5 * this.hoverDim.rowHeight)
-      .attr('r', this.hoverDim.radioButtonWidth * 0.35)
+      .attr('cx', this.constants.rowHorizontalPadding + this.expandedDimensions.radioButtonWidth * 0.5)
+      .attr('cy', 0.5 * this.expandedDimensions.rowHeight)
+      .attr('r', this.expandedDimensions.radioButtonWidth * 0.35)
 
     sideBar.selectAll('.sideBarElemSortRect')
-      .attr('height', this.hoverDim.rowHeight + 'px')
+      .attr('height', this.expandedDimensions.rowHeight + 'px')
 
-    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: false })
+    this._applyDynamicDimensionsToDom({ dimensions: this.collapsedDimensions, showControlPanel: false, animate: false })
 
-    console.log(JSON.stringify({dim: this.dim}, {}, 2))
-    console.log(JSON.stringify({hoverDim: this.hoverDim}, {}, 2))
+    console.log(JSON.stringify({dim: this.collapsedDimensions}, {}, 2))
+    console.log(JSON.stringify({hoverDim: this.expandedDimensions}, {}, 2))
   }
 
   _mouseEnterSidebar () {
     log.info('sidebar._mouseEnterSidebar()')
-    this._applyDynamicDimensionsToDom({ dimensions: this.hoverDim, showControlPanel: true, animate: true })
+    this._applyDynamicDimensionsToDom({ dimensions: this.expandedDimensions, showControlPanel: true, animate: true })
   }
 
   _mouseLeaveSidebar () {
     log.info('sidebar._mouseLeaveSidebar()')
-    this._applyDynamicDimensionsToDom({ dimensions: this.dim, showControlPanel: false, animate: true })
+    this._applyDynamicDimensionsToDom({ dimensions: this.collapsedDimensions, showControlPanel: false, animate: true })
   }
 
   _applyDynamicDimensionsToDom ({ dimensions, showControlPanel, animate = false }) {
