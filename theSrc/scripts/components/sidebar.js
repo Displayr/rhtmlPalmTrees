@@ -232,15 +232,12 @@ class Sidebar extends BaseComponent {
       .attr('transform', this.buildTransform(bounds))
     const sideBar = this.element
 
-    // YOU ARE HERE - this breaks things
-    // this.dim.x = bounds.left
-    // this.dim.y = bounds.top
-
     // TODO not needed (just need to add border to "Order" then delete)
     sideBar.append('rect')
       .attr('class', 'sideBar')
       .attr('x', 0)
       .attr('y', 0)
+      .attr('width', this.bounds.width)
       .style('stroke', this.config.borderColor)
       .style('fill', this.config.backgroundColor)
 
@@ -519,8 +516,7 @@ class Sidebar extends BaseComponent {
       : this.element
 
     sideBar.select('.sideBar')
-      .attr('width', this.bounds.width)
-      .attr('height', this.bounds.height)
+      .attr('height', dimensions.height)
 
     sideBar.selectAll('.sideBarFrondGroup')
       .attr('transform', 'translate(' + dimensions.rowHeight / 2 + ',' + dimensions.rowHeight / 2 + ')')
