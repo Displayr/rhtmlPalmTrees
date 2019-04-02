@@ -39,7 +39,6 @@ class YAxis extends BaseComponent {
       this.tickFormatterFactory(this.param.ymax)(this.param.ymax)
     ]
 
-
     const dimensions = boundaryValues.map(value => {
       return estimateDimensionsOfSingleLineSplitByWord({
         parentContainer: this.parentContainer,

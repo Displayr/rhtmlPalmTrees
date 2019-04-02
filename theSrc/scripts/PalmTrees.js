@@ -351,7 +351,7 @@ class PalmTrees {
       tooltipsHeadingFontFamily: this.settings.tooltipsHeadingFontFamily,
       tooltipsHeadingFontSize: this.settings.tooltipsHeadingFontSize,
       tooltipsFontFamily: this.settings.tooltipsFontFamily,
-      tooltipsFontSize: this.settings.tooltipsFontSize,
+      tooltipsFontSize: this.settings.tooltipsFontSize
     })
     this.layout.enable(CellNames.PLOT)
     this.layout.setFillCell(CellNames.PLOT)

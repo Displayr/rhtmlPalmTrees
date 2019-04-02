@@ -123,7 +123,6 @@ class PlotArea extends BaseComponent {
     console.log('this.maxLeafSize')
     console.log(JSON.stringify(this.maxLeafSize, {}, 2))
 
-
     this.yscale = d3.scale.linear()
       .nice(this.nticks)
       .domain([this.param.ymin, this.param.ymax])
@@ -387,7 +386,6 @@ class PlotArea extends BaseComponent {
     return output
   }
 
-
 // create ghost rectangle tooltip
   mouseOverFrond (d) {
     tooltipLogger.debug('mouseOverFrond')
@@ -450,7 +448,7 @@ class PlotArea extends BaseComponent {
         data: this.rawData[palmTreeIndex],
         tipScale: this.tipBarScale,
         colors: this.colors,
-        unselectedColor: this.frondColorUnselected,
+        unselectedColor: this.frondColorUnselected
       })
 
       const {width, height} = getBoundsOfTip(params.html, this.tooltipsFontSize, this.tooltipsFontfamily)
