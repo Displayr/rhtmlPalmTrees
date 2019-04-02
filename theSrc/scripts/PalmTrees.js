@@ -8,7 +8,7 @@ import PlotArea from './components/plotArea'
 import Sidebar from './components/sidebar'
 import XAxis from './components/xAxis'
 import YAxis from './components/yAxis'
-import YTitle from './components/yTItle'
+import YTitle from './components/yTitle'
 import Title from './components/title'
 
 import buildConfig from './buildConfig'
