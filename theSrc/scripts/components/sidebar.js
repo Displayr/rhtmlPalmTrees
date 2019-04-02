@@ -18,6 +18,7 @@ class Sidebar extends BaseComponent {
       hoverColor: '#eeeeee',
       borderColor: '#000000',
       columnNames: [],
+      duration: 600,
       maxWidth: 200,
       maxHeight: 400,
       containerWidth: null,
@@ -577,12 +578,12 @@ class Sidebar extends BaseComponent {
   updatePlot () {
     this.element.selectAll('.sideBarColorBox')
       .transition('boxColor')
-      .duration(this.duration)
+      .duration(this.config.duration)
       .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.config.frondColorUnselected : this.config.colors[i])
 
     this.element.selectAll('.sideBarText')
       .transition('textColor')
-      .duration(this.duration)
+      .duration(this.config.duration)
       .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.config.secondaryFontColor : this.config.fontColor)
   }
 }

@@ -274,15 +274,9 @@ class PalmTrees {
     this.components[CellNames.PLOT].setParam(this.param)
     this.components[CellNames.YAXIS].setParam(this.param)
 
-    if (initialization) {
-      this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
-      this.components[CellNames.YAXIS].updatePlot(initialization)
-      this.components[CellNames.SIDEBAR].updatePlot(initialization)
-    } else {
-      this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
-      this.components[CellNames.YAXIS].updatePlot(initialization)
-      this.components[CellNames.SIDEBAR].updatePlot(initialization)
-    }
+    this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
+    this.components[CellNames.YAXIS].updatePlot(initialization)
+    this.components[CellNames.SIDEBAR].updatePlot(initialization)
   }
 
   sortBars (initialization) {
@@ -447,6 +441,7 @@ class PalmTrees {
         hoverColor: this.settings.hoverColor,
         colors: this.colors,
         columnNames: this.colNames,
+        duration: this.duration,
         headingText: this.settings.colHeading,
         maxWidth: Math.floor(this.viewerWidth * this.settings.sidebarMaxProportion),
         maxHeight: Math.floor(this.viewerHeight - 2 * 5), // TODO NB 5 is meant to be sidebar outer margin
