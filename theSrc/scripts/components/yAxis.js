@@ -21,7 +21,6 @@ class YAxis extends BaseComponent {
   }
 
   setParam ({ ymin, ymax }) {
-    console.log({ ymin, ymax })
     this.param = { ymin, ymax }
   }
 
@@ -38,6 +37,7 @@ class YAxis extends BaseComponent {
       this.tickFormatterFactory(this.param.ymax)(this.param.ymax)
     ]
 
+
     const dimensions = boundaryValues.map(value => {
       return estimateDimensionsOfSingleLineSplitByWord({
         parentContainer: this.parentContainer,
@@ -48,6 +48,10 @@ class YAxis extends BaseComponent {
       })
     })
 
+    console.log('boundaryValues')
+    console.log(JSON.stringify(boundaryValues, {}, 2))
+    console.log(`yaxis max width : `, _(dimensions).map('width').max())
+
     return {
       width: _(dimensions).map('width').max(),
       height: 0
@@ -56,6 +60,11 @@ class YAxis extends BaseComponent {
 
   draw (bounds) {
     this.bounds = bounds
+    const magicD3AxisOffsetCorrection = 6
+    const axisContainer = this.parentContainer.append('g')
+      .classed('yaxis', true)
+      .attr('transform', `translate(${bounds.left + bounds.width + magicD3AxisOffsetCorrection},${bounds.top})`)
+    this.axisContainer = axisContainer
 
     this.yscale = d3.scale.linear()
       .domain([this.param.ymin, this.param.ymax])
@@ -66,12 +75,9 @@ class YAxis extends BaseComponent {
       .scale(this.yscale)
       .orient('left')
       .ticks(this.nticks)
+      .tickPadding(0)
       .tickFormat(this.tickFormatterFactory(this.param.ymax).bind(this))
 
-    const axisContainer = this.parentContainer.append('g')
-      .classed('yaxis', true)
-      .attr('transform', `translate(${bounds.left + bounds.width},${bounds.top})`)
-    this.axisContainer = axisContainer
 
     axisContainer
         .call(this.yAxis)

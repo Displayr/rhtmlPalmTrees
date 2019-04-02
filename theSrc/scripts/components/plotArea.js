@@ -1,7 +1,6 @@
 import d3 from 'd3'
 import _ from 'lodash'
 import BaseComponent from './baseComponent'
-import {splitIntoLinesByWord} from '../labelUtils'
 import makeTipContent from '../TipContentFactory'
 import $ from 'jquery'
 
@@ -15,37 +14,65 @@ d3Tip(d3)
 class PlotArea extends BaseComponent {
   constructor ({
     parentContainer,
+    plotState,
     rowNames,
     colNames,
     weightedSums,
+    dataMin,
+    dataMax,
     nticks,
+    digits,
+    prefix,
+    suffix,
     yDigits,
+    yLabel,
+    hoverColor,
     normalizedData,
     normalizedDataMin,
     normalizedDataMax,
     tooltips,
     palmTreeId,
-    plotState,
     colors,
-    duration
+    duration,
+    rawData,
+    tipScale,
+    tooltipsHeadingFontFamily,
+    tooltipsHeadingFontSize,
+    tooltipsFontFamily,
+    tooltipsFontSize,
+    frondColorUnselected
 
   }) {
     super()
     _.assign(this, {
       parentContainer,
+      plotState,
       rowNames,
       colNames,
       weightedSums,
+      dataMin,
+      dataMax,
       nticks,
+      digits,
+      prefix,
+      suffix,
       yDigits,
+      yLabel,
+      hoverColor,
       normalizedData,
       normalizedDataMin,
       normalizedDataMax,
       tooltips,
       palmTreeId,
-      plotState,
       colors,
-      duration
+      duration,
+      rawData,
+      tipScale,
+      tooltipsHeadingFontFamily,
+      tooltipsHeadingFontSize,
+      tooltipsFontFamily,
+      tooltipsFontSize,
+      frondColorUnselected
     })
     log.info('plotArea.constructor')
 
@@ -57,6 +84,11 @@ class PlotArea extends BaseComponent {
       .interpolate('cardinal-closed')
       .x(_.property('x'))
       .y(_.property('y'))
+
+    // TODO put somewhere ?
+    this.tipBarScale = d3.scale.linear()
+      .domain([this.dataMin, this.dataMax])
+      .range([2, 30])
   }
 
   resize () {
@@ -88,10 +120,12 @@ class PlotArea extends BaseComponent {
       bounds.height * 0.1,
       Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4)
     )
+    console.log('this.maxLeafSize')
+    console.log(JSON.stringify(this.maxLeafSize, {}, 2))
+
 
     this.yscale = d3.scale.linear()
       .domain([this.param.ymin, this.param.ymax])
-      .nice(this.nticks)
       .range([bounds.height, this.maxLeafSize])
 
     this.frondScale = d3.scale.linear()
@@ -161,7 +195,7 @@ class PlotArea extends BaseComponent {
     plotArea.selectAll('.leaf')
       .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
 
-    this.leaves.style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.settings.frondColorUnselected : this.colors[i])
+    this.leaves.style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
 
     if (this.tooltips) {
       this.tip = d3Tip().attr('class', `d3-tip d3-tip-palmtree-${this.palmTreeId}`)
@@ -208,13 +242,13 @@ class PlotArea extends BaseComponent {
 
       this.leaves
         .attr('d', this.makeFrondPath.bind(this))
-        .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.settings.frondColorUnselected : this.colors[i])
+        .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
     } else {
       this.leaves
         .transition('leafColor')
         .duration(this.duration)
         .attr('d', this.makeFrondPath.bind(this))
-        .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.settings.frondColorUnselected : this.colors[i])
+        .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
     }
 
     this.bars.data(this.barData)
@@ -235,30 +269,6 @@ class PlotArea extends BaseComponent {
       // TODO implement sort bars
       // this.sortBars(initialization)
     }
-  }
-
-  wrapAxisLabels (textElements, maxWidth) {
-    const fontSize = this.settings.rowFontSize
-    const fontFamily = this.settings.rowFontFamily
-    const baseSvg = this.parentContainer
-
-    let maxXaxisLines = 0
-    textElements.each(function () {
-      let textElement = d3.select(this)
-      let textContent = textElement.text()
-      const lines = splitIntoLinesByWord({ parentContainer: baseSvg, text: textContent, maxWidth, fontSize, fontFamily })
-      maxXaxisLines = Math.max(maxXaxisLines, lines.length)
-
-      const lineHeight = 1.1 // ems
-      const x = textElement.attr('x')
-      const y = textElement.attr('y')
-      const dy = parseFloat(textElement.attr('dy'))
-      textElement.text(null)
-      _(lines).forEach((lineContent, lineIndex) => {
-        textElement.append('tspan').attr('x', x).attr('y', y).attr('dy', lineIndex * lineHeight + dy + 'em').text(lineContent)
-      })
-    })
-    this.maxXaxisLines = maxXaxisLines
   }
 
 // create ghost rectangle tooltip
@@ -283,7 +293,7 @@ class PlotArea extends BaseComponent {
         .style('background-color', '#ffffff')
       d3.selectAll(`.tip-column-${i}`)
         .classed('selected', true)
-        .style('background-color', this.settings.hoverColor)
+        .style('background-color', this.hoverColor)
     }, this.tooltipDebounceTime * 2)
   }
 
@@ -309,24 +319,24 @@ class PlotArea extends BaseComponent {
       params.html = makeTipContent({
         rowName: this.rowNames[palmTreeIndex],
         rowIndex: palmTreeIndex,
-        rowTotal: this.weightedSums[palmTreeIndex].toFixed(this.settings.digits),
-        yLabel: this.settings.ylab,
+        rowTotal: this.weightedSums[palmTreeIndex].toFixed(this.digits),
+        yLabel: this.yLabel,
         columnNames: this.colNames,
         columnStates: this.plotState.getState().selectedColumns,
-        hFamily: this.settings.tooltipsHeadingFontFamily,
-        hSize: this.settings.tooltipsHeadingFontSize,
-        fFamily: this.settings.tooltipsFontFamily,
-        fSize: this.settings.tooltipsFontSize,
-        digits: this.settings.digits,
-        prefix: this.settings.prefix,
-        suffix: this.settings.suffix,
-        data: this.settings.rawData[palmTreeIndex],
+        headingFontFamily: this.tooltipsHeadingFontFamily,
+        headingFontSize: this.tooltipsHeadingFontSize,
+        fontFamily: this.tooltipsFontFamily,
+        fontSize: this.tooltipsFontSize,
+        digits: this.digits,
+        prefix: this.prefix,
+        suffix: this.suffix,
+        data: this.rawData[palmTreeIndex],
         tipScale: this.tipBarScale,
         colors: this.colors,
-        unselectedColor: this.settings.frondColorUnselected
+        unselectedColor: this.frondColorUnselected,
       })
 
-      const {width, height} = getBoundsOfTip(params.html, this.settings.tooltipsFontSize, this.settings.tooltipsFontfamily)
+      const {width, height} = getBoundsOfTip(params.html, this.tooltipsFontSize, this.tooltipsFontfamily)
       params.width = width
       params.height = height
     }
@@ -356,8 +366,8 @@ class PlotArea extends BaseComponent {
     let ghostRectYPosition = Number(ghostRect.attr('y'))
     let ghostRectHeight = Number(ghostRect.attr('height'))
 
-    let frondLowerBound = ghostRectYPosition + ghostRectHeight + 5 + this.yscale(yPos) + this.plotMargin.top
-    let frondUpperBound = ghostRectYPosition - 5 + this.yscale(yPos) + this.plotMargin.top
+    let frondLowerBound = ghostRectYPosition + ghostRectHeight + 5 + this.yscale(yPos) + this.bounds.top
+    let frondUpperBound = ghostRectYPosition - 5 + this.yscale(yPos) + this.bounds.top
 
     tooltipLogger.debug(`tipHeight: ${tipHeight}, tipWidth: ${tipWidth}, tipSouth: ${frondLowerBound}, tipNorth: ${frondUpperBound} `)
 

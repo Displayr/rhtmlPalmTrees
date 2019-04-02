@@ -455,15 +455,6 @@ class Sidebar extends BaseComponent {
         sortTextWidths.push(d3.select(this).node().getComputedTextLength())
       })
 
-    console.log('sortTextWidths')
-    console.log(JSON.stringify(sortTextWidths, {}, 2))
-
-    // // TODO this is not respecting max width ...
-    // const maxControlRowWidth = Math.ceil(_.max(sortTextWidths) + 3 * this.constants.rowHorizontalPadding + this.expandedDimensions.radioButtonWidth)
-    // if (maxControlRowWidth > this.expandedDimensions.width) {
-    //   this.expandedDimensions.width = maxControlRowWidth
-    // }
-
     sideBar.select('.sdBarHeading')
       .attr('x', this.constants.rowHorizontalPadding)
       .attr('y', this.collapsedDimensions.headerHeight / 2)
@@ -489,9 +480,6 @@ class Sidebar extends BaseComponent {
       .attr('height', this.expandedDimensions.rowHeight + 'px')
 
     this._applyDynamicDimensionsToDom({ dimensions: this.collapsedDimensions, showControlPanel: false, animate: false })
-
-    console.log(JSON.stringify({dim: this.collapsedDimensions}, {}, 2))
-    console.log(JSON.stringify({hoverDim: this.expandedDimensions}, {}, 2))
   }
 
   _mouseEnterSidebar () {

@@ -427,7 +427,7 @@ class PalmTrees {
   buildLayout () {
     // TODO wire in inner and outer padding
     const innerPadding = 5
-    const outerPadding = 10
+    const outerPadding = 5
 
     this.layout = new Layout(this.viewerWidth, this.viewerHeight, innerPadding, outerPadding)
 
@@ -462,19 +462,33 @@ class PalmTrees {
 
     this.components[CellNames.PLOT] = new PlotArea({
       parentContainer: this.baseSvg,
+      plotState: this.plotState,
       rowNames: this.rowNames,
       colNames: this.colNames,
       weightedSums: this.weightedSums,
+      yDigits: this.settings.yDigits,
       nticks: this.nticks,
-      yDigits: this.yDigits,
       normalizedData: this.normalizedData,
       normalizedDataMax: this.normalizedDataMax, // TODO dont need min and max
       normalizedDataMin: this.normalizedDataMin, // TODO dont need min and max
-      tooltips: this.settings.tooltips,
       palmTreeId: this.palmTreeId,
-      plotState: this.plotState,
       colors: this.colors,
-      duration: this.duration
+      duration: this.duration,
+      hoverColor: this.settings.hoverColor,
+      // for tooltip
+      frondColorUnselected: this.settings.frondColorUnselected,
+      dataMin: this.dataMin,
+      dataMax: this.dataMax,
+      tooltips: this.settings.tooltips,
+      rawData: this.settings.rawData,
+      digits: this.settings.digits,
+      prefix: this.settings.prefix,
+      suffix: this.settings.suffix,
+      yLabel: this.settings.ylab,
+      tooltipsHeadingFontFamily: this.settings.tooltipsHeadingFontFamily,
+      tooltipsHeadingFontSize: this.settings.tooltipsHeadingFontSize,
+      tooltipsFontFamily: this.settings.tooltipsFontFamily,
+      tooltipsFontSize: this.settings.tooltipsFontSize,
     })
     this.layout.enable(CellNames.PLOT)
     this.layout.setFillCell(CellNames.PLOT)
