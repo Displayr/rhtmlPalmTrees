@@ -6,9 +6,9 @@ import d3 from 'd3'
 // TODO account for resize
 
 class YAxis extends BaseComponent {
-  constructor ({parentContainer, weightedSums, nTicks, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits}) {
+  constructor ({parentContainer, duration, weightedSums, nTicks, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits}) {
     super()
-    _.assign(this, {parentContainer, weightedSums, nTicks, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits})
+    _.assign(this, {parentContainer, duration, weightedSums, nTicks, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits})
 
     const commasFormatter = d3.format(',.' + this.yDigits + 'f')
     const commasFormatterE = d3.format(',.' + this.yDigits + 'e')
@@ -22,6 +22,8 @@ class YAxis extends BaseComponent {
 
   setParam ({ ymin, ymax }) {
     this.param = { ymin, ymax }
+    console.log('this.param')
+    console.log(JSON.stringify(this.param, {}, 2))
   }
 
   // TODO must account for prefix and suffix and formatting
@@ -58,6 +60,10 @@ class YAxis extends BaseComponent {
     }
   }
 
+  setmaxLeafSize (maxLeafSize) {
+    this.maxLeafSize = maxLeafSize
+  }
+
   draw (bounds) {
     this.bounds = bounds
     const magicD3AxisOffsetCorrection = 6
@@ -67,44 +73,31 @@ class YAxis extends BaseComponent {
     this.axisContainer = axisContainer
 
     this.yscale = d3.scale.linear()
-      .domain([this.param.ymin, this.param.ymax])
       .nice(this.nticks)
-      .range([this.bounds.height, 0])
+      .range([this.bounds.height, this.maxLeafSize])
 
     this.yAxis = d3.svg.axis()
-      .scale(this.yscale)
       .orient('left')
       .ticks(this.nticks)
       .tickPadding(0)
       .tickFormat(this.tickFormatterFactory(this.param.ymax).bind(this))
-
-
-    axisContainer
-        .call(this.yAxis)
-        .selectAll('.tick text')
-        .style('font-size', this.fontSize + 'px')
-        .style('font-family', this.fontFamily)
-        .style('fill', this.fontColor)
   }
 
+  // anything state related should be done in updatePlot, as updatePlot is called every time state is updated
   updatePlot (initialization) {
     this.yscale.domain([this.param.ymin, this.param.ymax])
-      .nice(this.nticks)
-      .range([this.bounds.height, 0])
+    this.yAxis.scale(this.yscale)
 
-    this.yAxis
-      .scale(this.yscale)
-      .tickFormat(this.tickFormatterFactory(this.param.ymax).bind(this))
+    const container = (initialization)
+      ? this.axisContainer
+      : this.axisContainer.transition().duration(this.duration)
 
-    if (initialization) {
-      this.axisContainer
-        .call(this.yAxis)
-    } else {
-      this.axisContainer
-        .transition()
-        .duration(this.duration)
-        .call(this.yAxis)
-    }
+    container
+      .call(this.yAxis)
+      .selectAll('.tick text')
+      .style('font-size', this.fontSize + 'px')
+      .style('font-family', this.fontFamily)
+      .style('fill', this.fontColor)
   }
 }
 

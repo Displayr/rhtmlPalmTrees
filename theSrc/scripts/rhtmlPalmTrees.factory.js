@@ -28,7 +28,7 @@ module.exports = function (el, w, h, stateChangedFn) {
         palm.resetState()
       }
 
-      // palm.registerInternalListeners()
+      palm.registerInternalListeners()
       // d3.select(el).selectAll('g').remove() <-- TODO shouldn't be needed any more
       palm.draw(el)
     },

@@ -243,6 +243,7 @@ class PalmTrees {
     this.components[CellNames.PLOT].draw(this.layout.getCellBounds(CellNames.PLOT))
 
     if (this.layout.enabled(CellNames.YAXIS)) {
+      this.components[CellNames.YAXIS].setmaxLeafSize(this.components[CellNames.PLOT].maxLeafSize)
       this.components[CellNames.YAXIS].setParam(this.param)
       this.components[CellNames.YAXIS].draw(this.layout.getCellBounds(CellNames.YAXIS))
     }
@@ -273,9 +274,15 @@ class PalmTrees {
     this.components[CellNames.PLOT].setParam(this.param)
     this.components[CellNames.YAXIS].setParam(this.param)
 
-    this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
-    this.components[CellNames.YAXIS].updatePlot(initialization)
-    this.components[CellNames.SIDEBAR].updatePlot(initialization)
+    if (initialization) {
+      this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
+      this.components[CellNames.YAXIS].updatePlot(initialization)
+      this.components[CellNames.SIDEBAR].updatePlot(initialization)
+    } else {
+      this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
+      this.components[CellNames.YAXIS].updatePlot(initialization)
+      this.components[CellNames.SIDEBAR].updatePlot(initialization)
+    }
   }
 
   sortBars (initialization) {
@@ -546,6 +553,7 @@ class PalmTrees {
         weightedSums: this.weightedSums,
         parentContainer: this.baseSvg,
         nTicks: this.nticks,
+        duration: this.duration,
         yDigits: this.settings.ydigits,
         fontFamily: this.settings.yFontFamily,
         fontSize: this.settings.yFontSize,

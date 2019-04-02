@@ -125,6 +125,7 @@ class PlotArea extends BaseComponent {
 
 
     this.yscale = d3.scale.linear()
+      .nice(this.nticks)
       .domain([this.param.ymin, this.param.ymax])
       .range([bounds.height, this.maxLeafSize])
 
