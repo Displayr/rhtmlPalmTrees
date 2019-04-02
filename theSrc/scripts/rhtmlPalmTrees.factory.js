@@ -1,36 +1,45 @@
 import PalmTrees from './PalmTrees'
+import _ from 'lodash'
 
 module.exports = function (el, w, h, stateChangedFn) {
   const stateChangedFnPresent = (typeof stateChangedFn === 'function') ? 'present' : 'absent'
   console.log(`rhtmlPalmtrees.factory called stateChangedFn=${stateChangedFnPresent}`)
 
-  // an empty instance of the PalmPlot object with width and height initialized
+  // keep reference to config for resize, as we just recreate widget on resize to simplify code
+  let configCopy = null
+  let stateCopy = null
+
   let palm = new PalmTrees()
+
+  function doRenderValue (config, state) {
+    el.innerHTML = ''
+    palm.reset()
+    palm.setConfig(config.settings)
+    palm.setData(config.data)
+    if (state && palm.checkState(state)) {
+      palm.restoreState(state)
+    } else {
+      palm.resetState()
+    }
+    if (stateChangedFnPresent) {
+      palm.addStateListener(stateChangedFn)
+    }
+
+    palm.addStateListener(newState => { stateCopy = newState })
+
+    palm.draw(el)
+  }
 
   return {
     resize: function () {
       console.log('rhtmlPalmTree.resize()')
-      return palm.resize(el)
+      doRenderValue(configCopy, stateCopy)
     },
 
-    renderValue: function (x, state) {
+    renderValue: function (config, state) {
       console.log('rhtmlPalmTree.renderValue()')
-      el.innerHTML = ''
-      palm.reset()
-      palm.setConfig(x.settings)
-      palm.setData(x.data)
-      if (stateChangedFnPresent) {
-        palm.saveStateChangedCallback(stateChangedFn)
-      }
-      if (state && palm.checkState(state)) {
-        palm.restoreState(state)
-      } else {
-        palm.resetState()
-      }
-
-      palm.registerInternalListeners()
-      // d3.select(el).selectAll('g').remove() <-- TODO shouldn't be needed any more
-      palm.draw(el)
+      configCopy = _.cloneDeep(config)
+      doRenderValue(config, state)
     },
 
     palm: palm

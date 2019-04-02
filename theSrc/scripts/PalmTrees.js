@@ -50,7 +50,8 @@ class PalmTrees {
     this.plotState = new PlotState(PalmTrees.defaultState())
     this.data = []
     this.settings = {}
-    this.param = {}
+    this.registeredStateListeners = []
+    this.param = {} // param is shit change it
     this.normalizedData = [] // 2D array of values range [0-1]
     this.normalizedDataMax = 0
     this.normalizedDataMin = 1
@@ -71,6 +72,7 @@ class PalmTrees {
   reset () {
     log.info('PalmTree.reset()')
     this.removeOrphanedTooltips()
+    this.registeredStateListeners.forEach(dergisterFn => dergisterFn())
     this.init()
   }
 
@@ -189,26 +191,9 @@ class PalmTrees {
     this.plotState.initialiseState(previousUserState)
   }
 
-  saveStateChangedCallback (stateChanged) {
+  addStateListener (stateChanged) {
     // this.saveStatesFn = stateChanged
-    this.deregisterExternalStateListenerFn = this.plotState.addListener(stateChanged)
-  }
-
-  registerInternalListeners () {
-    this.plotState.addListener((newState) => {
-      this.updatePlot(false)
-    })
-  }
-
-  // resize
-  resize (rootElement) {
-    log.info('PalmTree.resize()')
-
-    const {width, height} = getContainerDimensions(_.has(rootElement, 'length') ? rootElement[0] : rootElement)
-    this.viewerWidth = width
-    this.viewerHeight = height
-
-    throw new Error('resize not implemented')
+    this.registeredStateListeners.push(this.plotState.addListener(stateChanged))
   }
 
   // update side bar content on initialization and resize
@@ -229,8 +214,7 @@ class PalmTrees {
     this.param.ymax = d3.max(this.weightedSums)
     this.param.ymin = 0
 
-    this.buildLayout()
-    this.wireupController()
+    this.initialiseComponents()
 
     const simpleCells = _.omit(CellNames, [CellNames.PLOT, CellNames.YAXIS])
     _(simpleCells).each(cellName => {
@@ -248,11 +232,10 @@ class PalmTrees {
       this.components[CellNames.YAXIS].draw(this.layout.getCellBounds(CellNames.YAXIS))
     }
 
-    // start old stuff
-
-    /* stop computing stuff / start drawing stuff */
-
     this.updatePlot(true)
+
+    // register self as a listener for stae changes, and update plot any time an update is made
+    this.addStateListener(newState => this.updatePlot(false))
   }
 
   updatePlot (initialization) {
@@ -280,13 +263,7 @@ class PalmTrees {
     this.components[CellNames.XAXIS].updatePlot(initialization)
   }
 
-  wireupController () {
-    _(this.components).each(component => component.setController(this.controller))
-    // this.controller.addComponents(this.components)
-    // this.controller.addOuter(this.inner)
-  }
-
-  buildLayout () {
+  initialiseComponents () {
     // TODO wire in inner and outer padding
     const innerPadding = 5
     const outerPadding = 5

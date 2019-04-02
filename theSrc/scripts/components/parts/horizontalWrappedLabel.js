@@ -13,7 +13,6 @@ class HorizontalWrappedLabel extends BaseComponent {
     fontSize,
     fontFamily,
     fontColor,
-    controller,
     maxWidth,
     maxHeight,
     classNames
@@ -27,7 +26,6 @@ class HorizontalWrappedLabel extends BaseComponent {
       fontSize,
       fontFamily,
       fontColor,
-      controller,
       maxWidth,
       maxHeight,
       classNames
