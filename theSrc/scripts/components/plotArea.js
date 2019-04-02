@@ -113,7 +113,7 @@ class PlotArea extends BaseComponent {
 
     this.xscale = d3.scale.ordinal()
       .domain(this.rowNames)
-      .rangeRoundBands([0, bounds.width], 0.1, 0.3)
+      .rangeRoundBands([0, bounds.width])
 
     this.maxLeafSize = Math.min(
       60,
