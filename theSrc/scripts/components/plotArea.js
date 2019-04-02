@@ -268,9 +268,125 @@ class PlotArea extends BaseComponent {
         .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
     } else {
       // TODO implement sort bars
-      // this.sortBars(initialization)
+      this.sortBars(initialization)
     }
   }
+
+  sortBars (initialization) {
+    log.info('PalmTree.sortBars()')
+    const plotArea = this.plotArea
+
+    const sortStrategy = this.plotState.getState().sortBy || 'descending' // pull from config
+    let rowNamesTemp = []
+    let sortfun = null
+    let sumsTemp = []
+
+    // additional stuff
+    let rowNames1 = _.clone(this.rowNames)
+    rowNames1.sort()
+
+    if (sortStrategy === 'original') {
+      this.xscale.domain(this.rowNames)
+      sortfun = (a, b) => a.index - b.index
+    } else if (sortStrategy === 'alphabetical') {
+      for (let i = 0; i < this.rowNames.length; i++) {
+        rowNamesTemp.push(this.rowNames[i])
+      }
+      this.rindices = this.sortWithIndices(rowNamesTemp, 0)
+      this.xscale.domain(rowNames1)
+      sortfun = (a, b) => this.xscale(a.name) - this.xscale(b.name)
+    } else if (sortStrategy === 'ascending') {
+      for (let i = 0; i < this.rowNames.length; i++) {
+        sumsTemp.push(this.weightedSums[i])
+      }
+      this.rindices = this.sortWithIndices(sumsTemp, 0)
+      this.xscale.domain(this.sortFromIndices(this.rowNames, this.rindices))
+      sortfun = (a, b) => a.value - b.value
+    } else if (sortStrategy === 'descending') {
+      for (let i = 0; i < this.rowNames.length; i++) {
+        sumsTemp.push(this.weightedSums[i])
+      }
+      this.rindices = this.sortWithIndices(sumsTemp, 1)
+      this.xscale.domain(this.sortFromIndices(this.rowNames, this.rindices))
+      sortfun = (a, b) => -(a.value - b.value)
+    }
+
+    if (initialization) {
+      plotArea.selectAll('.bar')
+        .sort(sortfun)
+        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+        .attr('y', d => this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
+        .attr('height', d => this.bounds.height - this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
+
+      // plotArea.select('.xaxis')
+      //   .call(this.xAxis)
+      //   .selectAll('.tick text')
+      //   .style('font-size', this.settings.rowFontSize + 'px')
+      //   .style('font-family', this.settings.rowFontFamily)
+      //   .style('fill', this.settings.rowFontColor)
+      //   .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
+
+      plotArea.selectAll('.leaf')
+        .sort(sortfun)
+        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+    } else {
+      plotArea.selectAll('.bar')
+        .sort(sortfun)
+        .transition('barHeight')
+        .duration(this.duration)
+        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+        .attr('y', d => this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
+        .attr('height', d => this.bounds.height - this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
+
+      // plotArea.select('.xaxis')
+      //   .transition('xtickLocation')
+      //   .duration(this.duration)
+      //   .call(this.xAxis)
+      //   .selectAll('.tick text')
+      //   .style('font-size', this.settings.rowFontSize + 'px')
+      //   .style('font-family', this.settings.rowFontFamily)
+      //   .style('fill', this.settings.rowFontColor)
+      //   .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
+
+      plotArea.selectAll('.leaf')
+        .sort(sortfun)
+        .transition('leafHeight')
+        .duration(this.duration)
+        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+    }
+  }
+
+  // sort and return sort indices
+  sortWithIndices (toSort, mode) {
+    for (let i = 0; i < toSort.length; i++) {
+      toSort[i] = [toSort[i], i]
+    }
+    if (mode === 0) {
+      toSort.sort(function (left, right) {
+        return left[0] < right[0] ? -1 : 1
+      })
+    } else {
+      toSort.sort(function (left, right) {
+        return left[0] < right[0] ? 1 : -1
+      })
+    }
+    toSort.sortIndices = []
+    for (let j = 0; j < toSort.length; j++) {
+      toSort.sortIndices.push(toSort[j][1])
+      toSort[j] = toSort[j][0]
+    }
+    return toSort.sortIndices
+  }
+
+  // sort using supplied indices
+  sortFromIndices (toSort, indices) {
+    let output = []
+    for (let i = 0; i < toSort.length; i++) {
+      output.push(toSort[indices[i]])
+    }
+    return output
+  }
+
 
 // create ghost rectangle tooltip
   mouseOverFrond (d) {

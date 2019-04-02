@@ -277,146 +277,7 @@ class PalmTrees {
     this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
     this.components[CellNames.YAXIS].updatePlot(initialization)
     this.components[CellNames.SIDEBAR].updatePlot(initialization)
-  }
-
-  sortBars (initialization) {
-    log.info('PalmTree.sortBars()')
-    const _this = this
-    const plotArea = this.plotArea
-
-    const sortStrategy = this.plotState.getState().sortBy || 'descending' // pull from config
-    let rowNamesTemp = []
-    let sortfun = null
-    let sumsTemp = []
-
-    // additional stuff
-    let rowNames1 = _.clone(this.rowNames)
-    rowNames1.sort()
-
-    if (sortStrategy === 'original') {
-      _this.xscale.domain(_this.rowNames)
-      sortfun = function (a, b) {
-        return a.index - b.index
-      }
-    } else if (sortStrategy === 'alphabetical') {
-      for (let i = 0; i < _this.rowNames.length; i++) {
-        rowNamesTemp.push(_this.rowNames[i])
-      }
-      _this.rindices = this.sortWithIndices(rowNamesTemp, 0)
-      _this.xscale.domain(rowNames1)
-      sortfun = function (a, b) {
-        return _this.xscale(a.name) - _this.xscale(b.name)
-      }
-    } else if (sortStrategy === 'ascending') {
-      for (let i = 0; i < _this.rowNames.length; i++) {
-        sumsTemp.push(_this.weightedSums[i])
-      }
-      _this.rindices = this.sortWithIndices(sumsTemp, 0)
-      _this.xscale.domain(this.sortFromIndices(_this.rowNames, _this.rindices))
-      sortfun = function (a, b) {
-        return a.value - b.value
-      }
-    } else if (sortStrategy === 'descending') {
-      for (let i = 0; i < _this.rowNames.length; i++) {
-        sumsTemp.push(_this.weightedSums[i])
-      }
-      _this.rindices = this.sortWithIndices(sumsTemp, 1)
-      _this.xscale.domain(this.sortFromIndices(_this.rowNames, _this.rindices))
-      sortfun = function (a, b) {
-        return -(a.value - b.value)
-      }
-    }
-
-    if (initialization) {
-      plotArea.selectAll('.bar')
-        .sort(sortfun)
-        .attr('x', function (d) {
-          return _this.xscale(d.name) + Math.round(_this.xscale.rangeBand() / 2)
-        })
-        .attr('y', function (d) {
-          return _this.yscale(d.value)
-        })
-        .attr('height', function (d) {
-          return _this.plotHeight - _this.yscale(d.value)
-        })
-
-      plotArea.select('.xaxis')
-        .call(_this.xAxis)
-        .selectAll('.tick text')
-        .style('font-size', _this.settings.rowFontSize + 'px')
-        .style('font-family', _this.settings.rowFontFamily)
-        .style('fill', this.settings.rowFontColor)
-        .call(_this.wrapAxisLabels.bind(_this), _this.xscale.rangeBand())
-
-      plotArea.selectAll('.leaf')
-        .sort(sortfun)
-        .attr('transform', function (d) {
-          return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
-        })
-    } else {
-      plotArea.selectAll('.bar')
-        .sort(sortfun)
-        .transition('barHeight')
-        .duration(_this.duration)
-        .attr('x', function (d) {
-          return _this.xscale(d.name) + Math.round(_this.xscale.rangeBand() / 2)
-        })
-        .attr('y', function (d) {
-          return _this.yscale(d.value)
-        })
-        .attr('height', function (d) {
-          return _this.plotHeight - _this.yscale(d.value)
-        })
-
-      plotArea.select('.xaxis')
-        .transition('xtickLocation')
-        .duration(_this.duration)
-        .call(_this.xAxis)
-        .selectAll('.tick text')
-        .style('font-size', _this.settings.rowFontSize + 'px')
-        .style('font-family', _this.settings.rowFontFamily)
-        .style('fill', this.settings.rowFontColor)
-        .call(_this.wrapAxisLabels.bind(_this), _this.xscale.rangeBand())
-
-      plotArea.selectAll('.leaf')
-        .sort(sortfun)
-        .transition('leafHeight')
-        .duration(_this.duration)
-        .attr('transform', function (d) {
-          return 'translate(' + (_this.xscale(d.name) + _this.xscale.rangeBand() / 2) + ',' + _this.yscale(d.value) + ')'
-        })
-    }
-  }
-
-  // sort and return sort indices
-  sortWithIndices (toSort, mode) {
-    for (let i = 0; i < toSort.length; i++) {
-      toSort[i] = [toSort[i], i]
-    }
-    if (mode === 0) {
-      toSort.sort(function (left, right) {
-        return left[0] < right[0] ? -1 : 1
-      })
-    } else {
-      toSort.sort(function (left, right) {
-        return left[0] < right[0] ? 1 : -1
-      })
-    }
-    toSort.sortIndices = []
-    for (let j = 0; j < toSort.length; j++) {
-      toSort.sortIndices.push(toSort[j][1])
-      toSort[j] = toSort[j][0]
-    }
-    return toSort.sortIndices
-  }
-
-  // sort using supplied indices
-  sortFromIndices (toSort, indices) {
-    let output = []
-    for (let i = 0; i < toSort.length; i++) {
-      output.push(toSort[indices[i]])
-    }
-    return output
+    this.components[CellNames.XAXIS].updatePlot(initialization)
   }
 
   wireupController () {
@@ -497,6 +358,7 @@ class PalmTrees {
 
     this.components[CellNames.XAXIS] = new XAxis({
       parentContainer: this.baseSvg,
+      plotState: this.plotState,
       labels: this.rowNames,
       maxHeight: '200', // TODO hard code
       orientation: 'horizontal',

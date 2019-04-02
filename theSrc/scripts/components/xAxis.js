@@ -9,6 +9,7 @@ import DiagonalDownWrappedLabel from './parts/diagonalDownWrappedLabel'
 
 class XAxis extends BaseComponent {
   constructor ({
+                plotState,
                 fontColor,
                 fontFamily,
                 fontSize,
@@ -20,6 +21,7 @@ class XAxis extends BaseComponent {
               }) {
     super()
     _.assign(this, {
+      plotState,
       fontColor,
       fontFamily,
       fontSize,
@@ -92,6 +94,16 @@ class XAxis extends BaseComponent {
         }
       })
     })
+  }
+
+  updatePlot (initialization) {
+    if (this.plotState.getState().selectedColumns.length > 0) {
+      this.sortLabels(initialization)
+    }
+  }
+
+  sortLabels (initialization) {
+    console.log('must fix')
   }
 }
 
