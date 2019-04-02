@@ -254,13 +254,13 @@ class PalmTrees {
     this.param.ymax = d3.max(this.weightedSums)
     this.param.ymin = 0
 
-    this.components[CellNames.PLOT].setParam(this.param)
-    this.components[CellNames.YAXIS].setParam(this.param)
+    if (this.layout.enabled(CellNames.PLOT)) { this.components[CellNames.PLOT].setParam(this.param) }
+    if (this.layout.enabled(CellNames.YAXIS)) { this.components[CellNames.YAXIS].setParam(this.param) }
 
-    this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums)
-    this.components[CellNames.YAXIS].updatePlot(initialization)
-    this.components[CellNames.SIDEBAR].updatePlot(initialization)
-    this.components[CellNames.XAXIS].updatePlot(initialization)
+    if (this.layout.enabled(CellNames.PLOT)) { this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums) }
+    if (this.layout.enabled(CellNames.YAXIS)) { this.components[CellNames.YAXIS].updatePlot(initialization) }
+    if (this.layout.enabled(CellNames.SIDEBAR)) { this.components[CellNames.SIDEBAR].updatePlot(initialization) }
+    if (this.layout.enabled(CellNames.XAXIS)) { this.components[CellNames.XAXIS].updatePlot(initialization) }
   }
 
   initialiseComponents () {
