@@ -4,6 +4,7 @@ import d3 from 'd3'
 import * as log from 'loglevel'
 
 import PlotState from './PlotState'
+import PalmMath from './palmMath'
 import PlotArea from './components/plotArea'
 import Sidebar from './components/sidebar'
 import XAxis from './components/xAxis'
@@ -48,16 +49,11 @@ class PalmTrees {
     log.info('PalmTree.init()')
     this.components = {}
     this.plotState = new PlotState(PalmTrees.defaultState())
+    this.plotMath = null
     this.data = []
     this.settings = {}
     this.registeredStateListeners = []
-    this.param = {} // param is shit change it
-    this.normalizedData = [] // 2D array of values range [0-1]
-    this.normalizedDataMax = 0
-    this.normalizedDataMin = 1
-    this.unweightedSums = []
-    this.weightedSums = []
-    this.rindices = null
+
     this.duration = 600
     this.nticks = 10
     this.colNames = null
@@ -65,8 +61,6 @@ class PalmTrees {
     this.weights = null
     this.colors = null
     this.palmTreeCount = null
-    this.dataMax = 0
-    this.dataMin = 100000000
   }
 
   reset () {
@@ -80,37 +74,6 @@ class PalmTrees {
   removeOrphanedTooltips () {
     $(`.d3-tip-palmtree-${this.palmTreeId}`).remove()
     $('#littleTriangle').remove()
-  }
-
-  // dataPoints is 2D Array
-  setData (dataPoints) {
-    // NB in the R layer we replace all null values with zero
-    // but we preserve the null/NA values in rawData
-    if (!this.settings.rawData) {
-      this.settings.rawData = _.cloneDeep(dataPoints)
-    }
-    this.data = _.cloneDeep(dataPoints)
-
-    _.range(this.palmTreeCount).map(palmTreeIndex => {
-      this.weightedSums[palmTreeIndex] = _.sum(dataPoints[palmTreeIndex].map((val, frondIndex) => val * this.weights[frondIndex]))
-      this.unweightedSums[palmTreeIndex] = _.sum(dataPoints[palmTreeIndex])
-    })
-    let maxSum = d3.max(this.unweightedSums)
-
-    this.normalizedData = dataPoints.map(frondValues => {
-      return frondValues.map(frondValue => {
-        const normalizedValue = Math.sqrt(frondValue / maxSum)
-        this.dataMax = Math.max(this.dataMax, frondValue)
-        this.dataMin = Math.min(this.dataMin, frondValue)
-        this.normalizedDataMax = Math.max(normalizedValue, this.normalizedDataMax)
-        this.normalizedDataMin = Math.min(normalizedValue, this.normalizedDataMin)
-        return normalizedValue
-      })
-    })
-
-    this.rindices = d3.range(this.rowNames.length)
-
-    return this
   }
 
   setConfig (value) {
@@ -128,8 +91,24 @@ class PalmTrees {
     if (!this.colors) {
       this.colors = this.setupColors()
     }
+  }
 
-    return this
+  // dataPoints is 2D Array
+  setData (dataPoints) {
+    // NB in the R layer we replace all null values with zero
+    // but we preserve the null/NA values in rawData
+    if (!this.settings.rawData) {
+      this.settings.rawData = _.cloneDeep(dataPoints)
+    }
+    this.data = dataPoints
+
+    // NB must call setConfig first !
+    this.palmMath = new PalmMath({
+      data: dataPoints,
+      plotState: this.plotState,
+      rowNames: this.settings.rowNames,
+      weights: this.settings.weights
+    })
   }
 
   // set up default this.colors
@@ -211,24 +190,17 @@ class PalmTrees {
 
     this.baseSvg = baseSvg
 
-    this.param.ymax = d3.max(this.weightedSums)
-    this.param.ymin = 0
-
     this.initialiseComponents()
 
-    const simpleCells = _.omit(CellNames, [CellNames.PLOT, CellNames.YAXIS])
+    const simpleCells = _.omit(CellNames, [CellNames.YAXIS])
     _(simpleCells).each(cellName => {
       if (this.layout.enabled(cellName)) {
         this.components[cellName].draw(this.layout.getCellBounds(cellName))
       }
     })
 
-    this.components[CellNames.PLOT].setParam(this.param)
-    this.components[CellNames.PLOT].draw(this.layout.getCellBounds(CellNames.PLOT))
-
     if (this.layout.enabled(CellNames.YAXIS)) {
       this.components[CellNames.YAXIS].setmaxLeafSize(this.components[CellNames.PLOT].maxLeafSize)
-      this.components[CellNames.YAXIS].setParam(this.param)
       this.components[CellNames.YAXIS].draw(this.layout.getCellBounds(CellNames.YAXIS))
     }
 
@@ -241,23 +213,7 @@ class PalmTrees {
   updatePlot (initialization) {
     log.info('PalmTree.updatePlot()')
 
-    // TODO this is repeated in updatePlot and in constructor
-    for (let i = 0; i < this.rowNames.length; i++) {
-      this.unweightedSums[i] = 0
-      this.weightedSums[i] = 0
-      for (let j = 0; j < this.colNames.length; j++) {
-        this.unweightedSums[i] += this.plotState.isColumnOn(j) * this.data[i][j]
-        this.weightedSums[i] += this.plotState.isColumnOn(j) * this.weights[j] * this.data[i][j]
-      }
-    }
-
-    this.param.ymax = d3.max(this.weightedSums)
-    this.param.ymin = 0
-
-    if (this.layout.enabled(CellNames.PLOT)) { this.components[CellNames.PLOT].setParam(this.param) }
-    if (this.layout.enabled(CellNames.YAXIS)) { this.components[CellNames.YAXIS].setParam(this.param) }
-
-    if (this.layout.enabled(CellNames.PLOT)) { this.components[CellNames.PLOT].updatePlot(initialization, this.weightedSums) }
+    if (this.layout.enabled(CellNames.PLOT)) { this.components[CellNames.PLOT].updatePlot(initialization) }
     if (this.layout.enabled(CellNames.YAXIS)) { this.components[CellNames.YAXIS].updatePlot(initialization) }
     if (this.layout.enabled(CellNames.SIDEBAR)) { this.components[CellNames.SIDEBAR].updatePlot(initialization) }
     if (this.layout.enabled(CellNames.XAXIS)) { this.components[CellNames.XAXIS].updatePlot(initialization) }
@@ -303,22 +259,17 @@ class PalmTrees {
     this.components[CellNames.PLOT] = new PlotArea({
       parentContainer: this.baseSvg,
       plotState: this.plotState,
+      palmMath: this.palmMath,
       rowNames: this.rowNames,
       colNames: this.colNames,
-      weightedSums: this.weightedSums,
       yDigits: this.settings.yDigits,
       nticks: this.nticks,
-      normalizedData: this.normalizedData,
-      normalizedDataMax: this.normalizedDataMax, // TODO dont need min and max
-      normalizedDataMin: this.normalizedDataMin, // TODO dont need min and max
       palmTreeId: this.palmTreeId,
       colors: this.colors,
       duration: this.duration,
       hoverColor: this.settings.hoverColor,
       // for tooltip
       frondColorUnselected: this.settings.frondColorUnselected,
-      dataMin: this.dataMin,
-      dataMax: this.dataMax,
       tooltips: this.settings.tooltips,
       rawData: this.settings.rawData,
       digits: this.settings.digits,
@@ -384,7 +335,7 @@ class PalmTrees {
 
     if (this.settings.showYAxis) {
       this.components[CellNames.YAXIS] = new YAxis({
-        weightedSums: this.weightedSums,
+        palmMath: this.palmMath,
         parentContainer: this.baseSvg,
         nTicks: this.nticks,
         duration: this.duration,
