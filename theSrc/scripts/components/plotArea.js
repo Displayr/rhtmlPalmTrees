@@ -259,44 +259,10 @@ class PlotArea extends BaseComponent {
 
   sortBars (initialization) {
     const { weightedSums } = this.palmMath.getData()
+    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+
     log.info('PalmTree.sortBars()')
     const plotArea = this.plotArea
-
-    const sortStrategy = this.plotState.getState().sortBy || 'descending' // pull from config
-    let rowNamesTemp = []
-    let sortfun = null
-    let sumsTemp = []
-
-    // additional stuff
-    let rowNames1 = _.clone(this.rowNames)
-    rowNames1.sort()
-
-    if (sortStrategy === 'original') {
-      this.rindices = _.range(this.rowNames.length)
-      this.xscale.domain(this.rowNames)
-      sortfun = (a, b) => a.index - b.index
-    } else if (sortStrategy === 'alphabetical') {
-      for (let i = 0; i < this.rowNames.length; i++) {
-        rowNamesTemp.push(this.rowNames[i])
-      }
-      this.rindices = this.sortWithIndices(rowNamesTemp, 0)
-      this.xscale.domain(rowNames1)
-      sortfun = (a, b) => this.xscale(a.name) - this.xscale(b.name)
-    } else if (sortStrategy === 'ascending') {
-      for (let i = 0; i < this.rowNames.length; i++) {
-        sumsTemp.push(weightedSums[i])
-      }
-      this.rindices = this.sortWithIndices(sumsTemp, 0)
-      this.xscale.domain(this.sortFromIndices(this.rowNames, this.rindices))
-      sortfun = (a, b) => a.value - b.value
-    } else if (sortStrategy === 'descending') {
-      for (let i = 0; i < this.rowNames.length; i++) {
-        sumsTemp.push(weightedSums[i])
-      }
-      this.rindices = this.sortWithIndices(sumsTemp, 1)
-      this.xscale.domain(this.sortFromIndices(this.rowNames, this.rindices))
-      sortfun = (a, b) => -(a.value - b.value)
-    }
 
     if (initialization) {
       plotArea.selectAll('.bar')

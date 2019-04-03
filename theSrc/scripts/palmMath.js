@@ -48,6 +48,30 @@ class PalmMath {
 
     return response
   }
+
+  getSortedWeightedSums () {
+    const sortStrategy = this.plotState.getState().sortBy || 'descending'
+    const { weightedSums } = this.getData()
+
+    const sorts = {
+      original: (a) => 1,
+      alphabetical: (a) => a.name,
+      ascending: (a) => a.value,
+      descending: (a) => -1 * a.value
+    }
+
+    if (!_.has(sorts, sortStrategy)) {
+      throw new Error(`Invalid sort strategy: ${sortStrategy}`)
+    }
+
+    return _(weightedSums)
+      .map((weightedSum, i) => ({
+        value: weightedSum,
+        name: this.rowNames[i]
+      }))
+      .sortBy(sorts[sortStrategy])
+      .value()
+  }
 }
 
 module.exports = PalmMath
