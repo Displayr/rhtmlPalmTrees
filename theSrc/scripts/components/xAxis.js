@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import BaseComponent from './baseComponent'
+import d3 from 'd3'
 
 import HorizontalWrappedLabel from './parts/horizontalWrappedLabel'
 import VerticalBottomToTopWrappedLabel from './parts/verticalBottomToTopWrappedLabel'
@@ -10,6 +11,7 @@ import DiagonalDownWrappedLabel from './parts/diagonalDownWrappedLabel'
 class XAxis extends BaseComponent {
   constructor ({
                 plotState,
+                palmMath,
                 fontColor,
                 fontFamily,
                 fontSize,
@@ -22,6 +24,7 @@ class XAxis extends BaseComponent {
     super()
     _.assign(this, {
       plotState,
+      palmMath,
       fontColor,
       fontFamily,
       fontSize,
@@ -34,7 +37,7 @@ class XAxis extends BaseComponent {
 
     // to deal with superfluous zoom calls at beginning of render
     this.amIZoomed = false
-    this.columnCount = this.labels.length
+    this.labelCount = this.labels.length
 
     if (this.orientation === 'horizontal') {
       this.LabelFactory = HorizontalWrappedLabel
@@ -52,16 +55,18 @@ class XAxis extends BaseComponent {
   }
 
   computePreferredDimensions (estimatedColumnWidth) {
-    this.labelObjects = this.labels.map((text, index) => {
+    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+    this.labelObjects = sortedWeightedSums.map(({name}) => {
       return new this.LabelFactory({
-        classNames: `xaxis-label tick-${index}`,
+        classNames: `xaxis-label tick`,
+        data: { name },
         fontColor: this.fontColor,
         fontFamily: this.fontFamily,
         fontSize: this.fontSize,
         maxHeight: this.maxHeight,
         maxWidth: estimatedColumnWidth,
         parentContainer: this.parentContainer,
-        text: text,
+        text: name,
         verticalAlignment: this.placement === 'top' ? 'bottom' : 'top',
         horizontalAlignment: 'center'
       })
@@ -82,7 +87,7 @@ class XAxis extends BaseComponent {
       .classed('axis xaxis', true)
       .attr('transform', this.buildTransform(bounds))
 
-    const columnWidth = bounds.width / this.columnCount
+    const columnWidth = bounds.width / this.labelCount
     this.labelObjects.map((labelObject, i) => {
       labelObject.draw({
         container, // this is odd given we already supply parentContainer to constructor
@@ -97,13 +102,17 @@ class XAxis extends BaseComponent {
   }
 
   updatePlot (initialization) {
-    if (this.plotState.getState().selectedColumns.length > 0) {
-      this.sortLabels(initialization)
+    if (!this.plotState.areAllColumnOff()) {
+      const columnWidth = this.bounds.width / this.labelCount
+      const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+      // TODO use intialisation (even tho i dont need to
+      sortedWeightedSums.forEach(({name}, i) => {
+        d3.select(`.xaxis-label[data-name="${name}"]`)
+          .transition('barHeight')
+          .duration(600)
+          .attr('transform', `translate(${columnWidth * i},0)`)
+      })
     }
-  }
-
-  sortLabels (initialization) {
-    console.log('must fix')
   }
 }
 

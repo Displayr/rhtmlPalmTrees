@@ -19,7 +19,9 @@ class PalmMath {
       normalizedDataMax: 0,
       normalizedDataMin: 1000000000,
       weightedSums: new Array(this.data.length),
-      unweightedSums: new Array(this.data.length)
+      unweightedSums: new Array(this.data.length),
+      normalizedDataMap: {}
+
     }
 
     _.range(this.data.length).map(palmTreeIndex => {
@@ -35,15 +37,16 @@ class PalmMath {
     response.weightedSumMin = _.min(response.weightedSums)
 
     let maxSum = _.max(response.unweightedSums)
-    response.normalizedData = this.data.map(frondValues => {
-      return frondValues.map(frondValue => {
-        const normalizedValue = Math.sqrt(frondValue / maxSum)
+    this.data.map((frondValues, frondIndex) => {
+      const normalizedDataPoints = frondValues.map(frondValue => {
+        const normalizedValue = (maxSum === 0) ? 0 : Math.sqrt(frondValue / maxSum)
         response.dataMax = Math.max(response.dataMax, frondValue)
         response.dataMin = Math.min(response.dataMin, frondValue)
         response.normalizedDataMax = Math.max(normalizedValue, response.normalizedDataMax)
         response.normalizedDataMin = Math.min(normalizedValue, response.normalizedDataMin)
         return normalizedValue
       })
+      response.normalizedDataMap[this.rowNames[frondIndex]] = normalizedDataPoints
     })
 
     return response
@@ -67,7 +70,10 @@ class PalmMath {
     return _(weightedSums)
       .map((weightedSum, i) => ({
         value: weightedSum,
-        name: this.rowNames[i]
+        name: this.rowNames[i],
+        seriesId: i, // NB not sure which Id will stick yet. TODO delete 2/3 of these Ids
+        rowId: i, // NB not sure which Id will stick yet. TODO delete 2/3 of these Ids
+        treeId: i // NB not sure which Id will stick yet. TODO delete 2/3 of these Ids
       }))
       .sortBy(sorts[sortStrategy])
       .value()

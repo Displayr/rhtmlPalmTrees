@@ -9,6 +9,7 @@ class HorizontalWrappedLabel extends BaseComponent {
     verticalAlignment = 'top',
     horizontalAlignment = 'center',
     parentContainer,
+    data,
     text,
     fontSize,
     fontFamily,
@@ -22,6 +23,7 @@ class HorizontalWrappedLabel extends BaseComponent {
       verticalAlignment,
       horizontalAlignment,
       parentContainer,
+      data,
       text,
       fontSize,
       fontFamily,
@@ -73,6 +75,7 @@ class HorizontalWrappedLabel extends BaseComponent {
 
     this.container = parentContainer.append('g')
       .classed(this.classNames, true)
+      .attr('data-name', this.data.name)
       .attr('transform', this.buildTransform(bounds))
 
     this.rectSelection = this.container.append('rect')

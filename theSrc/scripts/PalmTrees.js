@@ -287,6 +287,7 @@ class PalmTrees {
     this.components[CellNames.XAXIS] = new XAxis({
       parentContainer: this.baseSvg,
       plotState: this.plotState,
+      palmMath: this.palmMath,
       labels: this.rowNames,
       maxHeight: '200', // TODO hard code
       orientation: 'horizontal',

@@ -79,11 +79,15 @@ class PlotArea extends BaseComponent {
     log.info('plotArea.draw()')
     this.plotArea = this.parentContainer.append('g').attr('id', 'g_plotArea')
       .attr('transform', this.buildTransform(bounds))
-    const plotArea = this.plotArea
 
-    const data = this.palmMath.getData()
-    console.log('data')
-    console.log(JSON.stringify(data, {}, 2))
+    const {
+      dataMin,
+      dataMax,
+      weightedSumMax,
+      normalizedDataMin,
+      normalizedDataMax
+    } = this.palmMath.getData()
+    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
 
     // TODO put somewhere ?
     this.line = d3.svg.line()
@@ -93,11 +97,11 @@ class PlotArea extends BaseComponent {
 
     // TODO put somewhere ?
     this.tipBarScale = d3.scale.linear()
-      .domain([data.dataMin, data.dataMax])
+      .domain([dataMin, dataMax])
       .range([2, 30])
 
     this.xscale = d3.scale.ordinal()
-      .domain(this.rowNames)
+      .domain(_(sortedWeightedSums).map('name').value())
       .rangeRoundBands([0, bounds.width])
 
     this.maxLeafSize = Math.min(
@@ -108,50 +112,29 @@ class PlotArea extends BaseComponent {
 
     this.yscale = d3.scale.linear()
       .nice(this.nticks)
-      .domain([0, data.weightedSumMax])
+      .domain([0, weightedSumMax])
       .range([bounds.height, this.maxLeafSize])
 
     this.frondScale = d3.scale.linear()
-    this.frondScale.domain([data.normalizedDataMin, data.normalizedDataMax])
-    this.frondScale.range([this.maxLeafSize * data.normalizedDataMin / data.normalizedDataMax, this.maxLeafSize])
-
-    this.frondData = _.range(this.palmTreeCount).map((palmTreeIndex) => {
-      return {
-        name: this.rowNames[palmTreeIndex],
-        value: data.weightedSums[palmTreeIndex],
-        index: palmTreeIndex, // TODO remove this once everything uses palmTreeIndex
-        palmTreeIndex: palmTreeIndex
-      }
-    })
-
-    // TODO can I just use frondData ?
-    this.barData = _.range(this.palmTreeCount).map((palmTreeIndex) => {
-      return {
-        name: this.rowNames[palmTreeIndex],
-        value: data.weightedSums[palmTreeIndex],
-        index: palmTreeIndex // TODO remove this once everything uses palmTreeIndex
-      }
-    })
+    this.frondScale.domain([normalizedDataMin, normalizedDataMax])
+    this.frondScale.range([this.maxLeafSize * normalizedDataMin / normalizedDataMax, this.maxLeafSize])
 
     /* stop computing stuff / start drawing stuff */
-
-    // TODO rename to trunks ?
-    this.bars = plotArea.selectAll('.bar')
-      .data(this.barData)
+    this.bars = this.plotArea.selectAll('.bar').data(sortedWeightedSums, d => d.treeId)
+    this.palms = this.plotArea.selectAll('.palm').data(sortedWeightedSums, d => d.treeId)
 
     this.bars.enter()
       .append('rect')
+      .attr('id', d => `bar${d.treeId}`)
       .attr('class', 'bar')
-      .attr('id', function (d) {
-        return `bar${d.index}`
-      })
+      .attr('data-name', d => d.name)
+      // .attr('id', function (d) {
+      //   return `bar${d.index}`
+      // })
       .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
       .attr('width', 1)
       .attr('y', d => this.yscale(d.value))
       .attr('height', d => bounds.height - this.yscale(d.value))
-
-    this.palms = plotArea.selectAll('.palm')
-      .data(this.frondData)
 
     let palmEnter = this.palms.enter()
       .append('g')
@@ -159,22 +142,22 @@ class PlotArea extends BaseComponent {
     if (this.tooltips) {
       palmEnter.append('rect')
         .attr('class', 'ghostCircle')
-        .attr('id', d => `ghost${d.palmTreeIndex}`)
+        .attr('id', d => `ghost${d.treeId}`)
     }
 
-    this.leaves = palmEnter.attr('class', 'leaf')
-      .attr('id', d => `frond${d.index}`)
+    this.leaves = palmEnter
+      .attr('id', d => `leaf${d.treeId}`)
+      .attr('data-name', d => d.name)
+      .attr('class', 'leaf')
+      .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
       .selectAll('path')
-      .data((palmTreeData) => _.range(this.frondCount).map((frondIndex) => _.merge({}, palmTreeData, {frondIndex})))
+      .data(palmTreeData => _.range(this.frondCount).map((frondIndex) => _.merge({}, palmTreeData, {frondIndex})))
 
     this.leaves.enter()
       .append('path')
       .style('cursor', 'pointer')
       .attr('class', ({frondIndex}) => `actual-leaf actual-leaf-${frondIndex}`)
       .attr('transform', ({frondIndex}) => 'rotate(' + (frondIndex * 360 / this.frondCount - 90) + ')')
-
-    plotArea.selectAll('.leaf')
-      .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
 
     this.leaves.style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
 
@@ -195,7 +178,7 @@ class PlotArea extends BaseComponent {
         .on('mouseout', d => this.mouseOutFrond(d))
 
       this.leaves
-        .on('mouseover', (leafData, leafIndex) => this.mouseOverLeaf(leafData, leafIndex))
+        .on('mouseover', (leafData, leafIndex) => this.mouseOverLeaf(leafData, leafIndex)) // TODO leafData should contain frondIndex -> leadIndex should not be necessary
         .on('mouseout', d => this.mouseOutLeaf(d))
         .on('click', d => {
           tooltipLogger.debug('clickLeaf')
@@ -208,12 +191,21 @@ class PlotArea extends BaseComponent {
   }
 
   updatePlot (initialization) {
-    const { weightedSums, normalizedData } = this.palmMath.getData()
+    // TODO return sortedWeightedSums in palmMath.getData()
+    const { normalizedDataMap, weightedSumMax } = this.palmMath.getData()
+    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
 
-    for (let i = 0; i < this.rowNames.length; i++) {
-      this.barData[i].value = weightedSums[i]
-      this.frondData[i].value = weightedSums[i]
-    }
+    console.log('sortedWeightedSums')
+    console.log(JSON.stringify(sortedWeightedSums, {}, 2))
+    console.log('this.yscale(0)')
+    console.log(JSON.stringify(this.yscale(0), {}, 2))
+    console.log('this.yscale(19)')
+    console.log(JSON.stringify(this.yscale(19), {}, 2))
+
+    this.bars.data(sortedWeightedSums, d => d.treeId)
+    this.palms.data(sortedWeightedSums, d => d.treeId)
+    this.xscale.domain(_(sortedWeightedSums).map('name').value())
+    this.yscale.domain([0, weightedSumMax])
 
     if (initialization) {
       const ghostPadding = 4
@@ -227,117 +219,49 @@ class PlotArea extends BaseComponent {
 
       // TODO combine the if/else
       this.leaves
-        .attr('d', this.makeFrondPathFactory(normalizedData).bind(this))
+        .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
         .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
     } else {
       this.leaves
         .transition('leafColor')
         .duration(this.duration)
-        .attr('d', this.makeFrondPathFactory(normalizedData).bind(this))
+        .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
         .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
     }
 
-    this.bars.data(this.barData)
-
-    if (this.plotState.getState().selectedColumns.length === 0) {
+    if (this.plotState.areAllColumnOff()) {
       this.plotArea.selectAll('.bar')
         .transition('barHeight')
         .duration(this.duration)
-        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
-        .attr('y', d => this.yscale(d.value))
-        .attr('height', d => this.bounds.height - this.yscale(d.value))
+        // .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+        .attr('y', d => this.yscale(0))
+        .attr('height', d => 0)
 
       this.plotArea.selectAll('.leaf')
         .transition('leafHeight')
         .duration(this.duration)
-        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+        .attr('y', d => this.yscale(0))
+        // .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
     } else {
-      // TODO implement sort bars
-      this.sortBars(initialization)
+      if (initialization) {
+        this.plotArea.selectAll('.bar')
+          .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+          .attr('y', d => this.yscale(d.value))
+          .attr('height', d => this.bounds.height - this.yscale(d.value))
+      } else {
+        this.plotArea.selectAll('.bar')
+          .transition('barHeight')
+          .duration(this.duration)
+          .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+          .attr('y', d => this.yscale(d.value))
+          .attr('height', d => this.bounds.height - this.yscale(d.value))
+
+        this.plotArea.selectAll('.leaf')
+          .transition('leafHeight')
+          .duration(this.duration)
+          .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+      }
     }
-  }
-
-  sortBars (initialization) {
-    const { weightedSums } = this.palmMath.getData()
-    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
-
-    log.info('PalmTree.sortBars()')
-    const plotArea = this.plotArea
-
-    if (initialization) {
-      plotArea.selectAll('.bar')
-        .sort(sortfun)
-        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
-        .attr('y', d => this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
-        .attr('height', d => this.bounds.height - this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
-
-      // plotArea.select('.xaxis')
-      //   .call(this.xAxis)
-      //   .selectAll('.tick text')
-      //   .style('font-size', this.settings.rowFontSize + 'px')
-      //   .style('font-family', this.settings.rowFontFamily)
-      //   .style('fill', this.settings.rowFontColor)
-      //   .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
-
-      plotArea.selectAll('.leaf')
-        .sort(sortfun)
-        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
-    } else {
-      plotArea.selectAll('.bar')
-        .sort(sortfun)
-        .transition('barHeight')
-        .duration(this.duration)
-        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
-        .attr('y', d => this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
-        .attr('height', d => this.bounds.height - this.yscale(d.value)) // TODO if this is just about sorting i shouldn;t need to change the height or the y
-
-      // plotArea.select('.xaxis')
-      //   .transition('xtickLocation')
-      //   .duration(this.duration)
-      //   .call(this.xAxis)
-      //   .selectAll('.tick text')
-      //   .style('font-size', this.settings.rowFontSize + 'px')
-      //   .style('font-family', this.settings.rowFontFamily)
-      //   .style('fill', this.settings.rowFontColor)
-      //   .call(this.wrapAxisLabels.bind(this), this.xscale.rangeBand())
-
-      plotArea.selectAll('.leaf')
-        .sort(sortfun)
-        .transition('leafHeight')
-        .duration(this.duration)
-        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
-    }
-  }
-
-  // sort and return sort indices
-  sortWithIndices (toSort, mode) {
-    for (let i = 0; i < toSort.length; i++) {
-      toSort[i] = [toSort[i], i]
-    }
-    if (mode === 0) {
-      toSort.sort(function (left, right) {
-        return left[0] < right[0] ? -1 : 1
-      })
-    } else {
-      toSort.sort(function (left, right) {
-        return left[0] < right[0] ? 1 : -1
-      })
-    }
-    toSort.sortIndices = []
-    for (let j = 0; j < toSort.length; j++) {
-      toSort.sortIndices.push(toSort[j][1])
-      toSort[j] = toSort[j][0]
-    }
-    return toSort.sortIndices
-  }
-
-  // sort using supplied indices
-  sortFromIndices (toSort, indices) {
-    let output = []
-    for (let i = 0; i < toSort.length; i++) {
-      output.push(toSort[indices[i]])
-    }
-    return output
   }
 
 // create ghost rectangle tooltip
@@ -372,24 +296,29 @@ class PlotArea extends BaseComponent {
     d3.selectAll(`.tip-column`).style('background-color', '#ffffff')
   }
 
-  updateToolTipWithDebounce ({palmTreeIndex, name, value} = {}) {
-    const { weightedSums } = this.palmMath.getData()
+  updateToolTipWithDebounce ({treeId, name, value} = {}) {
+    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+    const weightedSum = _(sortedWeightedSums)
+      .filter({ treeId })
+      .map('value')
+      .first()
+
     if (this.updateToolTipWithDebounceTimeoutHandler) {
       clearTimeout(this.updateToolTipWithDebounceTimeoutHandler)
       delete this.updateToolTipWithDebounceTimeoutHandler
     }
 
     const params = {
-      palmTreeIndex,
+      treeId,
       yPos: value,
       xPos: name
     }
 
     if (this.showTooltipDesiredState) {
       params.html = makeTipContent({
-        rowName: this.rowNames[palmTreeIndex],
-        rowIndex: palmTreeIndex,
-        rowTotal: weightedSums[palmTreeIndex].toFixed(this.digits),
+        rowName: name,
+        rowIndex: treeId,
+        rowTotal: weightedSum.toFixed(this.digits),
         yLabel: this.yLabel,
         columnNames: this.colNames,
         columnStates: this.plotState.getState().selectedColumns,
@@ -400,7 +329,7 @@ class PlotArea extends BaseComponent {
         digits: this.digits,
         prefix: this.prefix,
         suffix: this.suffix,
-        data: this.rawData[palmTreeIndex],
+        data: this.rawData[treeId],
         tipScale: this.tipBarScale,
         colors: this.colors,
         unselectedColor: this.frondColorUnselected
@@ -416,21 +345,21 @@ class PlotArea extends BaseComponent {
         this.showTooltip(params)
       } else if (!this.showTooltipDesiredState && this.showTooltipActualState) {
         this.hideTooltip(params)
-      } else if (this.showTooltipDesiredState && this.showTooltipActualState && this.currentlyDisplayedTooltipIndex !== params.palmTreeIndex) {
+      } else if (this.showTooltipDesiredState && this.showTooltipActualState && this.currentlyDisplayedTooltipIndex !== params.treeId) {
         this.showTooltip(params)
       }
     }, this.tooltipDebounceTime)
   }
 
-  showTooltip ({palmTreeIndex, html, yPos, xPos, width: tipWidth, height: tipHeight}) {
-    const { normalizedData } = this.palmMath.getData()
+  showTooltip ({treeId, html, yPos, xPos, width: tipWidth, height: tipHeight}) {
+    const { normalizedDataMap } = this.palmMath.getData()
     this.showTooltipActualState = true
-    this.currentlyDisplayedTooltipIndex = palmTreeIndex
-    let ghostRect = this.plotArea.select('#ghost' + palmTreeIndex)
+    this.currentlyDisplayedTooltipIndex = treeId
+    let ghostRect = this.plotArea.select('#ghost' + treeId)
     let ghostRectHtmlElement = ghostRect[0][0]
     let ghostRectDimensions = ghostRectHtmlElement.getBoundingClientRect()
 
-    let barRectBboxDimensions = this.plotArea.select('#bar' + palmTreeIndex)[0][0].getBoundingClientRect()
+    let barRectBboxDimensions = this.plotArea.select('#bar' + treeId)[0][0].getBoundingClientRect()
 
     this.tip.html(html)
     let ghostRectYPosition = Number(ghostRect.attr('y'))
@@ -495,16 +424,16 @@ class PlotArea extends BaseComponent {
       .style('left', `${triangleLeft}px`)
 
     // TODO NB this is a bit ugly ...
-    const makeFrondPath = this.makeFrondPathFactory(normalizedData).bind(this)
-    d3.select('#frond' + palmTreeIndex)
+    const makeFrondPath = this.makeFrondPathFactory(normalizedDataMap).bind(this)
+    d3.select('#frond' + treeId)
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)
-      .attr('d', ({palmTreeIndex, frondIndex}) => makeFrondPath({palmTreeIndex, frondIndex, amplifier: 1.1}))
+      .attr('d', ({treeId, frondIndex}) => makeFrondPath({treeId, frondIndex, amplifier: 1.1}))
   }
 
-  hideTooltip ({palmTreeIndex}) {
-    const { normalizedData } = this.palmMath.getData()
+  hideTooltip ({treeId}) {
+    const { normalizedDataMap } = this.palmMath.getData()
     this.showTooltipActualState = false
     this.currentlyDisplayedTooltipIndex = null
     if (this.tip) {
@@ -512,16 +441,16 @@ class PlotArea extends BaseComponent {
     }
     d3.select('#littleTriangle').style('visibility', 'hidden')
 
-    d3.select('#frond' + palmTreeIndex)
+    d3.select('#frond' + treeId)
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)
-      .attr('d', this.makeFrondPathFactory(normalizedData).bind(this))
+      .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
   }
 
-  makeFrondPathFactory (normalizedData) {
-    return ({palmTreeIndex, frondIndex, amplifier = 1}) => {
-      const frondValue = this.frondScale(normalizedData[palmTreeIndex][frondIndex])
+  makeFrondPathFactory (normalizedDataMap) {
+    return ({treeId, frondIndex, name, amplifier = 1}) => {
+      const frondValue = this.frondScale(normalizedDataMap[name][frondIndex])
       const frondIsSelected = this.plotState.isColumnOn(frondIndex)
       const pathData = (frondIsSelected)
         ? this.makeEnabledFrondPath(frondValue * amplifier)

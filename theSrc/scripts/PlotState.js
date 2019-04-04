@@ -63,6 +63,10 @@ class PlotState {
     this.callListeners()
   }
 
+  areAllColumnOff () {
+    return _.isUndefined(_.find(this.state.selectedColumns, x => x === 1))
+  }
+
   turnOnAllColumns () {
     this.state.selectedColumns = _(this.state.selectedColumns).map(() => 1).value()
     this.callListeners()
