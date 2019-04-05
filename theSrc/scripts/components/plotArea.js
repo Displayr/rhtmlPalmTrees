@@ -66,12 +66,7 @@ class PlotArea extends BaseComponent {
     })
     log.info('plotArea.constructor')
 
-    this.palmTreeCount = this.rowNames.length
     this.frondCount = this.colNames.length
-  }
-
-  resize () {
-    log.info('plotArea.resize()')
   }
 
   draw (bounds) {
@@ -226,7 +221,7 @@ class PlotArea extends BaseComponent {
     }
 
     if (this.plotState.areAllColumnOff()) {
-      this.plotArea.selectAll('.bar')
+      this.bars
         .transition('barHeight')
         .duration(this.duration)
         .attr('y', d => this.yscale(0))
@@ -244,12 +239,12 @@ class PlotArea extends BaseComponent {
         })
     } else {
       if (initialization) {
-        this.plotArea.selectAll('.bar')
+        this.bars
           .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
           .attr('y', d => this.yscale(d.value))
           .attr('height', d => this.bounds.height - this.yscale(d.value))
       } else {
-        this.plotArea.selectAll('.bar')
+        this.bars
           .transition('barHeight')
           .duration(this.duration)
           .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
