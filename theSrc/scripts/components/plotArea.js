@@ -89,13 +89,11 @@ class PlotArea extends BaseComponent {
       sortedWeightedSums
     } = this.palmMath.getData()
 
-    // TODO put somewhere ?
     this.line = d3.svg.line()
       .interpolate('cardinal-closed')
       .x(_.property('x'))
       .y(_.property('y'))
 
-    // TODO put somewhere ?
     this.tipBarScale = d3.scale.linear()
       .domain([dataMin, dataMax])
       .range([2, 30])
@@ -118,6 +116,7 @@ class PlotArea extends BaseComponent {
     this.frondScale = d3.scale.linear()
     this.frondScale.domain([normalizedDataMin, normalizedDataMax])
     this.frondScale.range([this.maxLeafSize * normalizedDataMin / normalizedDataMax, this.maxLeafSize])
+    console.log({normalizedDataMin, normalizedDataMax})
 
     /* stop computing stuff / start drawing stuff */
     this.bars = this.plotArea.selectAll('.bar').data(sortedWeightedSums, d => d.treeId)
@@ -193,12 +192,11 @@ class PlotArea extends BaseComponent {
   updatePlot (initialization) {
     const { normalizedDataMap, weightedSumMax, sortedWeightedSums } = this.palmMath.getData()
 
+    console.log('normalizedDataMap')
+    console.log(JSON.stringify(normalizedDataMap, {}, 2))
+
     console.log('sortedWeightedSums')
     console.log(JSON.stringify(sortedWeightedSums, {}, 2))
-    console.log('this.yscale(0)')
-    console.log(JSON.stringify(this.yscale(0), {}, 2))
-    console.log('this.yscale(19)')
-    console.log(JSON.stringify(this.yscale(19), {}, 2))
 
     this.bars.data(sortedWeightedSums, d => d.treeId)
     this.palms.data(sortedWeightedSums, d => d.treeId)
@@ -231,15 +229,19 @@ class PlotArea extends BaseComponent {
       this.plotArea.selectAll('.bar')
         .transition('barHeight')
         .duration(this.duration)
-        // .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
         .attr('y', d => this.yscale(0))
         .attr('height', d => 0)
 
+      const _this = this
       this.plotArea.selectAll('.leaf')
         .transition('leafHeight')
         .duration(this.duration)
         .attr('y', d => this.yscale(0))
-        // .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+        .attr('transform', function (d) {
+          // the desired effect is to drop straight to the x axis, and do no transition left/right. So preserve X, and 0 out Y
+          const currentX = d3.transform(d3.select(this).attr('transform')).translate[0]
+          return `translate(${currentX},${_this.yscale(0)})`
+        })
     } else {
       if (initialization) {
         this.plotArea.selectAll('.bar')
@@ -412,7 +414,7 @@ class PlotArea extends BaseComponent {
       triangleLeft = ghostRectDimensions.x + ghostRectDimensions.width
     }
 
-    tooltipLogger.debug(`chose ${directionClass} top: ${triangleTop}, left: ${triangleLeft} offset: ${offset}`)
+    tooltipLogger.debug(`show tree ${treeId} : chose ${directionClass} top: ${triangleTop}, left: ${triangleLeft} offset: ${offset}`)
 
     this.tip.direction(direction).offset(offset).show({}, ghostRectHtmlElement)
     d3.select('#littleTriangle')
@@ -423,11 +425,11 @@ class PlotArea extends BaseComponent {
 
     // TODO NB this is a bit ugly ...
     const makeFrondPath = this.makeFrondPathFactory(normalizedDataMap).bind(this)
-    d3.select('#frond' + treeId)
+    d3.select('#leaf' + treeId)
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)
-      .attr('d', ({treeId, frondIndex}) => makeFrondPath({treeId, frondIndex, amplifier: 1.1}))
+      .attr('d', ({treeId, name, frondIndex}) => makeFrondPath({treeId, frondIndex, name, amplifier: 1.1}))
   }
 
   hideTooltip ({treeId}) {
@@ -439,7 +441,7 @@ class PlotArea extends BaseComponent {
     }
     d3.select('#littleTriangle').style('visibility', 'hidden')
 
-    d3.select('#frond' + treeId)
+    d3.select('#leaf' + treeId)
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)

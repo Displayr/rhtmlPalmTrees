@@ -21,8 +21,8 @@ class PalmMath {
       weightedSums: new Array(this.data.length),
       unweightedSums: new Array(this.data.length),
       normalizedDataMap: {}
-
     }
+    const normalize = (x) => (response.dataMax === 0) ? 0 : Math.sqrt(x / response.dataMax)
 
     _.range(this.data.length).map(treeId => {
       response.weightedSums[treeId] = _(this.data[treeId])
@@ -35,18 +35,13 @@ class PalmMath {
     })
     response.weightedSumMax = _.max(response.weightedSums)
     response.weightedSumMin = _.min(response.weightedSums)
+    response.dataMax = _.max(_.flatten(this.data))
+    response.dataMin = _.min(_.flatten(this.data))
+    response.normalizedDataMax = normalize(response.dataMax)
+    response.normalizedDataMin = normalize(response.dataMin)
 
-    let maxSum = _.max(response.unweightedSums)
     this.data.map((frondValues, frondIndex) => {
-      const normalizedDataPoints = frondValues.map(frondValue => {
-        const normalizedValue = (maxSum === 0) ? 0 : Math.sqrt(frondValue / maxSum)
-        response.dataMax = Math.max(response.dataMax, frondValue)
-        response.dataMin = Math.min(response.dataMin, frondValue)
-        response.normalizedDataMax = Math.max(normalizedValue, response.normalizedDataMax)
-        response.normalizedDataMin = Math.min(normalizedValue, response.normalizedDataMin)
-        return normalizedValue
-      })
-      response.normalizedDataMap[this.rowNames[frondIndex]] = normalizedDataPoints
+      response.normalizedDataMap[this.rowNames[frondIndex]] = frondValues.map(normalize)
     })
     response.sortedWeightedSums = this.getSortedWeightedSums(response.weightedSums)
 
