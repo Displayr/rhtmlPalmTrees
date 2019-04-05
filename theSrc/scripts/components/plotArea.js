@@ -85,9 +85,9 @@ class PlotArea extends BaseComponent {
       dataMax,
       weightedSumMax,
       normalizedDataMin,
-      normalizedDataMax
+      normalizedDataMax,
+      sortedWeightedSums
     } = this.palmMath.getData()
-    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
 
     // TODO put somewhere ?
     this.line = d3.svg.line()
@@ -191,9 +191,7 @@ class PlotArea extends BaseComponent {
   }
 
   updatePlot (initialization) {
-    // TODO return sortedWeightedSums in palmMath.getData()
-    const { normalizedDataMap, weightedSumMax } = this.palmMath.getData()
-    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+    const { normalizedDataMap, weightedSumMax, sortedWeightedSums } = this.palmMath.getData()
 
     console.log('sortedWeightedSums')
     console.log(JSON.stringify(sortedWeightedSums, {}, 2))
@@ -297,7 +295,7 @@ class PlotArea extends BaseComponent {
   }
 
   updateToolTipWithDebounce ({treeId, name, value} = {}) {
-    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+    const {sortedWeightedSums} = this.palmMath.getData()
     const weightedSum = _(sortedWeightedSums)
       .filter({ treeId })
       .map('value')

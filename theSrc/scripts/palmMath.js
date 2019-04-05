@@ -24,12 +24,12 @@ class PalmMath {
 
     }
 
-    _.range(this.data.length).map(palmTreeIndex => {
-      response.weightedSums[palmTreeIndex] = _(this.data[palmTreeIndex])
+    _.range(this.data.length).map(treeId => {
+      response.weightedSums[treeId] = _(this.data[treeId])
         .filter((val, frondIndex) => this.plotState.isColumnOn(frondIndex))
         .map((val, frondIndex) => val * this.weights[frondIndex])
         .sum()
-      response.unweightedSums[palmTreeIndex] = _(this.data[palmTreeIndex])
+      response.unweightedSums[treeId] = _(this.data[treeId])
         .filter((val, frondIndex) => this.plotState.isColumnOn(frondIndex))
         .sum()
     })
@@ -48,16 +48,16 @@ class PalmMath {
       })
       response.normalizedDataMap[this.rowNames[frondIndex]] = normalizedDataPoints
     })
+    response.sortedWeightedSums = this.getSortedWeightedSums(response.weightedSums)
 
     return response
   }
 
-  getSortedWeightedSums () {
+  getSortedWeightedSums (weightedSums) {
     const sortStrategy = this.plotState.getState().sortBy || 'descending'
-    const { weightedSums } = this.getData()
 
     const sorts = {
-      original: (a) => 1,
+      original: () => 1,
       alphabetical: (a) => a.name,
       ascending: (a) => a.value,
       descending: (a) => -1 * a.value
@@ -71,9 +71,7 @@ class PalmMath {
       .map((weightedSum, i) => ({
         value: weightedSum,
         name: this.rowNames[i],
-        seriesId: i, // NB not sure which Id will stick yet. TODO delete 2/3 of these Ids
-        rowId: i, // NB not sure which Id will stick yet. TODO delete 2/3 of these Ids
-        treeId: i // NB not sure which Id will stick yet. TODO delete 2/3 of these Ids
+        treeId: i
       }))
       .sortBy(sorts[sortStrategy])
       .value()

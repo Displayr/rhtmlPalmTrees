@@ -55,7 +55,7 @@ class XAxis extends BaseComponent {
   }
 
   computePreferredDimensions (estimatedColumnWidth) {
-    const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+    const {sortedWeightedSums} = this.palmMath.getData()
     this.labelObjects = sortedWeightedSums.map(({name}) => {
       return new this.LabelFactory({
         classNames: `xaxis-label tick`,
@@ -104,7 +104,7 @@ class XAxis extends BaseComponent {
   updatePlot (initialization) {
     if (!this.plotState.areAllColumnOff()) {
       const columnWidth = this.bounds.width / this.labelCount
-      const sortedWeightedSums = this.palmMath.getSortedWeightedSums()
+      const {sortedWeightedSums} = this.palmMath.getData()
       // TODO use intialisation (even tho i dont need to
       sortedWeightedSums.forEach(({name}, i) => {
         d3.select(`.xaxis-label[data-name="${name}"]`)
