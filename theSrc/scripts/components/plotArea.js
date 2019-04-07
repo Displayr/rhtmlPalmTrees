@@ -138,9 +138,15 @@ class PlotArea extends BaseComponent {
       .append('g')
 
     if (this.tooltips) {
+      // must draw ghost rects "underneath" (i.e. before) the fronds, or mouse over frond wont work
+      const ghostPadding = 4
       palmEnter.append('rect')
         .attr('class', 'ghostCircle')
         .attr('id', d => `ghost${d.treeId}`)
+        .attr('x', -1 * (ghostPadding + this.maxLeafSize))
+        .attr('y', -1 * (ghostPadding + this.maxLeafSize))
+        .attr('width', (this.maxLeafSize + ghostPadding) * 2)
+        .attr('height', (this.maxLeafSize + ghostPadding) * 2)
     }
 
     this.leaves = palmEnter
@@ -162,14 +168,12 @@ class PlotArea extends BaseComponent {
     if (this.tooltips) {
       this.tip = d3Tip().attr('class', `d3-tip d3-tip-palmtree-${this.palmTreeId}`)
 
-      // TODO can i use this.plotArea here ?
-      this.parentContainer.call(this.tip)
-
-      // TODO can i use this.plotArea here ?
       d3.select('body')
         .append('div')
         .attr('id', 'littleTriangle')
         .style('visibility', 'hidden')
+
+      this.plotArea.call(this.tip)
 
       this.plotArea.selectAll('.leaf')
         .on('mouseover', d => this.mouseOverFrond(d))
@@ -191,79 +195,45 @@ class PlotArea extends BaseComponent {
   updatePlot (initialization) {
     const { normalizedDataMap, weightedSumMax, sortedWeightedSums } = this.palmMath.getData()
 
-    console.log('normalizedDataMap')
-    console.log(JSON.stringify(normalizedDataMap, {}, 2))
-
-    console.log('sortedWeightedSums')
-    console.log(JSON.stringify(sortedWeightedSums, {}, 2))
-
     this.treeTrunks.data(sortedWeightedSums, d => d.treeId)
     this.palms.data(sortedWeightedSums, d => d.treeId)
     this.xscale.domain(_(sortedWeightedSums).map('name').value())
     this.yscale.domain([0, weightedSumMax])
 
-    if (initialization) {
-      const ghostPadding = 4
-      // NB I have made all ghost circles the same, they dont grow shrink based on the palmtree weight
-      // TODO ghostCircle can be moved to draw
-      this.plotArea.selectAll('.ghostCircle')
-        .attr('x', -1 * (ghostPadding + this.maxLeafSize))
-        .attr('y', -1 * (ghostPadding + this.maxLeafSize))
-        .attr('width', (this.maxLeafSize + ghostPadding) * 2)
-        .attr('height', (this.maxLeafSize + ghostPadding) * 2)
+    const withConditionalTransition = (selection, transitionName = 'transition1') => (initialization)
+      ? selection
+      : selection.transition(transitionName).duration(this.duration)
 
-      // TODO combine the if/else
-      this.leaves
-        .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
-        .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
-    } else {
-      this.leaves
-        .transition('leafColor')
-        .duration(this.duration)
-        .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
-        .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
-    }
+    withConditionalTransition(this.leaves)
+      .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
+      .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
 
     if (this.plotState.areAllColumnOff()) {
-      this.treeTrunks
-        .transition('treeTrunkHeight')
-        .duration(this.duration)
-        .attr('y', d => this.yscale(0))
-        .attr('height', d => 0)
+      withConditionalTransition(this.treeTrunks, 'treeTrunkHeight')
+        .attr('y', this.yscale(0))
+        .attr('height', 0)
 
       const _this = this
-      this.plotArea.selectAll('.leaf')
-        .transition('leafHeight')
-        .duration(this.duration)
-        .attr('y', d => this.yscale(0))
+      withConditionalTransition(this.plotArea.selectAll('.leaf'), 'leafHeight')
+        .attr('y', this.yscale(0))
         .attr('transform', function (d) {
-          // the desired effect is to drop straight to the x axis, and do no transition left/right. So preserve X, and 0 out Y
+          // NB the desired effect is to drop straight to the x axis, and do no transition left/right. So preserve X, and 0 out Y
+          // how? get current transform, extract x, set transform using current x and new y
           const currentX = d3.transform(d3.select(this).attr('transform')).translate[0]
           return `translate(${currentX},${_this.yscale(0)})`
         })
     } else {
-      if (initialization) {
-        this.treeTrunks
-          .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
-          .attr('y', d => this.yscale(d.value))
-          .attr('height', d => this.bounds.height - this.yscale(d.value))
-      } else {
-        this.treeTrunks
-          .transition('treeTrunkHeight')
-          .duration(this.duration)
-          .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
-          .attr('y', d => this.yscale(d.value))
-          .attr('height', d => this.bounds.height - this.yscale(d.value))
+      withConditionalTransition(this.treeTrunks, 'treeTrunkHeight')
+        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+        .attr('y', d => this.yscale(d.value))
+        .attr('height', d => this.bounds.height - this.yscale(d.value))
 
-        this.plotArea.selectAll('.leaf')
-          .transition('leafHeight')
-          .duration(this.duration)
-          .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
-      }
+      withConditionalTransition(this.plotArea.selectAll('.leaf'), 'leafHeight')
+        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
     }
   }
 
-// create ghost rectangle tooltip
+  // create ghost rectangle tooltip
   mouseOverFrond (d) {
     tooltipLogger.debug('mouseOverFrond')
     this.showTooltipDesiredState = true
