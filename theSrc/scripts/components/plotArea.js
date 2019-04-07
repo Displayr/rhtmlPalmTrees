@@ -124,9 +124,6 @@ class PlotArea extends BaseComponent {
       .attr('id', d => `treeTrunk${d.treeId}`)
       .attr('class', 'treeTrunk')
       .attr('data-name', d => d.name)
-      // .attr('id', function (d) {
-      //   return `treeTrunk${d.index}`
-      // })
       .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
       .attr('width', 1)
       .attr('y', d => this.yscale(d.value))
@@ -138,7 +135,7 @@ class PlotArea extends BaseComponent {
       .append('g')
 
     if (this.tooltips) {
-      // must draw ghost rects "underneath" (i.e. before) the fronds, or mouse over frond wont work
+      // must draw ghost rects "underneath" (i.e. before) the fronds, or mouse over leaf wont work
       const ghostPadding = 4
       treeTopsEnter.append('rect')
         .attr('class', 'ghostCircle')
@@ -150,9 +147,9 @@ class PlotArea extends BaseComponent {
     }
 
     this.treeTops = treeTopsEnter
-      .attr('id', d => `leaf${d.treeId}`)
+      .attr('id', d => `treeTop${d.treeId}`)
       .attr('data-name', d => d.name)
-      .attr('class', 'leaf')
+      .attr('class', 'treeTop')
       .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
 
     this.leaves = this.treeTops
@@ -162,7 +159,7 @@ class PlotArea extends BaseComponent {
     this.leaves.enter()
       .append('path')
       .style('cursor', 'pointer')
-      .attr('class', ({frondIndex}) => `actual-leaf actual-leaf-${frondIndex}`)
+      .attr('class', ({frondIndex}) => `leaf leaf-${frondIndex}`)
       .attr('transform', ({frondIndex}) => 'rotate(' + (frondIndex * 360 / this.frondCount - 90) + ')')
       .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
 
@@ -176,9 +173,9 @@ class PlotArea extends BaseComponent {
 
       this.plotArea.call(this.tip)
 
-      this.plotArea.selectAll('.leaf')
-        .on('mouseover', d => this.mouseOverFrond(d))
-        .on('mouseout', d => this.mouseOutFrond(d))
+      this.treeTops
+        .on('mouseover', d => this.mouseOverTreeTop(d))
+        .on('mouseout', d => this.mouseOutTreeTop(d))
 
       this.leaves
         .on('mouseover', (leafData, leafIndex) => this.mouseOverLeaf(leafData, leafIndex)) // TODO leafData should contain frondIndex -> leadIndex should not be necessary
@@ -206,7 +203,7 @@ class PlotArea extends BaseComponent {
       : selection.transition(transitionName).duration(this.duration)
 
     withConditionalTransition(this.leaves)
-      .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
+      .attr('d', this.makeLeafPathFactory(normalizedDataMap).bind(this))
       .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
 
     if (this.plotState.areAllColumnOff()) {
@@ -235,14 +232,14 @@ class PlotArea extends BaseComponent {
   }
 
   // create ghost rectangle tooltip
-  mouseOverFrond (d) {
-    tooltipLogger.debug('mouseOverFrond')
+  mouseOverTreeTop (d) {
+    tooltipLogger.debug('mouseOverTreeTop')
     this.showTooltipDesiredState = true
     this.updateToolTipWithDebounce(d)
   }
 
-  mouseOutFrond (d) {
-    tooltipLogger.debug('mouseOutFrond')
+  mouseOutTreeTop (d) {
+    tooltipLogger.debug('mouseOutTreeTop')
     this.showTooltipDesiredState = false
     this.updateToolTipWithDebounce(d)
   }
@@ -394,8 +391,8 @@ class PlotArea extends BaseComponent {
       .style('left', `${triangleLeft}px`)
 
     // TODO NB this is a bit ugly ...
-    const makeFrondPath = this.makeFrondPathFactory(normalizedDataMap).bind(this)
-    d3.select('#leaf' + treeId)
+    const makeFrondPath = this.makeLeafPathFactory(normalizedDataMap).bind(this)
+    d3.select('#treeTop' + treeId)
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)
@@ -415,10 +412,10 @@ class PlotArea extends BaseComponent {
       .selectAll('path')
       .transition('leafSize')
       .duration(this.duration / 2)
-      .attr('d', this.makeFrondPathFactory(normalizedDataMap).bind(this))
+      .attr('d', this.makeLeafPathFactory(normalizedDataMap).bind(this))
   }
 
-  makeFrondPathFactory (normalizedDataMap) {
+  makeLeafPathFactory (normalizedDataMap) {
     return ({treeId, frondIndex, name, amplifier = 1}) => {
       const frondValue = this.frondScale(normalizedDataMap[name][frondIndex])
       const frondIsSelected = this.plotState.isColumnOn(frondIndex)

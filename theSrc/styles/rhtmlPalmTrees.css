@@ -1,16 +1,10 @@
-.bar {
+.treeTrunk {
     fill: #bbb;
 }
 
 .xtickBg{
     fill: white;
     opacity: 0.5;
-}
-
-.leaf {
-}
-
-.tree {
 }
 
 .tipHeading {
