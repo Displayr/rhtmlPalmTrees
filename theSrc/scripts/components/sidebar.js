@@ -114,10 +114,10 @@ class Sidebar extends BaseComponent {
       2 * this.collapsedDimensions.frondRadius
     const maxAllowedRowTextWidth = this.config.maxWidth - widthOfNonTextElementsInFrondRows
 
-    this.config.columnNames.forEach(text => {
+    this.config.columnNames.forEach(columnText => {
       const dimensions = estimateDimensionsOfSingleLineSplitByWord({
         parentContainer: this.parentContainer,
-        text: this.config.headingText,
+        text: columnText,
         maxWidth: maxAllowedRowTextWidth,
         fontSize: this.config.fontSize,
         fontFamily: this.config.fontFamily
@@ -131,23 +131,6 @@ class Sidebar extends BaseComponent {
         this.config.maxWidth
       ),
       height: 0
-    }
-  }
-
-  resize (sizeUpdates) {
-    log.info('sidebar.resize()')
-    _.assign(this.config, sizeUpdates)
-    this._restoreTruncatedText()
-    this._adjustRowSizes()
-  }
-
-  _restoreTruncatedText () {
-    this.element.selectAll('.sideBarText')
-      .text((d, i) => { return this.config.columnNames[i] })
-
-    if (this.config.headingText) {
-      this.element.selectAll('.sdBarHeading')
-        .text(this.config.headingText)
     }
   }
 
