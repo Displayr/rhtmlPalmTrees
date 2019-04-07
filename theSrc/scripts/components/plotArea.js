@@ -118,7 +118,6 @@ class PlotArea extends BaseComponent {
       .domain([normalizedDataMin, normalizedDataMax])
       .range([this.maxLeafSize * normalizedDataMin / normalizedDataMax, this.maxLeafSize])
 
-
     this.treeTrunks = this.plotArea.selectAll('.treeTrunk').data(sortedWeightedSums, d => d.treeId)
     this.treeTrunks.enter()
       .append('rect')
@@ -133,14 +132,15 @@ class PlotArea extends BaseComponent {
       .attr('y', d => this.yscale(d.value))
       .attr('height', d => bounds.height - this.yscale(d.value))
 
-    this.palms = this.plotArea.selectAll('.palm').data(sortedWeightedSums, d => d.treeId)
-    let palmEnter = this.palms.enter()
+    let treeTopsEnter = this.plotArea.selectAll('.treeTop')
+      .data(sortedWeightedSums, d => d.treeId)
+      .enter()
       .append('g')
 
     if (this.tooltips) {
       // must draw ghost rects "underneath" (i.e. before) the fronds, or mouse over frond wont work
       const ghostPadding = 4
-      palmEnter.append('rect')
+      treeTopsEnter.append('rect')
         .attr('class', 'ghostCircle')
         .attr('id', d => `ghost${d.treeId}`)
         .attr('x', -1 * (ghostPadding + this.maxLeafSize))
@@ -149,11 +149,13 @@ class PlotArea extends BaseComponent {
         .attr('height', (this.maxLeafSize + ghostPadding) * 2)
     }
 
-    this.leaves = palmEnter
+    this.treeTops = treeTopsEnter
       .attr('id', d => `leaf${d.treeId}`)
       .attr('data-name', d => d.name)
       .attr('class', 'leaf')
       .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+
+    this.leaves = this.treeTops
       .selectAll('path')
       .data(palmTreeData => _.range(this.frondCount).map((frondIndex) => _.merge({}, palmTreeData, {frondIndex})))
 
@@ -162,8 +164,7 @@ class PlotArea extends BaseComponent {
       .style('cursor', 'pointer')
       .attr('class', ({frondIndex}) => `actual-leaf actual-leaf-${frondIndex}`)
       .attr('transform', ({frondIndex}) => 'rotate(' + (frondIndex * 360 / this.frondCount - 90) + ')')
-
-    this.leaves.style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
+      .style('fill', (d, i) => this.plotState.isColumnOn(i) === 0 ? this.frondColorUnselected : this.colors[i])
 
     if (this.tooltips) {
       this.tip = d3Tip().attr('class', `d3-tip d3-tip-palmtree-${this.palmTreeId}`)
@@ -196,7 +197,7 @@ class PlotArea extends BaseComponent {
     const { normalizedDataMap, weightedSumMax, sortedWeightedSums } = this.palmMath.getData()
 
     this.treeTrunks.data(sortedWeightedSums, d => d.treeId)
-    this.palms.data(sortedWeightedSums, d => d.treeId)
+    this.treeTops.data(sortedWeightedSums, d => d.treeId)
     this.xscale.domain(_(sortedWeightedSums).map('name').value())
     this.yscale.domain([0, weightedSumMax])
 
@@ -214,7 +215,7 @@ class PlotArea extends BaseComponent {
         .attr('height', 0)
 
       const _this = this
-      withConditionalTransition(this.plotArea.selectAll('.leaf'), 'leafHeight')
+      withConditionalTransition(this.treeTops, 'treeTopHeight')
         .attr('y', this.yscale(0))
         .attr('transform', function (d) {
           // NB the desired effect is to drop straight to the x axis, and do no transition left/right. So preserve X, and 0 out Y
@@ -228,7 +229,7 @@ class PlotArea extends BaseComponent {
         .attr('y', d => this.yscale(d.value))
         .attr('height', d => this.bounds.height - this.yscale(d.value))
 
-      withConditionalTransition(this.plotArea.selectAll('.leaf'), 'leafHeight')
+      withConditionalTransition(this.treeTops, 'treeTopHeight')
         .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
     }
   }
