@@ -42,7 +42,7 @@
 #' @param y.lab.font.color y axis labels font color
 #' @param prefix prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis
 #' @param suffix suffix of numbers in the tooltips
-#' @param colors colors of the leaves. D3 colors will be used if no values are provided
+#' @param colors colors of the fronds. D3 colors will be used if no values are provided
 #' @param digits integer to control the number of decimal places in the tooltips
 #' @param order = c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending"
 #' @param width

@@ -46,7 +46,7 @@ class Sidebar extends BaseComponent {
     // this.config.headingFontSize = this._extractIntFromStringOrArray(this.config.headingFontSize)
     this.frondCount = config.columnNames.length
 
-    this.sdBarLeafData = _.range(this.frondCount).map((frondGroupIndex) => {
+    this.sdBarFrondData = _.range(this.frondCount).map((frondGroupIndex) => {
       return {
         colName: this.config.columnNames[frondGroupIndex],
         color: this.config.colors[frondGroupIndex],
@@ -254,7 +254,7 @@ class Sidebar extends BaseComponent {
     }
 
     this.sdBarPalms = sdBarDisp.selectAll('sdBarElem')
-      .data(this.sdBarLeafData)
+      .data(this.sdBarFrondData)
     let sdBarElemEnter = this.sdBarPalms.enter()
       .append('g')
       .attr('class', 'sdBarElem')

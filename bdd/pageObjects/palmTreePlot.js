@@ -3,14 +3,12 @@ class PalmTreePlot {
     return element(by.id('g_sideBar'))
   }
 
-  clickLeaf (treeIndex, leafIndex) {
-    return this.getLeaf(treeIndex, leafIndex).click()
+  clickFrond (treeIndex, frondIndex) {
+    return this.getFrond(treeIndex, frondIndex).click()
   }
 
-  getLeaf (treeIndex, leafIndex) {
-    // TODO the css needs to be fixed. Currently .leaf returns an array of "fronds" rects (collections of leafs)
-    const leaf = element(by.css(`#frond${treeIndex} .actual-leaf-${leafIndex}`))
-    return leaf
+  getFrond (treeIndex, frondIndex) {
+    return element(by.css(`#treeTop${treeIndex} .frond${frondIndex}`))
   }
 
   sidebarToggle (toggleIndex) {

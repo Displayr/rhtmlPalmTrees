@@ -200,7 +200,7 @@ class PalmTrees {
     })
 
     if (this.layout.enabled(CellNames.YAXIS)) {
-      this.components[CellNames.YAXIS].setmaxLeafSize(this.components[CellNames.PLOT].maxLeafSize)
+      this.components[CellNames.YAXIS].setmaxFrondSize(this.components[CellNames.PLOT].maxFrondSize)
       this.components[CellNames.YAXIS].draw(this.layout.getCellBounds(CellNames.YAXIS))
     }
 

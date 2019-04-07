@@ -67,8 +67,8 @@ class YAxis extends BaseComponent {
   }
 
   // NB this is only dependency between yaxis and plotArea (aside from shared math and state)
-  setmaxLeafSize (maxLeafSize) {
-    this.maxLeafSize = maxLeafSize
+  setmaxFrondSize (maxFrondSize) {
+    this.maxFrondSize = maxFrondSize
   }
 
   draw (bounds) {
@@ -83,7 +83,7 @@ class YAxis extends BaseComponent {
 
     this.yscale = d3.scale.linear()
       .nice(this.nticks)
-      .range([this.bounds.height, this.maxLeafSize])
+      .range([this.bounds.height, this.maxFrondSize])
 
     this.yAxis = d3.svg.axis()
       .orient('left')
