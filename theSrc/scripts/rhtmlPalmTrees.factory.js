@@ -16,17 +16,17 @@ module.exports = function (el, w, h, stateChangedFn) {
     palm.reset()
     palm.setConfig(config.settings)
     palm.setData(config.data)
+
+    if (stateChangedFnPresent) {
+      palm.addStateListener(stateChangedFn)
+    }
     if (state && palm.checkState(state)) {
       palm.restoreState(state)
     } else {
       palm.resetState()
     }
-    if (stateChangedFnPresent) {
-      palm.addStateListener(stateChangedFn)
-    }
 
     palm.addStateListener(newState => { stateCopy = newState })
-
     palm.draw(el)
   }
 
