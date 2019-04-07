@@ -11,6 +11,12 @@ const tooltipLogger = rootLog.getLogger('tooltip')
 const d3Tip = require('d3-tip')
 d3Tip(d3)
 
+const hardCodes = {
+  tipBarScale: [2, 30],
+  frondMaxSizePlotProportion: 0.1,
+  frondMaxSizeColumnProportion: 0.7
+}
+
 class PlotArea extends BaseComponent {
   constructor ({
     parentContainer,
@@ -72,7 +78,8 @@ class PlotArea extends BaseComponent {
   draw (bounds) {
     this.bounds = bounds
     log.info('plotArea.draw()')
-    this.plotArea = this.parentContainer.append('g').attr('id', 'g_plotArea')
+    this.plotArea = this.parentContainer.append('g')
+      .attr('id', 'g_plotArea')
       .attr('transform', this.buildTransform(bounds))
 
     const {
@@ -91,16 +98,15 @@ class PlotArea extends BaseComponent {
 
     this.tipBarScale = d3.scale.linear()
       .domain([dataMin, dataMax])
-      .range([2, 30])
+      .range(hardCodes.tipBarScale)
 
     this.xscale = d3.scale.ordinal()
       .domain(_(sortedWeightedSums).map('name').value())
       .rangeRoundBands([0, bounds.width])
 
     this.maxLeafSize = Math.min(
-      60,
-      bounds.height * 0.1,
-      Math.floor((this.xscale.range()[1] - this.xscale.range()[0]) / 1.4)
+      bounds.height * hardCodes.frondMaxSizePlotProportion,
+      Math.floor(this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion)
     )
 
     this.yscale = d3.scale.linear()
@@ -109,27 +115,25 @@ class PlotArea extends BaseComponent {
       .range([bounds.height, this.maxLeafSize])
 
     this.frondScale = d3.scale.linear()
-    this.frondScale.domain([normalizedDataMin, normalizedDataMax])
-    this.frondScale.range([this.maxLeafSize * normalizedDataMin / normalizedDataMax, this.maxLeafSize])
-    console.log({normalizedDataMin, normalizedDataMax})
+      .domain([normalizedDataMin, normalizedDataMax])
+      .range([this.maxLeafSize * normalizedDataMin / normalizedDataMax, this.maxLeafSize])
 
-    /* stop computing stuff / start drawing stuff */
-    this.bars = this.plotArea.selectAll('.bar').data(sortedWeightedSums, d => d.treeId)
-    this.palms = this.plotArea.selectAll('.palm').data(sortedWeightedSums, d => d.treeId)
 
-    this.bars.enter()
+    this.treeTrunks = this.plotArea.selectAll('.treeTrunk').data(sortedWeightedSums, d => d.treeId)
+    this.treeTrunks.enter()
       .append('rect')
-      .attr('id', d => `bar${d.treeId}`)
-      .attr('class', 'bar')
+      .attr('id', d => `treeTrunk${d.treeId}`)
+      .attr('class', 'treeTrunk')
       .attr('data-name', d => d.name)
       // .attr('id', function (d) {
-      //   return `bar${d.index}`
+      //   return `treeTrunk${d.index}`
       // })
       .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
       .attr('width', 1)
       .attr('y', d => this.yscale(d.value))
       .attr('height', d => bounds.height - this.yscale(d.value))
 
+    this.palms = this.plotArea.selectAll('.palm').data(sortedWeightedSums, d => d.treeId)
     let palmEnter = this.palms.enter()
       .append('g')
 
@@ -193,7 +197,7 @@ class PlotArea extends BaseComponent {
     console.log('sortedWeightedSums')
     console.log(JSON.stringify(sortedWeightedSums, {}, 2))
 
-    this.bars.data(sortedWeightedSums, d => d.treeId)
+    this.treeTrunks.data(sortedWeightedSums, d => d.treeId)
     this.palms.data(sortedWeightedSums, d => d.treeId)
     this.xscale.domain(_(sortedWeightedSums).map('name').value())
     this.yscale.domain([0, weightedSumMax])
@@ -221,8 +225,8 @@ class PlotArea extends BaseComponent {
     }
 
     if (this.plotState.areAllColumnOff()) {
-      this.bars
-        .transition('barHeight')
+      this.treeTrunks
+        .transition('treeTrunkHeight')
         .duration(this.duration)
         .attr('y', d => this.yscale(0))
         .attr('height', d => 0)
@@ -239,13 +243,13 @@ class PlotArea extends BaseComponent {
         })
     } else {
       if (initialization) {
-        this.bars
+        this.treeTrunks
           .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
           .attr('y', d => this.yscale(d.value))
           .attr('height', d => this.bounds.height - this.yscale(d.value))
       } else {
-        this.bars
-          .transition('barHeight')
+        this.treeTrunks
+          .transition('treeTrunkHeight')
           .duration(this.duration)
           .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
           .attr('y', d => this.yscale(d.value))
@@ -354,7 +358,7 @@ class PlotArea extends BaseComponent {
     let ghostRectHtmlElement = ghostRect[0][0]
     let ghostRectDimensions = ghostRectHtmlElement.getBoundingClientRect()
 
-    let barRectBboxDimensions = this.plotArea.select('#bar' + treeId)[0][0].getBoundingClientRect()
+    let treeTrunkRectBboxDimensions = this.plotArea.select('#treeTrunk' + treeId)[0][0].getBoundingClientRect()
 
     this.tip.html(html)
     let ghostRectYPosition = Number(ghostRect.attr('y'))
@@ -368,8 +372,8 @@ class PlotArea extends BaseComponent {
     const halfWidthOfTriangle = 7
     const heightOfTriangle = 10
 
-    const availableWidthToLeft = barRectBboxDimensions.x
-    const availableWidthToRight = this.bounds.canvasWidth - barRectBboxDimensions.x
+    const availableWidthToLeft = treeTrunkRectBboxDimensions.x
+    const availableWidthToRight = this.bounds.canvasWidth - treeTrunkRectBboxDimensions.x
     const requiredWidth = tipWidth / 2
 
     let xTipOffset = 0
@@ -388,13 +392,13 @@ class PlotArea extends BaseComponent {
       offset = [10, xTipOffset]
       directionClass = 'southTip'
       triangleTop = ghostRectDimensions.y + ghostRectDimensions.height
-      triangleLeft = barRectBboxDimensions.x - halfWidthOfTriangle
+      triangleLeft = treeTrunkRectBboxDimensions.x - halfWidthOfTriangle
     } else if (frondUpperBound - tipHeight >= 0) {
       direction = 'n'
       offset = [-10, xTipOffset]
       directionClass = 'northTip'
       triangleTop = ghostRectDimensions.y - heightOfTriangle
-      triangleLeft = barRectBboxDimensions.x - halfWidthOfTriangle
+      triangleLeft = treeTrunkRectBboxDimensions.x - halfWidthOfTriangle
     } else if (this.xscale(xPos) + Math.round(this.xscale.rangeBand() / 2) >= this.plotWidth * 0.5) {
       direction = 'w'
       offset = [0, -10]
