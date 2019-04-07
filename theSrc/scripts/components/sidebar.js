@@ -9,6 +9,7 @@ import {
 } from '../labelUtils'
 
 const log = rootLog.getLogger('sidebar')
+let sortTextOptions = ['Original', 'Alphabetical', 'Ascending', 'Descending']
 
 class Sidebar extends BaseComponent {
   static defaultSettings () {
@@ -42,8 +43,6 @@ class Sidebar extends BaseComponent {
     this.parentContainer = parentContainer
     this.plotState = plotState
     this.config = _.defaults({}, config, Sidebar.defaultSettings)
-    // this.config.fontSize = this._extractIntFromStringOrArray(this.config.fontSize)
-    // this.config.headingFontSize = this._extractIntFromStringOrArray(this.config.headingFontSize)
     this.frondCount = config.columnNames.length
 
     this.sdBarFrondData = _.range(this.frondCount).map((frondGroupIndex) => {
@@ -89,7 +88,7 @@ class Sidebar extends BaseComponent {
 
   // NB assumes width of control rows always <= main rows
   computePreferredDimensions () {
-    let sideBarRowDesiredWidths = []
+    let sideBarRowsDesiredWidths = []
 
     const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, maxWidth, fontSize, fontFamily, rotation = 0}) => {
       const lines = splitIntoLinesByWord({parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation})
@@ -105,8 +104,28 @@ class Sidebar extends BaseComponent {
         fontSize: this.config.headingFontSize,
         fontFamily: this.config.headingFontFamily
       })
-      sideBarRowDesiredWidths.push(dimensions.width)
+      sideBarRowsDesiredWidths.push(dimensions.width)
     }
+
+    sortTextOptions.forEach(sortText => {
+      const dimensions = estimateDimensionsOfSingleLineSplitByWord({
+        parentContainer: this.parentContainer,
+        text: sortText,
+        maxWidth: this.maxWidth,
+        fontSize: this.config.fontSize,
+        fontFamily: this.config.fontFamily
+      })
+      sideBarRowsDesiredWidths.push(dimensions.width + 25) // TODO hardcode for circle width
+    })
+
+    const dimensions = estimateDimensionsOfSingleLineSplitByWord({
+      parentContainer: this.parentContainer,
+      text: 'All On All Off',
+      maxWidth: this.maxWidth,
+      fontSize: this.config.fontSize,
+      fontFamily: this.config.fontFamily
+    })
+    sideBarRowsDesiredWidths.push(dimensions.width)
 
     const widthOfNonTextElementsInFrondRows =
       3 * this.constants.rowHorizontalPadding +
@@ -122,12 +141,12 @@ class Sidebar extends BaseComponent {
         fontSize: this.config.fontSize,
         fontFamily: this.config.fontFamily
       })
-      sideBarRowDesiredWidths.push(dimensions.width)
+      sideBarRowsDesiredWidths.push(dimensions.width + widthOfNonTextElementsInFrondRows)
     })
 
     return {
       width: Math.min(
-        _(sideBarRowDesiredWidths).max() + widthOfNonTextElementsInFrondRows + 2 * this.constants.rowHorizontalPadding,
+        _(sideBarRowsDesiredWidths).max() + 2 * this.constants.rowHorizontalPadding,
         this.config.maxWidth
       ),
       height: 0
@@ -170,11 +189,10 @@ class Sidebar extends BaseComponent {
       .style('font-family', this.config.fontFamily)
       .style('fill', this.config.fontColor)
 
-    let sortText = ['Original', 'Alphabetical', 'Ascending', 'Descending']
     let initialSort = this.plotState.getState().sortBy
 
     let sdBarCtrlEnter = sdBarCtrl.selectAll('g.span')
-      .data(sortText)
+      .data(sortTextOptions)
       .enter()
       .append('g')
       .attr('class', 'sideBarElemSortRow')
@@ -221,8 +239,6 @@ class Sidebar extends BaseComponent {
       .style('fill', this.config.backgroundColor)
 
     let sdBarDisp = sideBar.append('g').attr('id', 'g_sideBarDisp')
-    this.sdBarDisp = sdBarDisp
-    // all on all off selector
 
     this.drawControl()
 
