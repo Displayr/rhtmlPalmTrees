@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "footer": "Footer Text",
+    "footerFontSize": 11,
+    "footerFontFamily": "sans-serif",
+    "footerFontColor": "#000000"
+  }
+}
+

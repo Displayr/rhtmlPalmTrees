@@ -8,8 +8,6 @@ class VerticalBottomToTopWrappedLabel extends BaseComponent {
   constructor ({verticalAlignment, parentContainer, text, fontSize, fontFamily, fontColor, maxWidth, maxHeight, classNames}) {
     super()
     _.assign(this, {verticalAlignment, parentContainer, text, fontSize, fontFamily, fontColor, maxWidth, maxHeight, classNames})
-
-    this.maxLines = 1
   }
 
   computePreferredDimensions () {
@@ -17,7 +15,7 @@ class VerticalBottomToTopWrappedLabel extends BaseComponent {
       parentContainer: this.parentContainer,
       text: this.text,
       maxHeight: this.maxHeight,
-      maxLines: this.maxLines,
+      maxLines: 1,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
       rotation: -90
@@ -40,7 +38,7 @@ class VerticalBottomToTopWrappedLabel extends BaseComponent {
       parentContainer,
       text: this.text,
       maxHeight: this.maxHeight,
-      maxLines: this.maxLines,
+      maxLines: 1,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
       rotation: -90

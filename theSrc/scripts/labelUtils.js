@@ -1,5 +1,4 @@
-// NB Copy/Pasted from Displayr/rhtmlHeatMap. Then modifications
-//  * added fontWeight support to splitLinesByWord
+// NB This util is duplicated between Displayr/rhtmlHeatMap and Displayr/rhtmlPalmTrees
 
 import _ from 'lodash'
 
@@ -137,7 +136,6 @@ function _splitIntoLines ({parentContainer, text, fontSize = 12, fontFamily = 's
     currentLine.push(token)
 
     const { width, height } = getDimensions(currentLine)
-
     if (heightExceeded(totalHeight + height) && !horizontalAndOnFirstLine()) {
       if (lines.length === 0) {
         // TODO check if the current line still fits, and if not delete characters
@@ -174,9 +172,11 @@ function _splitIntoLines ({parentContainer, text, fontSize = 12, fontFamily = 's
     lines.push(`${currentLine.join(joinCharacter)}`)
   }
 
-  return (lines.length === 0)
+  const finalResult = (lines.length === 0)
     ? ['...']
     : lines
+
+  return finalResult
 }
 
 module.exports = {

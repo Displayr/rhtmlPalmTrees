@@ -4,25 +4,28 @@ import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord} from '../
 
 // TODO preferred dimensions must account for maxes
 class Title extends BaseComponent {
-  constructor ({parentContainer, text, fontSize, fontFamily, fontColor, bold = false, maxWidth, maxLines, innerPadding}) {
+  constructor ({parentContainer, text, fontSize, fontFamily, fontColor, bold = false, maxWidth, maxHeight, maxLines, innerPadding}) {
     super()
-    _.assign(this, {parentContainer, text, fontSize, fontFamily, fontColor, bold, maxWidth, maxLines, innerPadding})
+    _.assign(this, {parentContainer, text, fontSize, fontFamily, fontColor, bold, maxWidth, maxHeight, maxLines, innerPadding})
   }
 
-  computePreferredDimensions (estimatedWidth) {
+  computePreferredDimensions () {
     const lines = splitIntoLinesByWord({
       parentContainer: this.parentContainer,
       text: this.text,
-      maxWidth: estimatedWidth,
-      fontSize: this.fontSize,
+      maxWidth: this.maxWidth,
+      maxHeight: this.maxHeight,
       maxLines: this.maxLines,
-      fontFamily: this.fontFamily
+      fontSize: this.fontSize,
+      fontFamily: this.fontFamily,
+      fontWeight: (this.bold) ? 'bold' : 'normal'
     })
     const lineDimensions = lines.map(text => getLabelDimensionsUsingSvgApproximation({
       text,
       parentContainer: this.parentContainer,
       fontSize: this.fontSize,
-      fontFamily: this.fontFamily
+      fontFamily: this.fontFamily,
+      fontWeight: (this.bold) ? 'bold' : 'normal'
     }))
 
     return {
@@ -39,10 +42,12 @@ class Title extends BaseComponent {
     const lines = splitIntoLinesByWord({
       parentContainer: this.parentContainer,
       text: this.text,
-      maxWidth: bounds.width,
-      fontSize: this.fontSize,
+      maxWidth: bounds.width, // NB not using this.maxWidth
+      maxHeight: bounds.height, // NB not using this.maxHeight
       maxLines: this.maxLines,
-      fontFamily: this.fontFamily
+      fontSize: this.fontSize,
+      fontFamily: this.fontFamily,
+      fontWeight: (this.bold) ? 'bold' : 'normal'
     })
 
     const textElement = titleContainer.append('text')

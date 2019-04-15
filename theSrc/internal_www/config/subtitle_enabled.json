@@ -1,0 +1,8 @@
+{
+  "settings": {
+    "subtitle": "Subtitle Text",
+    "subtitleFontSize": 18,
+    "subtitleFontFamily": "sans-serif",
+    "subtitleFontColor": "#000000"
+  }
+}

@@ -292,7 +292,7 @@ class PalmTrees {
         fontFamily: this.settings.yLabFontFamily,
         fontSize: this.settings.yLabFontSize,
         fontColor: this.settings.yLabFontColor,
-        maxHeight: 1000 // hard code
+        maxHeight: 0.8 * this.viewerHeight // TODO make configurable
       })
 
       const dimensions = this.components[CellNames.YAXIS_TITLE].computePreferredDimensions()
@@ -334,9 +334,13 @@ class PalmTrees {
       fontColor: this.settings.rowFontColor
     })
 
-    // NB Xaxis, xtitle complication: wrapping.
+    // NB Xaxis, title, subtitle, and footer, xtitle complication: wrapping.
     // To know the required height (due to wrapping),
     // we need to know the available width. (this is why it is done near end and why the computeFn takes a param)
+
+    // NB title/subtitle/footer : we want to center align with the plotarea midpoint,
+    // but we want to wrap using the canvas boundaries, not the plotarea boundaries.
+    // we cannot currently express this in the layout component, so we need to do a bit of manual work here
 
     const estimatedPlotAreaBoundsWidth = this.layout.getEstimatedCellBounds(CellNames.PLOT).width
     const xaxisDimensions = this.components[CellNames.XAXIS].computePreferredDimensions(estimatedPlotAreaBoundsWidth / this.rowNames.length)
@@ -358,6 +362,74 @@ class PalmTrees {
       this.layout.enable(CellNames.XAXIS_TITLE)
       this.layout.setPreferredDimensions(CellNames.XAXIS_TITLE, axisTitleDimensions)
     }
+
+    if (!_.isEmpty(this.settings.title)) {
+      const { width: estimatedWidth, left: estimatedLeftBound } = this.layout.getEstimatedCellBounds(CellNames.TITLE)
+      const midpoint = estimatedLeftBound + 0.5 * estimatedWidth
+      const shorterSide = Math.min(midpoint, this.viewerWidth - midpoint)
+
+      this.components[CellNames.TITLE] = new Title({
+        parentContainer: this.baseSvg,
+        text: this.settings.title,
+        fontColor: this.settings.titleFontColor,
+        fontSize: this.settings.titleFontSize,
+        fontFamily: this.settings.titleFontFamily,
+        maxWidth: 2 * shorterSide,
+        maxHeight: this.viewerWidth / 4, // TODO make this configurable
+        bold: false,
+        innerPadding: 2 // TODO make configurable
+      })
+
+      const dimensions = this.components[CellNames.TITLE].computePreferredDimensions()
+      this.layout.enable(CellNames.TITLE)
+      this.layout.setPreferredDimensions(CellNames.TITLE, dimensions)
+    }
+
+    if (!_.isEmpty(this.settings.subtitle)) {
+      const { width: estimatedWidth, left: estimatedLeftBound } = this.layout.getEstimatedCellBounds(CellNames.SUBTITLE)
+      const midpoint = estimatedLeftBound + 0.5 * estimatedWidth
+      const shorterSide = Math.min(midpoint, this.viewerWidth - midpoint)
+
+      this.components[CellNames.SUBTITLE] = new Title({
+        parentContainer: this.baseSvg,
+        text: this.settings.subtitle,
+        fontColor: this.settings.subtitleFontColor,
+        fontSize: this.settings.subtitleFontSize,
+        fontFamily: this.settings.subtitleFontFamily,
+        maxWidth: 2 * shorterSide,
+        maxHeight: this.viewerWidth / 4, // TODO make this configurable
+        bold: false,
+        innerPadding: 2 // TODO make configurable
+      })
+
+      const dimensions = this.components[CellNames.SUBTITLE].computePreferredDimensions()
+      this.layout.enable(CellNames.SUBTITLE)
+      this.layout.setPreferredDimensions(CellNames.SUBTITLE, dimensions)
+    }
+
+    if (!_.isEmpty(this.settings.footer)) {
+      const { width: estimatedWidth, left: estimatedLeftBound } = this.layout.getEstimatedCellBounds(CellNames.FOOTER)
+      const midpoint = estimatedLeftBound + 0.5 * estimatedWidth
+      const shorterSide = Math.min(midpoint, this.viewerWidth - midpoint)
+
+      this.components[CellNames.FOOTER] = new Title({
+        parentContainer: this.baseSvg,
+        text: this.settings.footer,
+        fontColor: this.settings.footerFontColor,
+        fontSize: this.settings.footerFontSize,
+        fontFamily: this.settings.footerFontFamily,
+        maxWidth: 2 * shorterSide,
+        maxHeight: this.viewerWidth / 4, // TODO make this configurable
+        bold: false,
+        innerPadding: 2 // TODO make configurable
+      })
+
+      const dimensions = this.components[CellNames.FOOTER].computePreferredDimensions()
+      this.layout.enable(CellNames.FOOTER)
+      this.layout.setPreferredDimensions(CellNames.FOOTER, dimensions)
+    }
+
+    this.layout.allComponentsRegistered()
   }
 }
 
