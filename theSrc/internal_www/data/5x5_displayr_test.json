@@ -1,39 +1,39 @@
 {
   "data": [
     [
+      21,
       1,
       6,
       11,
-      16,
-      21
+      16
     ],
     [
+      22,
       2,
       7,
       12,
-      17,
-      22
+      17
     ],
     [
+      23,
       3,
       8,
       13,
-      18,
-      23
+      18
     ],
     [
+      24,
       4,
       9,
       14,
-      19,
-      24
+      19
     ],
     [
+      25,
       5,
       10,
       15,
-      20,
-      25
+      20
     ]
   ],
   "settings": {
@@ -74,8 +74,6 @@
     "tooltipsHeadingFontSize": 12,
     "tooltipsHeadingFontFamily": "sans-serif",
     "showYAxis": true,
-    "yprefix": null,
-    "ysuffix": null,
     "ydigits": 1,
     "yFontSize": 11,
     "yFontFamily": "sans-serif",
@@ -84,9 +82,7 @@
     "digits": 1,
     "colors": null,
     "barHeights": null,
-    "order": "descending",
-    "prefix": null,
-    "suffix": null
+    "order": "descending"
   }
 }
 

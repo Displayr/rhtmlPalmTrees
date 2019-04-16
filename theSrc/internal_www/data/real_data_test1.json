@@ -159,8 +159,6 @@
     "tooltipsHeadingFontFamily": "sans-serif",
     "showYAxis": true,
     "ylab": null,
-    "yprefix": null,
-    "ysuffix": null,
     "ydigits": 2,
     "yFontSize": 11,
     "yFontFamily": "sans-serif",

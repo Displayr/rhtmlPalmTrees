@@ -41,6 +41,7 @@ Feature: State Interactions
     Given I am viewing "data.bdd_cramped_example" with dimensions 300x200
     Then the "cramped_example_interaction_baseline" snapshot matches the baseline
 
+    # TODO test issue where last step does not hilight tooltip row. works, just not under test
     When I click frond 0 of tree 0
     And I move the mouse off the tree
     When I hover over frond 0 of tree 0
@@ -56,6 +57,14 @@ Feature: State Interactions
     #    Then the "cramped_example_interaction_hover_east_tip" snapshot matches the baseline
     #    Then the "cramped_example_interaction_hover_north_tip" snapshot matches the baseline
     #    Then the "cramped_example_interaction_hover_west_tip" snapshot matches the baseline
+
+  @palmtree @hover
+  Scenario: Scenario: User can see disabled columns in the tooltips
+    Given I am viewing "data.bdd_minimal_example|config.x_prefix_and_suffix_enabled" with dimensions 300x200
+    When I hover over frond 0 of tree 0
+    And I wait for animations to complete
+    Then the "interaction_tooltip_includes_prefix_and_suffix" snapshot matches the baseline
+
 
 
   @palmtree @click

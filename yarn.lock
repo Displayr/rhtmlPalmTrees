@@ -5761,7 +5761,7 @@ ret@~0.1.10:
   version "0.1.15"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
 
-rhtmlBuildUtils@Displayr/rhtmlBuildUtils#3.0.7:
+rhtmlBuildUtils@Displayr/rhtmlBuildUtils:
   version "3.0.7"
   resolved "https://codeload.github.com/Displayr/rhtmlBuildUtils/tar.gz/e3b362d2aaab8ee4078680f433b88b83b032dd0a"
   dependencies:

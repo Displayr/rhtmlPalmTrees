@@ -1,43 +1,35 @@
+const _ = require('lodash')
+
 class PalmTreePlot {
   get sidebar () {
     return element(by.id('g_sideBar'))
   }
 
-  clickLeaf (treeIndex, leafIndex) {
-    return this.getLeaf(treeIndex, leafIndex).click()
+  clickFrond (treeIndex, frondIndex) {
+    return this.getFrond(treeIndex, frondIndex).click()
   }
 
-  getLeaf (treeIndex, leafIndex) {
-    // TODO the css needs to be fixed. Currently .leaf returns an array of "fronds" rects (collections of leafs)
-    const leaf = element(by.css(`#frond${treeIndex} .actual-leaf-${leafIndex}`))
-    return leaf
+  getFrond (treeIndex, frondIndex) {
+    return element(by.css(`#treeTop${treeIndex} .frond${frondIndex}`))
   }
 
   sidebarToggle (toggleIndex) {
     if (toggleIndex === 'allOn') {
-      return element(by.id('sdAC0')).click()
+      return element(by.css('.sdBarAllRect.on')).click()
     } else if (toggleIndex === 'allOff') {
-      return element(by.id('sdAC1')).click()
+      return element(by.css('.sdBarAllRect.off')).click()
     } else {
-      return element(by.id(`sbRect${toggleIndex}`)).click()
+      return element(by.id(`sideBarElemRect${toggleIndex}`)).click()
     }
   }
 
   sortBy (sortType) {
-    const sortTypeToIdMapping = {
-      'original': 's0',
-      'alphabetical': 's1',
-      'ascending': 's2',
-      'descending': 's3'
+    const validSort = ['original', 'alphabetical', 'ascending', 'descending']
+    if (!_.includes(validSort, sortType.toLowerCase())) {
+      throw new Error(`Invalid sort type '${sortType}'`)
     }
 
-    const sortElementIdentifier = sortTypeToIdMapping[sortType.toLowerCase()]
-
-    if (!sortElementIdentifier) {
-      throw new Error(`Invalid sort type '${sortType}`)
-    }
-
-    return element(by.id(sortElementIdentifier)).click()
+    return element(by.css(`.sdBarElemSortRect.${sortType.toLowerCase()}`)).click()
   }
 }
 

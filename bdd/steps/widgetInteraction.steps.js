@@ -46,14 +46,14 @@ module.exports = function () {
 
   this.When(/^I click frond (.+) of tree (.+)$/, function (frondNumber, treeNumber) {
     return wrapInPromiseAndLogErrors(() => {
-      return this.context.palmTreePlot.clickLeaf(parseInt(treeNumber), parseInt(frondNumber))
+      return this.context.palmTreePlot.clickFrond(parseInt(treeNumber), parseInt(frondNumber))
     })
   })
 
   this.When(/^I hover over frond (.+) of tree (.+)$/, function (frondNumber, treeNumber) {
     return wrapInPromiseAndLogErrors(() => {
       return browser.actions()
-        .mouseMove(this.context.palmTreePlot.getLeaf(parseInt(treeNumber), parseInt(frondNumber)))
+        .mouseMove(this.context.palmTreePlot.getFrond(parseInt(treeNumber), parseInt(frondNumber)))
         .perform()
     })
   })
@@ -61,7 +61,12 @@ module.exports = function () {
   this.When(/^I move the mouse off the tree$/, function () {
     return wrapInPromiseAndLogErrors(() => {
       return browser.actions()
-        .mouseMove({ x: 40, y: 40 })
+        .mouseMove({ x: 10, y: 10 })
+        .mouseMove({ x: 10, y: 10 })
+        .mouseMove({ x: 10, y: 10 })
+        .mouseMove({ x: 10, y: 10 })
+        .mouseMove({ x: 10, y: 10 })
+        .mouseMove({ x: 10, y: 10 })
         .perform()
     })
   })

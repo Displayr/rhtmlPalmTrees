@@ -685,8 +685,6 @@
     "tooltipsHeadingFontFamily": "",
     "showYAxis": true,
     "ylab": "",
-    "yprefix": null,
-    "ysuffix": null,
     "ydigits": 0,
     "yFontSize": 11,
     "yFontFamily": "",
@@ -695,8 +693,6 @@
     "digits": 0,
     "colors": null,
     "barHeights": null,
-    "order": "original",
-    "prefix": null,
-    "suffix": null
+    "order": "original"
   }
 }

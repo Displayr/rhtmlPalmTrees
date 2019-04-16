@@ -93,7 +93,7 @@ PalmTrees(data = NULL, weights = NULL, hover.color = "#eeeeee",
 
 \item{y.font.family}{Default y axis font family = "sans-serif"}
 
-\item{y.font.color}{y axis title font color}
+\item{y.font.color}{y axis font color}
 
 \item{y.lab.font.size}{Default y axis label font size = 12}
 
@@ -107,7 +107,7 @@ PalmTrees(data = NULL, weights = NULL, hover.color = "#eeeeee",
 
 \item{digits}{integer to control the number of decimal places in the tooltips}
 
-\item{colors}{colors of the leaves. D3 colors will be used if no values are provided}
+\item{colors}{colors of the fronds. D3 colors will be used if no values are provided}
 
 \item{order}{= c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending"}
 

@@ -1,48 +1,42 @@
-import PalmTrees from './PalmTrees'
-import d3 from 'd3'
+import PalmTrees from './palmTrees'
+import _ from 'lodash'
 
-module.exports = function (el, width, height, stateChangedFn) {
+module.exports = function (el, w, h, stateChangedFn) {
   const stateChangedFnPresent = (typeof stateChangedFn === 'function') ? 'present' : 'absent'
-  console.log(`rhtmlPalmtrees.factory called width=${width}, height=${height}, stateChangedFn=${stateChangedFnPresent}`)
-  const w = width < 200 ? 200 : width
-  const h = height < 100 ? 100 : height
 
-  d3.select(el).append('svg')
-    .attr('class', 'svgContent')
-    .attr('width', w)
-    .attr('height', h)
+  // keep reference to config for resize, as we just recreate widget on resize to simplify code
+  let configCopy = null
+  let stateCopy = null
 
-  // an empty instance of the PalmPlot object with width and height initialized
   let palm = new PalmTrees()
-  palm.width(w)
-  palm.height(h)
+
+  function doRenderValue (config, state) {
+    el.innerHTML = ''
+    palm.reset()
+    palm.setConfig(config.settings)
+    palm.setData(config.data)
+
+    if (stateChangedFnPresent) {
+      palm.addStateListener(stateChangedFn)
+    }
+    if (state && palm.checkState(state)) {
+      palm.restoreState(state)
+    } else {
+      palm.resetState()
+    }
+
+    palm.addStateListener(newState => { stateCopy = newState })
+    palm.draw(el)
+  }
 
   return {
-    resize: function (width, height) {
-      console.log('rhtmlPalmTree.resize()')
-      palm.width(width)
-      palm.height(height)
-      return palm.resize(el)
+    resize: function () {
+      doRenderValue(configCopy, stateCopy)
     },
 
-    renderValue: function (x, state) {
-      console.log('rhtmlPalmTree.renderValue()')
-      palm.reset()
-      palm.setConfig(x.settings)
-      palm.setData(x.data)
-      if (stateChangedFnPresent) {
-        palm.saveStateChangedCallback(stateChangedFn)
-      }
-      if (state && palm.checkState(state)) {
-        palm.restoreState(state)
-      } else {
-        palm.resetState()
-      }
-
-      palm.registerInternalListeners()
-      d3.select(el).selectAll('g').remove()
-      // NB TODO the this in this.palm is suspect ?
-      d3.select(el).call(this.palm.draw.bind(palm))
+    renderValue: function (config, state) {
+      configCopy = _.cloneDeep(config)
+      doRenderValue(config, state)
     },
 
     palm: palm

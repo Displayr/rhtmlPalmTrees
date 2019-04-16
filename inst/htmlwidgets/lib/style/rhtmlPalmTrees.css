@@ -1,16 +1,10 @@
-.bar {
+.treeTrunk {
     fill: #bbb;
 }
 
 .xtickBg{
     fill: white;
     opacity: 0.5;
-}
-
-.leaf {
-}
-
-.tree {
 }
 
 .tipHeading {
@@ -87,27 +81,8 @@
 	position: absolute;
 }
 
-.plotAreaHeading {
-    cursor: default;
-    font-weight: bold;
-}
-
-.plotAreaYLab {
-    cursor: default;
-    font-weight: bold;
-}
-
-.suffixText {
-    cursor: default;
-}
-
-
 .axis {
   shape-rendering: crispEdges;
-}
-
-.xaxis {
-    cursor: default;
 }
 
 .xaxis line { /* tick marks*/
@@ -161,7 +136,6 @@
 .sdBarHeading{
     cursor: default;
     fill: #000;
-    font-weight: bold;
     pointer-events: none;
 }
 
