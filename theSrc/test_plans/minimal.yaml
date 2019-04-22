@@ -1,0 +1,7 @@
+version: 1
+tests:
+  - type: single_widget_single_page
+    comments: []
+    width: 600
+    height: 600
+    data: data.5x5_displayr_test
