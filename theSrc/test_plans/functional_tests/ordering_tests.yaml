@@ -1,0 +1,26 @@
+version: 1
+tests:
+  - title: yaxis variations
+    general_comments:
+      - '
+          <p>order: (optional) ENUM : original, alphabetical, ascending, descending</p>
+          <p>"correct" answers:</p>
+          <ul>
+            <li><b>original</b>: 2, 1, 3</li>
+            <li><b>alphabetical</b>: 1, 2, 3</li>
+            <li><b>ascending</b>: 3, 1, 2</li>
+            <li><b>descending</b>: 2, 1, 3</li>
+          </ul>
+        '
+    width: 400
+    height: 200
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    data: data.functional_tests.3x4
+    config:
+      - '{"settings":{"rowHeading":"default order (desc)"}}'
+      - '{"settings":{"rowHeading":"original order (desc)", "order":"original"}}'
+      - '{"settings":{"rowHeading":"ascending order (desc)", "order":"ascending"}}'
+      - '{"settings":{"rowHeading":"descending order (desc)", "order":"descending"}}'
+      - '{"settings":{"rowHeading":"alphabetical order (desc)", "order":"alphabetical"}}'

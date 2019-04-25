@@ -1,0 +1,10 @@
+{
+  "settings": {
+    "yFontSize": 16,
+    "yFontFamily": "fantasy",
+    "yFontColor": "red",
+    "yLabFontSize": 16,
+    "yLabFontFamily": "fantasy",
+    "yLabFontColor": "red"
+  }
+}

@@ -1,0 +1,14 @@
+version: 1
+tests:
+  - title: vary sidebar font family, color, and size
+    general_comments:
+      - 'Variables to test: [colFontColor, colFontColorUnselected, colFontFamily, colHeadingFontColor, colHeadingFontFamily]. colFontColorUnselected must be tested in interaction test'
+    width: 500
+    height: 200
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    data: data.functional_tests.5x5
+    config:
+      - 'config.sidebar_title'
+      - 'config.sidebar_title|config.sidebar_font_16_red_fantasy'

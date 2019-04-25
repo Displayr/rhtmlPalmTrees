@@ -1,0 +1,23 @@
+version: 1
+tests:
+  - title: yaxis prefix and suffix placement
+    width: 400
+    height: 200
+    rowSize: 4
+    type: single_page_one_example_per_config
+    comments: []
+    data: 'data.functional_tests.3x4|config.yaxis_enabled|config.yaxis_title'
+    config:
+      - '{"settings": {"suffix":"%", "prefix": ""}}'
+      - '{"settings": {"suffix":"%", "prefix": "xPrefff"}}'
+      - '{"settings": {"suffix":"%", "prefix": "xPreffffff"}}'
+      - '{"settings": {"suffix":"%", "prefix": "xPreffffffffffff"}}'
+      - '{"settings": {"suffix":"shrt", "prefix": ""}}'
+      - '{"settings": {"suffix":"shrt", "prefix": "xPrefff"}}'
+      - '{"settings": {"suffix":"shrt", "prefix": "xPreffffff"}}'
+      - '{"settings": {"suffix":"shrt", "prefix": "xPreffffffffffff"}}'
+      - '{"settings": {"suffix":"long suffix", "prefix": ""}}'
+      - '{"settings": {"suffix":"long suffix", "prefix": "xPrefff"}}'
+      - '{"settings": {"suffix":"long suffix", "prefix": "xPreffffff"}}'
+      - '{"settings": {"suffix":"long suffix", "prefix": "xPreffffffffffff"}}'
+      - '{"settings": {"prefix": "heading defaults to prefix"}}'

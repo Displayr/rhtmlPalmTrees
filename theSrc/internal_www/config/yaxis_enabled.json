@@ -1,11 +1,5 @@
 {
   "settings": {
-    "showYAxis": true,
-    "ylab": null,
-    "ydigits": 2,
-    "yFontSize": 11,
-    "yFontFamily": "sans-serif",
-    "yLabFontSize": 12,
-    "yLabFontFamily": "sans-serif"
+    "showYAxis": true
   }
 }

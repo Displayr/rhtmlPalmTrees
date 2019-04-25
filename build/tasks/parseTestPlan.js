@@ -14,12 +14,17 @@ const bddDestination = path.join(bddDir, 'testplan.feature')
 const renderExampleBasePath = '/renderExample.html'
 
 function registerTaskWithGulp (gulp) {
-  return function () {
+  return function (callback) {
     return loadConfigs(testPlansDir)
       .then(extractGroupedTestCases)
       .then(generateBddFeatureFile)
       .then(generateBrowserJsonFile)
-      .catch(echoError)
+      .catch(error => {
+        console.error(error)
+        // this is not faiing cleanly, so i am going to process.exit to make sure i notice errors
+        process.exit(1)
+        // callback(error.message)
+      })
   }
 }
 
@@ -282,12 +287,6 @@ function extractCommonParamsFromTestDefinition (testDefinition) {
     }
   }
   return renderExampleConfig
-}
-
-function echoError (error) {
-  console.error(error)
-  console.error(error)
-  throw error
 }
 
 function toArray (stringOrArray) {

@@ -1,0 +1,13 @@
+version: 1
+tests:
+  - title: manually specifying the frond colors
+    general_comments:
+      - "never let Kyle choose colors"
+    width: 500
+    height: 250
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    data: data.functional_tests.5x5
+    config:
+      - '{"settings":{ "colors":["#CD5C5C", "#E0115F", "#C21807", "#800000","#420d09"]}}'

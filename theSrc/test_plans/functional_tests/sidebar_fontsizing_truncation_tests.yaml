@@ -1,0 +1,19 @@
+version: 1
+tests:
+  - title: sidebar truncation scenarios
+    general_comments:
+      - 'left column should not truncate, right column should truncate'
+    width: 400
+    height: 200
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    data: 'data.functional_tests.2x2'
+    config:
+      - '{"settings":{"rowHeading":"HF: 18, F:15", "colHeading": "col head", "colNames": [ "Col1 12345", "Col2 12345" ], "colHeadingFontSize": 18, "colFontSize": 15, "sidebarMaxProportion": 0.5 }}'
+      - '{"settings":{"rowHeading":"HF: 18, F:15", "colHeading": "col heading1234567 8912", "colNames": [ "Col1 1234567891234567 434343", "Col2 123456" ], "colHeadingFontSize": 18, "colFontSize": 15, "sidebarMaxProportion": 0.5 }}'
+      - '{"settings":{"rowHeading":"HF: 30, F:25", "colHeading": "col heading1", "colNames": [ "Col1 12345", "Col2 12345" ], "colHeadingFontSize": 30, "colFontSize": 25, "sidebarMaxProportion": 0.5 }}'
+      - '{"settings":{"rowHeading":"HF: 30, F:25", "colHeading": "col heading123", "colNames": [ "Col1 123456", "Col2 123456" ], "colHeadingFontSize": 30, "colFontSize": 25, "sidebarMaxProportion": 0.5 }}'
+      - '{"settings":{"rowHeading":"HF: 42, F:38", "colHeading": "col head", "colNames": [ "Col12", "Col22" ], "colHeadingFontSize": 42, "colFontSize": 38, "sidebarMaxProportion": 0.5 }}'
+      - '{"settings":{"rowHeading":"HF: 42, F:38", "colHeading": "col head11", "colNames": [ "Col122", "Col222" ], "colHeadingFontSize": 42, "colFontSize": 38, "sidebarMaxProportion": 0.5 }}'
+      - '{"settings":{"rowHeading":"HF: 42, F:38", "colHeading": "col head", "colNames": [ "Col1", "Col2" ], "colHeadingFontSize": 42, "colFontSize": 38, "sidebarMaxProportion": 0.5 }}'

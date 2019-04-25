@@ -1,8 +1,5 @@
 {
   "settings": {
-    "title": "Title ",
-    "titleFontSize": 24,
-    "titleFontFamily": "sans-serif",
-    "titleFontColor": "#000000"
+    "title": "Title "
   }
 }

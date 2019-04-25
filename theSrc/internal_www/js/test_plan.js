@@ -4,8 +4,6 @@
 /* global Mustache */
 
 $(document).ready(() => {
-  console.log('ready R')
-  addLinkToIndex()
   fetch('/test_plan.json')
     .then(response => { return response.text() })
     .then(JSON.parse)
@@ -14,18 +12,6 @@ $(document).ready(() => {
     })
     .catch(console.error)
 })
-
-const addLinkToIndex = function () {
-  const indexLinkContainer = $('<div>')
-    .addClass('index-link')
-
-  const indexLink = $('<a>')
-    .attr('href', '/')
-    .html('back to index')
-
-  indexLinkContainer.append(indexLink)
-  return $('body').prepend(indexLinkContainer)
-}
 
 const renderTestPlanGroup = function (testPlan) {
   const testGroupContainer = $(`
