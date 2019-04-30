@@ -45,7 +45,8 @@ class YAxis extends BaseComponent {
 
     const boundaryValues = [
       this.tickFormatterFactory(weightedSumMax)(weightedSumMin),
-      this.tickFormatterFactory(weightedSumMax)(weightedSumMax)
+      this.tickFormatterFactory(weightedSumMax)(weightedSumMax),
+      this.suffix || this.prefix || ''
     ]
 
     const dimensions = boundaryValues.map(value => {
@@ -72,20 +73,22 @@ class YAxis extends BaseComponent {
 
   draw (bounds) {
     this.bounds = bounds
-    const magicD3AxisOffsetCorrection = 6
+    const magicD3AxisOffsetCorrection = 6 // d3.svg.axis orient left always adds a -6 offset to labels
     const axisContainer = this.parentContainer.append('g')
       .classed('yaxis', true)
       .attr('transform', `translate(${bounds.left + bounds.width + magicD3AxisOffsetCorrection},${bounds.top})`)
     this.axisContainer = axisContainer
 
     if (this.suffix || this.prefix) {
-      axisContainer.append('text')
+      const yaxisHeaderContainer = axisContainer.append('g')
         .attr('class', 'yaxis-header')
-        .attr('y', this.maxFrondSize / 2)
-        // NB the x is a -1 * X because the d3.svg.axis(orient:left) places to left of origin
-        .attr('x', (-1 * this.maxLabelWidth / 2) + magicD3AxisOffsetCorrection)
+        .attr('transform', `translate(0,${this.maxFrondSize / 2})`)
+
+      yaxisHeaderContainer.append('text')
+        .attr('x', -1 * magicD3AxisOffsetCorrection)
+        .attr('y', 0)
         .text(this.suffix || this.prefix)
-        .style('text-anchor', 'middle')
+        .style('text-anchor', 'end')
         .style('font-size', this.fontSize + 'px')
         .style('font-family', this.fontFamily)
         .style('fill', this.fontColor)
