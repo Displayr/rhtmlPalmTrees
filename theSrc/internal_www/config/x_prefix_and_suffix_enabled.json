@@ -1,6 +1,6 @@
 {
   "settings": {
-    "prefix": "xPref",
-    "suffix": "xSuf"
+    "prefix": "~",
+    "suffix": "K"
   }
 }

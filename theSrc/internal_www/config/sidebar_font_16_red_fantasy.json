@@ -1,0 +1,10 @@
+{
+  "settings": {
+    "colFontSize": 16,
+    "colFontFamily": "fantasy",
+    "colFontColor": "red",
+    "colHeadingFontSize": 16,
+    "colHeadingFontFamily": "fantasy",
+    "colHeadingFontColor": "red"
+  }
+}

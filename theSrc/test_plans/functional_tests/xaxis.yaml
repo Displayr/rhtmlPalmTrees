@@ -1,0 +1,15 @@
+version: 1
+tests:
+  - title: xaxis variations
+    general_comments:
+      - 'xaxis wrapping covered in text_wrapping.yaml'
+    width: 500
+    height: 250
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    data: data.functional_tests.5x5
+    config:
+      - ''
+      - 'config.xaxis_title'
+      - 'config.xaxis_title|config.xaxis_font_16_red_fantasy'

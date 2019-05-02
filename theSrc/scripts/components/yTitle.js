@@ -1,5 +1,6 @@
 import BaseComponent from './baseComponent'
 import _ from 'lodash'
+import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByCharacter} from '../labelUtils'
 
 // TODO preferred dimensions must account for maxes
 class YTitle extends BaseComponent {
@@ -9,38 +10,52 @@ class YTitle extends BaseComponent {
   }
 
   computePreferredDimensions () {
-    var dummySvg = this.parentContainer.append('svg')
-    var dummyG = dummySvg
-      .append('g')
-      .classed('dummy_g', true)
+    // NB note the height / width inversion so we can avoid passing rotation: -90 to splitIntoLinesByCharacter and getLabelDimensionsUsingSvgApproximation
+    //   * as of apr 2019, splitIntoLinesByCharacter and getLabelDimensionsUsingSvgApproximation appear off by 10-15 px when estimating vertical text
 
-    var textEl = dummyG.append('text')
-      .text(this.text)
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('dy', 0)
-      .style('font-family', this.fontFamily)
-      .style('font-size', this.fontSize)
-      .style('fill', this.fontColor)
-      .attr('font-weight', this.bold ? 'bold' : 'normal')
+    const truncatedText = splitIntoLinesByCharacter({
+      parentContainer: this.parentContainer,
+      text: this.text,
+      maxWidth: this.maxHeight,
+      maxLines: 1,
+      fontSize: this.fontSize,
+      fontFamily: this.fontFamily,
+      fontWeight: (this.bold) ? 'bold' : 'normal'
+    })[0]
+    const dimensions = getLabelDimensionsUsingSvgApproximation({
+      text: truncatedText,
+      parentContainer: this.parentContainer,
+      fontSize: this.fontSize,
+      fontFamily: this.fontFamily,
+      fontWeight: (this.bold) ? 'bold' : 'normal'
+    })
 
-    var bbox = textEl.node().getBBox()
-    dummySvg.remove()
-
-    // note inversion of width / height here
     return {
-      width: bbox.height,
-      height: bbox.width
+      width: dimensions.height,
+      height: 0 // NB yTitle height takes what is given, and does not force height on the chart
     }
   }
 
   draw (bounds) {
+    // NB note the height / width inversion so we can avoid passing rotation: -90 to splitIntoLinesByCharacter and getLabelDimensionsUsingSvgApproximation
+    //   * as of apr 2019, splitIntoLinesByCharacter and getLabelDimensionsUsingSvgApproximation appear off by 10-15 px when estimating vertical text
+
     const titleContainer = this.parentContainer.append('g')
       .classed('ytitle', true)
       .attr('transform', this.buildTransform(bounds))
 
+    const truncatedText = splitIntoLinesByCharacter({
+      parentContainer: this.parentContainer,
+      text: this.text,
+      maxWidth: bounds.height,
+      maxLines: 1,
+      fontSize: this.fontSize,
+      fontFamily: this.fontFamily,
+      fontWeight: (this.bold) ? 'bold' : 'normal'
+    })[0]
+
     titleContainer.append('text')
-      .text(this.text)
+      .text(truncatedText)
       .attr('x', 0)
       .attr('y', 0)
       .attr('dy', 0)

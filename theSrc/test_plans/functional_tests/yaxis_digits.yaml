@@ -1,0 +1,16 @@
+version: 1
+tests:
+  - title: yaxis number digits settings
+    general_comments: []
+    width: 500
+    height: 250
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    config:
+      - 'data.functional_tests.5x5|config.yaxis_enabled|{"settings":{"ydigits": 1}}'
+      - 'data.functional_tests.5x5|config.yaxis_enabled|{"settings":{"ydigits": 2}}'
+      - 'data.functional_tests.5x5|config.yaxis_enabled|{"settings":{"ydigits": 4}}'
+      - 'data.functional_tests.5x5|config.yaxis_enabled|{"settings":{"ydigits": 8}}'
+      - 'data.functional_tests.2x2_small_values|config.yaxis_enabled|{"settings":{"ydigits": 8}}'
+      - 'data.functional_tests.2x2_big_values|config.yaxis_enabled'

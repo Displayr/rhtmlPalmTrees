@@ -1,0 +1,20 @@
+version: 1
+tests:
+  - title: vary the number of trees
+    general_comments: []
+    width: 400
+    height: 200
+    rowSize: 2
+    type: single_page_one_example_per_data
+    comments: []
+    data:
+      - data.functional_tests.1x4
+      - data.functional_tests.2x4
+      - data.functional_tests.3x4
+      - data.functional_tests.4x4
+      - data.functional_tests.5x4
+      - data.functional_tests.6x4
+      - data.functional_tests.7x4
+      - data.functional_tests.8x4
+      - data.functional_tests.9x4
+      - data.functional_tests.10x4

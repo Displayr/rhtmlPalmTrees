@@ -1,0 +1,15 @@
+version: 1
+tests:
+  - title: incremental addition of features
+    width: 400
+    height: 200
+    rowSize: 2
+    type: single_page_one_example_per_config
+    comments: []
+    data: 'data.functional_tests.5x5'
+    config:
+      - 'config.yaxis_enabled'
+      - 'config.yaxis_enabled|config.sidebar_title'
+      - 'config.yaxis_enabled|config.sidebar_title|config.x_prefix_and_suffix_enabled'
+      - 'config.yaxis_enabled|config.sidebar_title|config.x_prefix_and_suffix_enabled|config.xaxis_title'
+      - 'config.yaxis_enabled|config.sidebar_title|config.x_prefix_and_suffix_enabled|config.xaxis_title|config.yaxis_title'
