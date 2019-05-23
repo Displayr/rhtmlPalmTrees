@@ -375,7 +375,7 @@ class PalmTrees {
         fontSize: this.settings.titleFontSize,
         fontFamily: this.settings.titleFontFamily,
         maxWidth: 2 * shorterSide,
-        maxHeight: this.viewerWidth / 4, // TODO make this configurable
+        maxHeight: this.viewerHeight / 4, // TODO make this configurable
         bold: false,
         innerPadding: 2 // TODO make configurable
       })
@@ -397,7 +397,7 @@ class PalmTrees {
         fontSize: this.settings.subtitleFontSize,
         fontFamily: this.settings.subtitleFontFamily,
         maxWidth: 2 * shorterSide,
-        maxHeight: this.viewerWidth / 4, // TODO make this configurable
+        maxHeight: this.viewerHeight / 4, // TODO make this configurable
         bold: false,
         innerPadding: 2 // TODO make configurable
       })
@@ -419,7 +419,7 @@ class PalmTrees {
         fontSize: this.settings.footerFontSize,
         fontFamily: this.settings.footerFontFamily,
         maxWidth: 2 * shorterSide,
-        maxHeight: this.viewerWidth / 4, // TODO make this configurable
+        maxHeight: this.viewerHeight / 4, // TODO make this configurable
         bold: false,
         innerPadding: 2 // TODO make configurable
       })
