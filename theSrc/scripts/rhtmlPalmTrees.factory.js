@@ -2,8 +2,6 @@ import PalmTrees from './palmTrees'
 import _ from 'lodash'
 
 module.exports = function (el, w, h, stateChangedFn) {
-  const stateChangedFnPresent = (typeof stateChangedFn === 'function') ? 'present' : 'absent'
-
   // keep reference to config for resize, as we just recreate widget on resize to simplify code
   let configCopy = null
   let stateCopy = null
@@ -16,7 +14,7 @@ module.exports = function (el, w, h, stateChangedFn) {
     palm.setConfig(config.settings)
     palm.setData(config.data)
 
-    if (stateChangedFnPresent) {
+    if (typeof stateChangedFn === 'function') {
       palm.addStateListener(stateChangedFn)
     }
     if (state && palm.checkState(state)) {

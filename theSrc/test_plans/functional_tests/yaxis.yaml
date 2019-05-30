@@ -1,17 +1,16 @@
 version: 1
-tests:
-  - title: yaxis variations
-    general_comments:
-      - 'yaxis title wrapping covered in text_wrapping.yaml. yaxis ticks do not wrap or trunacte'
-    width: 500
-    height: 250
-    rowSize: 2
-    type: single_page_one_example_per_config
-    comments: []
-    data: data.functional_tests.5x5
-    config:
-      - ''
-      - 'config.yaxis_enabled'
-      - 'config.yaxis_enabled|config.yaxis_title'
-      - 'config.yaxis_title'
-      - 'config.yaxis_enabled|config.yaxis_title|config.yaxis_font_16_red_fantasy'
+title: yaxis variations
+general_comments:
+  - 'yaxis title wrapping covered in text_wrapping.yaml. yaxis ticks do not wrap or trunacte'
+width: 500
+height: 250
+rowSize: 2
+type: single_page_one_example_per_config
+comments: []
+data: data.functional_tests.5x5
+config:
+  - ''
+  - 'config.yaxis_enabled'
+  - 'config.yaxis_enabled|config.yaxis_title'
+  - 'config.yaxis_title'
+  - 'config.yaxis_enabled|config.yaxis_title|config.yaxis_font_16_red_fantasy'

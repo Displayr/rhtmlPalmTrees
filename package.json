@@ -12,9 +12,7 @@
     "husky": "0.13.3",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
-    "mustache": "^3.0.1",
-    "recursive-readdir": "^2.2.2",
-    "rhtmlBuildUtils": "Displayr/rhtmlBuildUtils"
+    "rhtmlBuildUtils": "Displayr/rhtmlBuildUtils#3.1.0"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
