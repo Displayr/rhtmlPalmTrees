@@ -1,23 +1,22 @@
 version: 1
-tests:
-  - title: vary the number of fronds
-    general_comments: []
-    width: 400
-    height: 200
-    rowSize: 2
-    type: single_page_one_example_per_data
-    comments:
-      - location: 9
-        text: sidebar extends beyond bottom of widget
-        status: yellow
-    data:
-      - data.functional_tests.3x1
-      - data.functional_tests.3x2
-      - data.functional_tests.3x3
-      - data.functional_tests.3x4
-      - data.functional_tests.3x5
-      - data.functional_tests.3x6
-      - data.functional_tests.3x7
-      - data.functional_tests.3x8
-      - data.functional_tests.3x9
-      - data.functional_tests.3x10
+title: vary the number of fronds
+general_comments: []
+width: 400
+height: 200
+rowSize: 2
+type: single_page_one_example_per_data
+comments:
+  - location: 9
+    text: sidebar extends beyond bottom of widget
+    status: yellow
+data:
+  - data.functional_tests.3x1
+  - data.functional_tests.3x2
+  - data.functional_tests.3x3
+  - data.functional_tests.3x4
+  - data.functional_tests.3x5
+  - data.functional_tests.3x6
+  - data.functional_tests.3x7
+  - data.functional_tests.3x8
+  - data.functional_tests.3x9
+  - data.functional_tests.3x10

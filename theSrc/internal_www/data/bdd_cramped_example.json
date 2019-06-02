@@ -1,0 +1,31 @@
+{
+  "data": [
+    [0.6, 0.6, 0.6, 0.6],
+    [0.7, 0.7, 0.7, 0.7],
+    [0.8, 0.8, 0.8, 0.8],
+    [0.9, 0.9, 0.9, 0.9],
+    [1, 1, 1, 1]
+  ],
+  "settings": {
+    "weights": [1, 1, 1, 1],
+    "rowNames": [
+      "Row0",
+      "Row1 Label Wrap",
+      "Row2",
+      "Row3",
+      "Row4"
+    ],
+    "colNames": [
+      "Col1",
+      "Col2",
+      "Col3",
+      "Col4"
+    ],
+    "ylab": "Y Label",
+    "tooltips": true,
+    "tooltipsFontSize": 11,
+    "tooltipsFontFamily": "sans-serif",
+    "tooltipsHeadingFontSize": 12,
+    "tooltipsHeadingFontFamily": "sans-serif"
+  }
+}

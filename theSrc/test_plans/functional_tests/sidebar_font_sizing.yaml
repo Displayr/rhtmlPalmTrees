@@ -1,20 +1,19 @@
 version: 1
-tests:
-  - title: vary sidebar font sizes
-    general_comments:
-      - 'Variables to test: [colHeadingFontSize, colFontSize]'
-    width: 400
-    height: 300
-    rowSize: 4
-    type: single_page_one_example_per_config
-    comments: []
-    data: data.functional_tests.5x5
-    config:
-      - '{"settings":{"colFontSize":6}}'
-      - '{"settings":{"colFontSize":12}}'
-      - '{"settings":{"colFontSize":18}}'
-      - '{"settings":{"colFontSize":24}}'
-      - 'config.sidebar_title|{"settings":{"colHeadingFontSize":6}}'
-      - 'config.sidebar_title|{"settings":{"colHeadingFontSize":12}}'
-      - 'config.sidebar_title|{"settings":{"colHeadingFontSize":18}}'
-      - 'config.sidebar_title|{"settings":{"colHeadingFontSize":24}}'
+title: vary sidebar font sizes
+general_comments:
+  - 'Variables to test: [colHeadingFontSize, colFontSize]'
+width: 400
+height: 300
+rowSize: 4
+type: single_page_one_example_per_config
+comments: []
+data: data.functional_tests.5x5
+config:
+  - '{"settings":{"colFontSize":6}}'
+  - '{"settings":{"colFontSize":12}}'
+  - '{"settings":{"colFontSize":18}}'
+  - '{"settings":{"colFontSize":24}}'
+  - 'config.sidebar_title|{"settings":{"colHeadingFontSize":6}}'
+  - 'config.sidebar_title|{"settings":{"colHeadingFontSize":12}}'
+  - 'config.sidebar_title|{"settings":{"colHeadingFontSize":18}}'
+  - 'config.sidebar_title|{"settings":{"colHeadingFontSize":24}}'

@@ -1,11 +1,10 @@
 version: 1
-tests:
-  - title: too many rows
-    general_comments:
-      - 'The objective of this test is to ensure the widget does not fail to render, even if it looks bad'
-    width: 1000
-    height: 750
-    rowSize: 1
-    type: single_widget_single_page
-    comments: []
-    data: data.edge_cases.too_many_rows
+title: too many rows
+general_comments:
+  - 'The objective of this test is to ensure the widget does not fail to render, even if it looks bad'
+width: 1000
+height: 750
+rowSize: 1
+type: single_widget_single_page
+comments: []
+data: data.edge_cases.too_many_rows

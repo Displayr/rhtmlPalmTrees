@@ -1,13 +1,12 @@
 version: 1
-tests:
-  - title: vary sidebar frond, border, and background coloring for dark mode support
-    general_comments:
-      - 'Variables to test: [frondColorThat, frondColor, sidebarBackgroundColor, sidebarBorderColor]. frondColorUnselected needs interaction test'
-    width: 600
-    height: 200
-    rowSize: 2
-    type: single_page_one_example_per_config
-    comments: []
-    config:
-      - data.functional_tests.5x5
-      - data.functional_tests.5x5|{"settings":{"frondColorThat":"blue","frondColorThis":"red","sidebarBackgroundColor":"yellow", "sidebarBorderColor":"red"}}
+title: vary sidebar frond, border, and background coloring for dark mode support
+general_comments:
+  - 'Variables to test: [frondColorThat, frondColor, sidebarBackgroundColor, sidebarBorderColor]. frondColorUnselected needs interaction test'
+width: 600
+height: 200
+rowSize: 2
+type: single_page_one_example_per_config
+comments: []
+config:
+  - data.functional_tests.5x5
+  - data.functional_tests.5x5|{"settings":{"frondColorThat":"blue","frondColorThis":"red","sidebarBackgroundColor":"yellow", "sidebarBorderColor":"red"}}

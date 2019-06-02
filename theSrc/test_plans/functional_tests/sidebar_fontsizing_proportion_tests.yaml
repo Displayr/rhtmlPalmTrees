@@ -1,15 +1,14 @@
 version: 1
-tests:
-  - title: vary the sidebar max proportion "sidebarMaxProportion"
-    general_comments: []
-    width: 400
-    height: 150
-    rowSize: 2
-    type: single_page_one_example_per_config
-    comments: []
-    data: data.functional_tests.2x2|config.sidebar_two_long_column_names
-    config:
-      - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.1","sidebarMaxProportion": 0.1}}'
-      - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.25","sidebarMaxProportion": 0.25}}'
-      - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.5","sidebarMaxProportion": 0.5}}'
-      - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.66","sidebarMaxProportion": 0.66}}'
+title: vary the sidebar max proportion "sidebarMaxProportion"
+general_comments: []
+width: 400
+height: 150
+rowSize: 2
+type: single_page_one_example_per_config
+comments: []
+data: data.functional_tests.2x2|config.sidebar_two_long_column_names
+config:
+  - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.1","sidebarMaxProportion": 0.1}}'
+  - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.25","sidebarMaxProportion": 0.25}}'
+  - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.5","sidebarMaxProportion": 0.5}}'
+  - '{ "settings": { "rowHeading": "Sidebar Max Proportion: 0.66","sidebarMaxProportion": 0.66}}'
