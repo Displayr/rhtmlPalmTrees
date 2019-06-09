@@ -3,7 +3,7 @@ import _ from 'lodash'
 class PalmMath {
   constructor ({ data, plotState, rowNames, weights }) {
     this.data = _.cloneDeep(data)
-    _.assign(this, {plotState, rowNames, weights})
+    _.assign(this, { plotState, rowNames, weights })
 
     this.doOnceComputations()
   }
@@ -20,7 +20,7 @@ class PalmMath {
       normalizedDataMap[this.rowNames[frondIndex]] = frondValues.map(normalize)
     })
 
-    this.staticStats = {dataMax, dataMin, normalizedDataMax, normalizedDataMin, normalizedDataMap}
+    this.staticStats = { dataMax, dataMin, normalizedDataMax, normalizedDataMin, normalizedDataMap }
   }
 
   /* returns: {

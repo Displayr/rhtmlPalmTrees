@@ -11,24 +11,24 @@ import _ from 'lodash'
 // this.tipBarScale
 
 function makeTipContent ({
-    rowIndex,
-    rowName,
-    rowTotal,
-    yLabel,
-    columnNames,
-    data,
-    headingFontFamily,
-    headingFontSize,
-    fontFamily,
-    fontSize,
-    digits = 1,
-    prefix = '',
-    suffix = '',
-    columnStates,
-    tipScale,
-    colors,
-    unselectedColor
-  }) {
+  rowIndex,
+  rowName,
+  rowTotal,
+  yLabel,
+  columnNames,
+  data,
+  headingFontFamily,
+  headingFontSize,
+  fontFamily,
+  fontSize,
+  digits = 1,
+  prefix = '',
+  suffix = '',
+  columnStates,
+  tipScale,
+  colors,
+  unselectedColor
+}) {
   const rowContent = data.map((columnValue, index) => {
     return makeTipContentRow({
       value: columnValue.toFixed(digits),

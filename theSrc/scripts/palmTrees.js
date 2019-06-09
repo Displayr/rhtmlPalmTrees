@@ -181,7 +181,7 @@ class PalmTrees {
   draw (rootElement) {
     log.debug('PalmTree.draw()')
 
-    const {width, height} = getContainerDimensions(_.has(rootElement, 'length') ? rootElement[0] : rootElement)
+    const { width, height } = getContainerDimensions(_.has(rootElement, 'length') ? rootElement[0] : rootElement)
     this.viewerWidth = width
     this.viewerHeight = height
 

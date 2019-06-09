@@ -1,10 +1,10 @@
 import BaseComponent from './baseComponent'
 import _ from 'lodash'
-import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord} from '../labelUtils'
+import { getLabelDimensionsUsingSvgApproximation, splitIntoLinesByWord } from '../labelUtils'
 import d3 from 'd3'
 
 class YAxis extends BaseComponent {
-  constructor ({parentContainer, duration, palmMath, prefix = '', suffix, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits}) {
+  constructor ({ parentContainer, duration, palmMath, prefix = '', suffix, fontSize, fontFamily, fontColor, maxWidth, maxLines, innerPadding, yDigits }) {
     super()
     _.assign(this, {
       parentContainer,
@@ -29,8 +29,8 @@ class YAxis extends BaseComponent {
   }
 
   computePreferredDimensions (estimatedWidth) {
-    const estimateDimensionsOfSingleLineSplitByWord = ({parentContainer, text, fontSize, fontFamily, rotation = 0}) => {
-      const lines = splitIntoLinesByWord({parentContainer, text, maxLines: 1, fontSize, fontFamily, rotation})
+    const estimateDimensionsOfSingleLineSplitByWord = ({ parentContainer, text, fontSize, fontFamily, rotation = 0 }) => {
+      const lines = splitIntoLinesByWord({ parentContainer, text, maxLines: 1, fontSize, fontFamily, rotation })
       const dimensions = getLabelDimensionsUsingSvgApproximation({
         text: lines[0],
         parentContainer,
@@ -41,7 +41,7 @@ class YAxis extends BaseComponent {
       return dimensions
     }
 
-    const {weightedSumMin, weightedSumMax} = this.palmMath.getData()
+    const { weightedSumMin, weightedSumMax } = this.palmMath.getData()
 
     const boundaryValues = [
       this.tickFormatterFactory(weightedSumMax)(weightedSumMin),
@@ -97,7 +97,7 @@ class YAxis extends BaseComponent {
     this.yscale = d3.scale.linear()
       .range([this.bounds.height, this.maxFrondSize])
 
-    const {weightedSumMax} = this.palmMath.getData()
+    const { weightedSumMax } = this.palmMath.getData()
     this.yAxis = d3.svg.axis()
       .orient('left')
       .tickPadding(0)
@@ -106,7 +106,7 @@ class YAxis extends BaseComponent {
 
   // anything state related should be done in updatePlot, as updatePlot is called every time state is updated
   updatePlot (initialization) {
-    const {weightedSumMax} = this.palmMath.getData()
+    const { weightedSumMax } = this.palmMath.getData()
     this.yscale.domain([0, weightedSumMax]).nice()
     this.yAxis.scale(this.yscale)
 
