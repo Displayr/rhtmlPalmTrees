@@ -136,9 +136,9 @@ class Sidebar extends BaseComponent {
     // when adding to this array, include the 2 * this.constants.rowHorizontalPadding
     let sideBarRowsDesiredWidths = []
 
-    const estimateDimensionsOfSingleLineSplitByCharacter = ({parentContainer, text, maxWidth, fontSize, fontFamily, fontWeight = 'normal', rotation = 0}) => {
-      const lines = splitIntoLinesByCharacter({parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation})
-      const dimensions = getLabelDimensionsUsingSvgApproximation({text: lines[0], parentContainer, fontSize, fontFamily, fontWeight, rotation})
+    const estimateDimensionsOfSingleLineSplitByCharacter = ({ parentContainer, text, maxWidth, fontSize, fontFamily, fontWeight = 'normal', rotation = 0 }) => {
+      const lines = splitIntoLinesByCharacter({ parentContainer, text, maxWidth, maxLines: 1, fontSize, fontFamily, rotation })
+      const dimensions = getLabelDimensionsUsingSvgApproximation({ text: lines[0], parentContainer, fontSize, fontFamily, fontWeight, rotation })
       return dimensions
     }
 
@@ -379,11 +379,11 @@ class Sidebar extends BaseComponent {
     sdBarFrondRowsEnter.append('rect')
       .call(this.styleRect)
       .call(this.addHover)
-      .attr('id', ({index}) => `sideBarElemRect${index}`)
+      .attr('id', ({ index }) => `sideBarElemRect${index}`)
       .attr('class', 'sideBarElemRect')
       .attr('x', 0)
       .attr('y', 0)
-      .on('click', ({index}) => {
+      .on('click', ({ index }) => {
         if (d3.event.defaultPrevented) return // click suppressed
         this.plotState.toggleColumnState(index)
         d3.event.stopPropagation()
@@ -393,7 +393,7 @@ class Sidebar extends BaseComponent {
       .attr('class', 'sdBarTreeTop')
       .attr('id', function (d, i) { return 'sdBarTreeTop' + i })
       .selectAll('.sdBarFrond')
-      .data(d => _.range(this.frondCount).map(() => ({hilightedFrondIndex: d.index})))
+      .data(d => _.range(this.frondCount).map(() => ({ hilightedFrondIndex: d.index })))
       .enter()
       .append('path')
       .attr('class', (d, i) => `sdBarFrond sdBarFrond${i}`)
@@ -484,12 +484,12 @@ class Sidebar extends BaseComponent {
 
   _makeFrondPath (radius) {
     return [
-      {x: 0, y: 0},
-      {x: radius * 0.25, y: -radius * 0.07},
-      {x: radius * 0.75, y: -radius * 0.13},
-      {x: radius, y: 0},
-      {x: radius * 0.75, y: radius * 0.13},
-      {x: radius * 0.25, y: radius * 0.07}
+      { x: 0, y: 0 },
+      { x: radius * 0.25, y: -radius * 0.07 },
+      { x: radius * 0.75, y: -radius * 0.13 },
+      { x: radius, y: 0 },
+      { x: radius * 0.75, y: radius * 0.13 },
+      { x: radius * 0.25, y: radius * 0.07 }
     ]
   }
 

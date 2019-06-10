@@ -1,12 +1,12 @@
 import BaseComponent from './baseComponent'
 import _ from 'lodash'
-import {getLabelDimensionsUsingSvgApproximation, splitIntoLinesByCharacter} from '../labelUtils'
+import { getLabelDimensionsUsingSvgApproximation, splitIntoLinesByCharacter } from '../labelUtils'
 
 // TODO preferred dimensions must account for maxes
 class YTitle extends BaseComponent {
-  constructor ({parentContainer, text, fontSize, fontFamily, fontColor, bold, maxWidth, maxHeight}) {
+  constructor ({ parentContainer, text, fontSize, fontFamily, fontColor, bold, maxWidth, maxHeight }) {
     super()
-    _.assign(this, {parentContainer, text, fontSize, fontFamily, fontColor, bold, maxWidth, maxHeight})
+    _.assign(this, { parentContainer, text, fontSize, fontFamily, fontColor, bold, maxWidth, maxHeight })
   }
 
   computePreferredDimensions () {

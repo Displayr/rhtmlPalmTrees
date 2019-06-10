@@ -9,17 +9,17 @@ import DiagonalDownWrappedLabel from './parts/diagonalDownWrappedLabel'
 
 class XAxis extends BaseComponent {
   constructor ({
-                plotState,
-                palmMath,
-                fontColor,
-                fontFamily,
-                fontSize,
-                labels,
-                maxHeight,
-                orientation,
-                parentContainer,
-                placement
-              }) {
+    plotState,
+    palmMath,
+    fontColor,
+    fontFamily,
+    fontSize,
+    labels,
+    maxHeight,
+    orientation,
+    parentContainer,
+    placement
+  }) {
     super()
     _.assign(this, {
       plotState,
@@ -54,8 +54,8 @@ class XAxis extends BaseComponent {
   }
 
   computePreferredDimensions (estimatedColumnWidth) {
-    const {sortedWeightedSums} = this.palmMath.getData()
-    this.labelObjects = sortedWeightedSums.map(({name}) => {
+    const { sortedWeightedSums } = this.palmMath.getData()
+    this.labelObjects = sortedWeightedSums.map(({ name }) => {
       return new this.LabelFactory({
         classNames: `xaxis-label tick`,
         data: { name },
@@ -103,8 +103,8 @@ class XAxis extends BaseComponent {
   updatePlot () {
     if (!this.plotState.areAllColumnOff()) {
       const columnWidth = this.bounds.width / this.labelCount
-      const {sortedWeightedSums} = this.palmMath.getData()
-      sortedWeightedSums.forEach(({name}, i) => {
+      const { sortedWeightedSums } = this.palmMath.getData()
+      sortedWeightedSums.forEach(({ name }, i) => {
         this.container.select(`.xaxis-label[data-name="${name}"]`)
           .transition('barHeight')
           .duration(600)

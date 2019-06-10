@@ -154,13 +154,13 @@ class PlotArea extends BaseComponent {
 
     this.fronds = this.treeTops
       .selectAll('path')
-      .data(palmTreeData => _.range(this.frondCount).map((frondIndex) => _.merge({}, palmTreeData, {frondIndex})))
+      .data(palmTreeData => _.range(this.frondCount).map((frondIndex) => _.merge({}, palmTreeData, { frondIndex })))
 
     this.fronds.enter()
       .append('path')
       .style('cursor', 'pointer')
-      .attr('class', ({frondIndex}) => `frond frond${frondIndex}`)
-      .attr('transform', ({frondIndex}) => 'rotate(' + (frondIndex * 360 / this.frondCount - 90) + ')')
+      .attr('class', ({ frondIndex }) => `frond frond${frondIndex}`)
+      .attr('transform', ({ frondIndex }) => 'rotate(' + (frondIndex * 360 / this.frondCount - 90) + ')')
       .style('fill', (d, i) => this.plotState.isColumnOn(i) ? this.colors[i] : this.frondColorUnselected)
 
     if (this.tooltips) {
@@ -243,7 +243,7 @@ class PlotArea extends BaseComponent {
     this.updateToolTipWithDebounce(d)
   }
 
-  mouseOverFrond ({frondIndex}) {
+  mouseOverFrond ({ frondIndex }) {
     // NB the timeout here is to ensure that the tooltip has had a chance to render before running the CSS selector
     setTimeout(() => {
       tooltipLogger.debug('mouseOverFrond')
@@ -262,8 +262,8 @@ class PlotArea extends BaseComponent {
     d3.selectAll(`.tip-column`).style('background-color', '#ffffff')
   }
 
-  updateToolTipWithDebounce ({treeId, name, value} = {}) {
-    const {sortedWeightedSums} = this.palmMath.getData()
+  updateToolTipWithDebounce ({ treeId, name, value } = {}) {
+    const { sortedWeightedSums } = this.palmMath.getData()
     const weightedSum = _(sortedWeightedSums)
       .filter({ treeId })
       .map('value')
@@ -301,7 +301,7 @@ class PlotArea extends BaseComponent {
         unselectedColor: this.frondColorUnselected
       })
 
-      const {width, height} = getBoundsOfTip(params.html, this.tooltipsFontSize, this.tooltipsFontfamily)
+      const { width, height } = getBoundsOfTip(params.html, this.tooltipsFontSize, this.tooltipsFontfamily)
       params.width = width
       params.height = height
     }
@@ -317,7 +317,7 @@ class PlotArea extends BaseComponent {
     }, this.tooltipDebounceTime)
   }
 
-  showTooltip ({treeId, html, yPos, xPos, width: tipWidth, height: tipHeight}) {
+  showTooltip ({ treeId, html, yPos, xPos, width: tipWidth, height: tipHeight }) {
     this.showTooltipActualState = true
     this.currentlyDisplayedTooltipIndex = treeId
     let ghostRect = this.plotArea.select(`#ghost${treeId}`)
@@ -393,10 +393,10 @@ class PlotArea extends BaseComponent {
       .selectAll('path')
       .transition('frondSize')
       .duration(this.duration / 2)
-      .attr('d', ({treeId, name, frondIndex}) => this.makeFrondPath({treeId, frondIndex, name, amplifier: 1.1}))
+      .attr('d', ({ treeId, name, frondIndex }) => this.makeFrondPath({ treeId, frondIndex, name, amplifier: 1.1 }))
   }
 
-  hideTooltip ({treeId}) {
+  hideTooltip ({ treeId }) {
     this.showTooltipActualState = false
     this.currentlyDisplayedTooltipIndex = null
     if (this.tip) {
@@ -411,7 +411,7 @@ class PlotArea extends BaseComponent {
       .attr('d', this.makeFrondPath.bind(this))
   }
 
-  makeFrondPath ({treeId, frondIndex, name, amplifier = 1}) {
+  makeFrondPath ({ treeId, frondIndex, name, amplifier = 1 }) {
     const frondValue = this.frondScale(this.normalizedDataMap[name][frondIndex])
     const frondIsSelected = this.plotState.isColumnOn(frondIndex)
     const pathData = (frondIsSelected)
@@ -422,23 +422,23 @@ class PlotArea extends BaseComponent {
 
   makeDisabledFrondPath (frondValue) {
     return [
-      {x: 0, y: 0},
-      {x: frondValue * 0.25, y: -frondValue * 0.03},
-      {x: frondValue * 0.75, y: -frondValue * 0.05},
-      {x: frondValue, y: 0},
-      {x: frondValue * 0.75, y: frondValue * 0.05},
-      {x: frondValue * 0.25, y: frondValue * 0.03}
+      { x: 0, y: 0 },
+      { x: frondValue * 0.25, y: -frondValue * 0.03 },
+      { x: frondValue * 0.75, y: -frondValue * 0.05 },
+      { x: frondValue, y: 0 },
+      { x: frondValue * 0.75, y: frondValue * 0.05 },
+      { x: frondValue * 0.25, y: frondValue * 0.03 }
     ]
   }
 
   makeEnabledFrondPath (frondValue) {
     return [
-      {x: 0, y: 0},
-      {x: frondValue * 0.25, y: -frondValue * 0.07},
-      {x: frondValue * 0.75, y: -frondValue * 0.13},
-      {x: frondValue, y: 0},
-      {x: frondValue * 0.75, y: frondValue * 0.13},
-      {x: frondValue * 0.25, y: frondValue * 0.07}
+      { x: 0, y: 0 },
+      { x: frondValue * 0.25, y: -frondValue * 0.07 },
+      { x: frondValue * 0.75, y: -frondValue * 0.13 },
+      { x: frondValue, y: 0 },
+      { x: frondValue * 0.75, y: frondValue * 0.13 },
+      { x: frondValue * 0.25, y: frondValue * 0.07 }
     ]
   }
 }
