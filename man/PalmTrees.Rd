@@ -4,20 +4,21 @@
 \alias{PalmTrees}
 \title{Create a PalmTree plot}
 \usage{
-PalmTrees(col.font.color = "#000000", col.font.color.unselected = "#aaaaaa",
-  col.font.family = "sans-serif", col.font.size = 11, col.heading = NULL,
-  col.heading.font.color = "#000000",
+PalmTrees(col.font.color = "#000000",
+  col.font.color.unselected = "#aaaaaa",
+  col.font.family = "sans-serif", col.font.size = 11,
+  col.heading = NULL, col.heading.font.color = "#000000",
   col.heading.font.family = "sans-serif", col.heading.font.size = 12,
   col.names = NULL, colors = NULL, data = NULL, digits = 1,
-  footer = NULL, footer.font.size = 11, footer.font.family = "sans-serif",
-  footer.font.color = "#000000", frond.color.that = "#cccccc",
-  frond.color.this = "#000000", frond.color.unselected = "#cccccc",
-  height = NULL, hover.color = "#eeeeee",
-  legend.background.color = "#ffffff", legend.border.color = "#000000",
-  legend.maxProportion = 0.25, order = "descending", prefix = NULL,
-  row.font.color = "#000000", row.font.family = "sans-serif",
-  row.font.size = 11, row.heading = NULL,
-  row.heading.font.color = "#000000",
+  footer = NULL, footer.font.size = 11,
+  footer.font.family = "sans-serif", footer.font.color = "#000000",
+  frond.color.that = "#cccccc", frond.color.this = "#000000",
+  frond.color.unselected = "#cccccc", height = NULL,
+  hover.color = "#eeeeee", legend.background.color = "#ffffff",
+  legend.border.color = "#000000", legend.maxProportion = 0.25,
+  order = "descending", prefix = NULL, row.font.color = "#000000",
+  row.font.family = "sans-serif", row.font.size = 11,
+  row.heading = NULL, row.heading.font.color = "#000000",
   row.heading.font.family = "sans-serif", row.heading.font.size = 12,
   row.names = NULL, subtitle = NULL, subtitle.font.size = 18,
   subtitle.font.family = "sans-serif", subtitle.font.color = "#000000",
@@ -26,9 +27,10 @@ PalmTrees(col.font.color = "#000000", col.font.color.unselected = "#aaaaaa",
   tooltips = TRUE, tooltips.font.family = "sans-serif",
   tooltips.font.size = 11, tooltips.heading.font.family = "sans-serif",
   tooltips.heading.font.size = 12, weights = NULL, width = NULL,
-  y.digits = 1, y.font.color = "#000000", y.font.family = "sans-serif",
-  y.font.size = 11, y.lab = NULL, y.lab.font.color = "#000000",
-  y.lab.font.family = "sans-serif", y.lab.font.size = 12, y.show = TRUE)
+  y.digits = 1, y.font.color = "#000000",
+  y.font.family = "sans-serif", y.font.size = 11, y.lab = NULL,
+  y.lab.font.color = "#000000", y.lab.font.family = "sans-serif",
+  y.lab.font.size = 12, y.show = TRUE)
 }
 \arguments{
 \item{col.font.color}{legend font color}

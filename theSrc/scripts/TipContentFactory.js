@@ -31,7 +31,7 @@ function makeTipContent ({
 }) {
   const rowContent = data.map((columnValue, index) => {
     return makeTipContentRow({
-      value: columnValue.toFixed(digits),
+      value: (_.isNumber(columnValue)) ? columnValue.toFixed(digits) : 'NA',
       valueEnabled: columnStates[index],
       columnIndex: index,
       name: columnNames[index],
@@ -58,7 +58,7 @@ function makeTipContent ({
 
 function makeTipContentRow ({
   columnIndex,
-  value = 'No Data',
+  value = '',
   valueEnabled,
   barWidth,
   barColor,
