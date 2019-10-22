@@ -1,0 +1,215 @@
+{
+  "data": [
+    [
+      0,
+      46.5753424657534,
+      35.4838709677419,
+      41.1764705882353,
+      50,
+      51.2820512820513,
+      40
+    ],
+    [
+      0,
+      17.8082191780822,
+      18.2795698924731,
+      16.4705882352941,
+      17.3913043478261,
+      30.7692307692308,
+      30
+    ],
+    [
+      0,
+      12.3287671232877,
+      24.7311827956989,
+      18.8235294117647,
+      21.7391304347826,
+      7.69230769230769,
+      0
+    ],
+    [
+      0,
+      12.3287671232877,
+      13.9784946236559,
+      15.2941176470588,
+      4.34782608695652,
+      5.12820512820513,
+      10
+    ],
+    [
+      0,
+      10.958904109589,
+      7.52688172043011,
+      8.23529411764706,
+      6.52173913043478,
+      5.12820512820513,
+      20
+    ]
+  ],
+  "settings": {
+    "title": "",
+    "titleFontSize": 16,
+    "titleFontFamily": "Arial",
+    "titleFontColor": "#2C2C2C",
+    "subtitle": "",
+    "subtitleFontSize": 12,
+    "subtitleFontFamily": "Arial",
+    "subtitleFontColor": "#2C2C2C",
+    "footer": "",
+    "footerFontSize": 23,
+    "footerFontFamily": "Arial",
+    "footerFontColor": "#2C2C2C",
+    "rawData": [
+      [
+        null,
+        46.5753424657534,
+        35.4838709677419,
+        41.1764705882353,
+        50,
+        51.2820512820513,
+        40
+      ],
+      [
+        null,
+        17.8082191780822,
+        18.2795698924731,
+        16.4705882352941,
+        17.3913043478261,
+        30.7692307692308,
+        30
+      ],
+      [
+        null,
+        12.3287671232877,
+        24.7311827956989,
+        18.8235294117647,
+        21.7391304347826,
+        7.69230769230769,
+        0
+      ],
+      [
+        null,
+        12.3287671232877,
+        13.9784946236559,
+        15.2941176470588,
+        4.34782608695652,
+        5.12820512820513,
+        10
+      ],
+      [
+        null,
+        10.958904109589,
+        7.52688172043011,
+        8.23529411764706,
+        6.52173913043478,
+        5.12820512820513,
+        20
+      ]
+    ],
+    "weights": [
+      0.142857142857143,
+      0.142857142857143,
+      0.142857142857143,
+      0.142857142857143,
+      0.142857142857143,
+      0.142857142857143,
+      0.142857142857143
+    ],
+    "hoverColor": [
+      "#eeeeee"
+    ],
+    "rowNames": [
+      "Dog",
+      "Cat",
+      "Dog and Cat",
+      "Three or more",
+      "Other"
+    ],
+    "rowFontSize": 23,
+    "rowFontFamily": "Arial",
+    "rowFontColor": [
+      "#FFFFFF"
+    ],
+    "rowHeading": "What type of pet or pets do you own? - Coded1: Selected",
+    "rowHeadingFontSize": 15,
+    "rowHeadingFontFamily": "Arial",
+    "rowHeadingFontColor": [
+      "#2C2C2C"
+    ],
+    "frondColorUnselected": [
+      "#cccccc"
+    ],
+    "frondColorThis": [
+      "#000000"
+    ],
+    "frondColorThat": [
+      "#cccccc"
+    ],
+    "colNames": [
+      "Less than 18 years",
+      "18 to 24 years",
+      "25 to 34 years",
+      "35 to 44 years",
+      "45 to 54 years",
+      "55 to 64 years",
+      "65 years or older"
+    ],
+    "colFontSize": 15,
+    "colFontFamily": "Arial",
+    "colFontColor": [
+      "#2C2C2C"
+    ],
+    "colFontColorUnselected": [
+      "#aaaaaa"
+    ],
+    "colHeading": "",
+    "colHeadingFontSize": 0,
+    "colHeadingFontFamily": "Arial",
+    "colHeadingFontColor": [
+      "#2C2C2C"
+    ],
+    "sidebarBackgroundColor": [
+      "transparent"
+    ],
+    "sidebarMaxProportion": 0.25,
+    "sidebarBorderColor": [
+      "#000000"
+    ],
+    "tooltips": true,
+    "tooltipsFontSize": 16,
+    "tooltipsFontFamily": "Arial",
+    "tooltipsHeadingFontSize": 15,
+    "tooltipsHeadingFontFamily": "Arial",
+    "showYAxis": true,
+    "ylab": null,
+    "ydigits": 0,
+    "yFontSize": 14,
+    "yFontFamily": "Arial",
+    "yFontColor": [
+      "#2C2C2C"
+    ],
+    "yLabFontSize": 17,
+    "yLabFontFamily": "Arial",
+    "yLabFontColor": [
+      "#FFFFFF"
+    ],
+    "digits": 0,
+    "colors": [
+      "#400040",
+      "#04B5AC",
+      "#F76C6C",
+      "#C44E41",
+      "#8CC0FF",
+      "#FF905A",
+      "#345E8C",
+      "#04827B",
+      "#967F47",
+      "#96362F",
+      "#2C4374",
+      "#4D525A"
+    ],
+    "order": "original",
+    "prefix": "",
+    "suffix": "% "
+  }
+}

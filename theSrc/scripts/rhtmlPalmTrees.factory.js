@@ -37,6 +37,7 @@ module.exports = function (el, w, h, stateChangedFn) {
       doRenderValue(config, state)
     },
 
+    // TODO do I need this ?
     palm: palm
   }
 }
