@@ -156,6 +156,8 @@ PalmTrees <- function(
     if (digits < 0)
         digits <- 0
 
+    if (any(dim(data) == 0))
+        stop("Input data is empty.")
 
     if (class(data) == "data.frame") {
 
