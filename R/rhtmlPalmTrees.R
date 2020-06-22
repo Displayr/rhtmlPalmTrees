@@ -159,13 +159,13 @@ PalmTrees <- function(
     if (any(dim(data) == 0))
         stop("Input data is empty.")
 
-    if (class(data) == "data.frame") {
+    if (inherits(data, "data.frame")) {
 
         for (i in 1:ncol(data))
             data[,i] <- as.numeric(data[, i])
         data = as.matrix(data)
 
-    } else if (class(data) == "matrix") {
+    } else if (inherits(data, "matrix")) {
 
         for (i in 1:ncol(data))
             data[,i] <- as.numeric(data[, i])
