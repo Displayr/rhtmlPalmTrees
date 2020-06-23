@@ -174,9 +174,9 @@ PalmTrees <- function(data = NULL,
         stop("Input data must be a matrix or a data frame.")
     }
 
-    raw.data = data
+    raw.data <- data
     if (sum(is.na(data)) > 0) {
-        data[is.na(data)] = 0
+        data[is.na(data)] <- 0
         warning("Missing values detected.")
     }
 
@@ -188,128 +188,121 @@ PalmTrees <- function(data = NULL,
     nc = ncol(data);
 
     if (is.null(weights))
-        weights = rep(1/nc,nc)
+        weights <- rep(1/nc,nc)
     else {
         if (length(weights) != nc) {
             stop("The length of weights must be the same as the number of columns.")
         }
-        weights = weights/sum(weights)
+        weights <- weights/sum(weights)
     }
 
 
     if (is.null(col.names))
-        col.names = colnames(data)
+        col.names <- colnames(data)
 
     if (is.null(col.names))
-        col.names = paste0("column", 1:nc)
+        col.names <- paste0("column", 1:nc)
     else if (length(col.names) > nc)
-        col.names = col.names[1:nc]
+        col.names <- col.names[1:nc]
     else if (length(col.names) < nc)
-        col.names = c(col.names, paste0("column", (length(col.names)+1):nc))
+        col.names <- c(col.names, paste0("column", (length(col.names)+1):nc))
 
     if (is.null(row.names))
-        row.names = rownames(data)
+        row.names <- rownames(data)
 
     if (is.null(row.names))
-        row.names = paste0("row", 1:nr)
+        row.names <- paste0("row", 1:nr)
     else if (length(row.names) > nr)
-        row.names = row.names[1:nr]
+        row.names <- row.names[1:nr]
     else if (length(row.names) < nr)
-        row.names = c(row.names, paste0("row", (length(row.names)+1):nr))
+        row.names <- c(row.names, paste0("row", (length(row.names)+1):nr))
 
     if (is.null(col.heading))
-        col.heading = "Columns"
+        col.heading <- "Columns"
 
     if (is.null(row.heading))
-        row.heading = "Rows"
+        row.heading <- "Rows"
 
 
 
     # recycle colors
     if (!is.null(colors) && length(colors) < length(col.names)) {
-        a = rbind(colors, col.names)
-        colors = a[1,]
+        a <- rbind(colors, col.names)
+        colors <- a[1,]
     }
 
     # create a list that contains the settings
-    settings <- list(
-      title = unbox(title),
-      titleFontSize = unbox(title.font.size),
-      titleFontFamily = unbox(title.font.family),
-      titleFontColor = unbox(title.font.color),
-      subtitle = unbox(subtitle),
-      subtitleFontSize = unbox(subtitle.font.size),
-      subtitleFontFamily = unbox(subtitle.font.family),
-      subtitleFontColor = unbox(subtitle.font.color),
-      footer = unbox(footer),
-      footerFontSize = unbox(footer.font.size),
-      footerFontFamily = unbox(footer.font.family),
-      footerFontColor = unbox(footer.font.color),
-      rawData = raw.data,
-      weights = weights,
-      hoverColor = hover.color,
-      rowNames = row.names,
-      rowFontSize = unbox(row.font.size),
-      rowFontFamily = unbox(row.font.family),
-      rowFontColor = row.font.color,
-      rowHeading = unbox(row.heading),
-      rowHeadingFontSize = unbox(row.heading.font.size),
-      rowHeadingFontFamily = unbox(row.heading.font.family),
-      rowHeadingFontColor = row.heading.font.color,
-      frondColorUnselected = frond.color.unselected,
-      frondColorThis = frond.color.this,
-      frondColorThat = frond.color.that,
-      colNames = col.names,
-      colFontSize = unbox(col.font.size),
-      colFontFamily = unbox(col.font.family),
-      colFontColor = col.font.color,
-      colFontColorUnselected = col.font.color.unselected,
-      colHeading = unbox(col.heading),
-      colHeadingFontSize = unbox(col.heading.font.size),
-      colHeadingFontFamily = unbox(col.heading.font.family),
-      colHeadingFontColor = col.heading.font.color,
-      sidebarBackgroundColor = legend.background.color,
-      sidebarMaxProportion = unbox(legend.maxProportion),
-      sidebarBorderColor = legend.border.color,
-      tooltips = unbox(tooltips),
-      tooltipsFontSize = unbox(tooltips.font.size),
-      tooltipsFontFamily = unbox(tooltips.font.family),
-      tooltipsHeadingFontSize = unbox(tooltips.heading.font.size),
-      tooltipsHeadingFontFamily = unbox(tooltips.heading.font.family),
-      showYAxis = unbox(y.show),
-      ylab = unbox(y.lab),
-      ydigits = unbox(y.digits),
-      yFontSize =  unbox(y.font.size),
-      yFontFamily =  unbox(y.font.family),
-      yFontColor = y.font.color,
-      yLabFontSize = unbox(y.lab.font.size),
-      yLabFontFamily = unbox(y.lab.font.family),
-      yLabFontColor = y.lab.font.color,
-      digits = unbox(digits),
-      colors = colors,
-      order = unbox(order),
-      prefix = unbox(prefix),
-      suffix = unbox(suffix)
-    )
+    settings <- list(title = unbox(title),
+                     titleFontSize = unbox(title.font.size),
+                     titleFontFamily = unbox(title.font.family),
+                     titleFontColor = unbox(title.font.color),
+                     subtitle = unbox(subtitle),
+                     subtitleFontSize = unbox(subtitle.font.size),
+                     subtitleFontFamily = unbox(subtitle.font.family),
+                     subtitleFontColor = unbox(subtitle.font.color),
+                     footer = unbox(footer),
+                     footerFontSize = unbox(footer.font.size),
+                     footerFontFamily = unbox(footer.font.family),
+                     footerFontColor = unbox(footer.font.color),
+                     rawData = raw.data,
+                     weights = weights,
+                     hoverColor = hover.color,
+                     rowNames = row.names,
+                     rowFontSize = unbox(row.font.size),
+                     rowFontFamily = unbox(row.font.family),
+                     rowFontColor = row.font.color,
+                     rowHeading = unbox(row.heading),
+                     rowHeadingFontSize = unbox(row.heading.font.size),
+                     rowHeadingFontFamily = unbox(row.heading.font.family),
+                     rowHeadingFontColor = row.heading.font.color,
+                     frondColorUnselected = frond.color.unselected,
+                     frondColorThis = frond.color.this,
+                     frondColorThat = frond.color.that,
+                     colNames = col.names,
+                     colFontSize = unbox(col.font.size),
+                     colFontFamily = unbox(col.font.family),
+                     colFontColor = col.font.color,
+                     colFontColorUnselected = col.font.color.unselected,
+                     colHeading = unbox(col.heading),
+                     colHeadingFontSize = unbox(col.heading.font.size),
+                     colHeadingFontFamily = unbox(col.heading.font.family),
+                     colHeadingFontColor = col.heading.font.color,
+                     sidebarBackgroundColor = legend.background.color,
+                     sidebarMaxProportion = unbox(legend.maxProportion),
+                     sidebarBorderColor = legend.border.color,
+                     tooltips = unbox(tooltips),
+                     tooltipsFontSize = unbox(tooltips.font.size),
+                     tooltipsFontFamily = unbox(tooltips.font.family),
+                     tooltipsHeadingFontSize = unbox(tooltips.heading.font.size),
+                     tooltipsHeadingFontFamily = unbox(tooltips.heading.font.family),
+                     showYAxis = unbox(y.show),
+                     ylab = unbox(y.lab),
+                     ydigits = unbox(y.digits),
+                     yFontSize =  unbox(y.font.size),
+                     yFontFamily =  unbox(y.font.family),
+                     yFontColor = y.font.color,
+                     yLabFontSize = unbox(y.lab.font.size),
+                     yLabFontFamily = unbox(y.lab.font.family),
+                     yLabFontColor = y.lab.font.color,
+                     digits = unbox(digits),
+                     colors = colors,
+                     order = unbox(order),
+                     prefix = unbox(prefix),
+                     suffix = unbox(suffix))
 
     # pass the data and settings using 'x'
-    x <- list(
-        data = data,
-        settings = settings
-    )
+    x <- list(data = data,
+              settings = settings)
     attr(x, "TOJSON_ARGS") = list(auto_unbox = FALSE)
 
     # create the widget
-    htmlwidgets::createWidget(
-        name = "rhtmlPalmTrees",
-        x,
-        width = width,
-        height = height,
-        sizingPolicy = htmlwidgets::sizingPolicy(
-            padding = 5,
-            browser.fill = TRUE, # resizing will not work if FALSE
-            viewer.fill = TRUE
-        ),
-        package = "rhtmlPalmTrees"
-    )
+    sizing.policy <- htmlwidgets::sizingPolicy(padding = 5,
+                                               browser.fill = TRUE, # resizing will not work if FALSE
+                                               viewer.fill = TRUE)
+    htmlwidgets::createWidget(name = "rhtmlPalmTrees",
+                              x,
+                              width = width,
+                              height = height,
+                              sizingPolicy = sizing.policy,
+                              package = "rhtmlPalmTrees")
 }
