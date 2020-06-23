@@ -184,8 +184,8 @@ PalmTrees <- function(data = NULL,
         stop("Input data must not contain negative numbers.")
     }
 
-    nr = nrow(data);
-    nc = ncol(data);
+    nr <- nrow(data)
+    nc <- ncol(data)
 
     if (is.null(weights))
         weights <- rep(1/nc,nc)
@@ -196,9 +196,8 @@ PalmTrees <- function(data = NULL,
         weights <- weights/sum(weights)
     }
 
-
     if (is.null(col.names))
-        col.names <- colnames(data)
+        col.names <- gsub("(\\r\\n|\\n|\\r)", " ", colnames(data))
 
     if (is.null(col.names))
         col.names <- paste0("column", 1:nc)
@@ -208,7 +207,7 @@ PalmTrees <- function(data = NULL,
         col.names <- c(col.names, paste0("column", (length(col.names)+1):nc))
 
     if (is.null(row.names))
-        row.names <- rownames(data)
+        row.names <- gsub("(\\r\\n|\\n|\\r)", " ", rownames(data))
 
     if (is.null(row.names))
         row.names <- paste0("row", 1:nr)
@@ -222,8 +221,6 @@ PalmTrees <- function(data = NULL,
 
     if (is.null(row.heading))
         row.heading <- "Rows"
-
-
 
     # recycle colors
     if (!is.null(colors) && length(colors) < length(col.names)) {
