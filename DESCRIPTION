@@ -8,5 +8,3 @@ Description: R package that combines bar charts and radial plots to generate a p
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 7.1.0
-Imports: htmlwidgets
-Suggests: testthat
