@@ -34,11 +34,3 @@ test_that("Newlines in labels", {
     expect_equal(pt$x$settings$colNames[2], "Price: Expensive")
     expect_equal(pt$x$settings$rowNames[3], "Coke Zero")
 })
-
-test_that("NAs in data", {
-    na.data <- data
-    na.data[, 1] <- NA
-    expect_error(pt <- PalmTrees(na.data), NA)
-    expect_true(all(is.nan(pt$x$data[,1])))
-})
-

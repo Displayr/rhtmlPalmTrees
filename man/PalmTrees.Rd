@@ -186,7 +186,7 @@ PalmTrees(
 \item{height}{Height of output}
 }
 \description{
-Create a palm tree plot to display a 2D numeric table
+Create a palm tree plot to display a 2D numeric table.
 }
 \details{
 Frond size is calculated by mapping \code{data} to a linear scale \code{[min_width, max_width]} so that

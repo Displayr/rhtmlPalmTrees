@@ -1,6 +1,6 @@
 #' @title Create a palm tree plot
 #'
-#' @description Create a palm tree plot to display a 2D numeric table
+#' @description Create a palm tree plot to display a 2D numeric table.
 #'
 #' @param data numeric matrix or data frame
 #' @param weights numeric vector specifying weights. Length must equal to \code{ncol(data)}
@@ -175,7 +175,6 @@ PalmTrees <- function(data = NULL,
     }
 
     raw.data <- data
-    data[is.na(data)] <- NaN
 
     if (any(data < 0, na.rm = TRUE))
         stop("Input data must not contain negative numbers.")
