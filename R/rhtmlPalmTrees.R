@@ -69,7 +69,7 @@
 #' \code{min_width} is currently set at 8 pixcels and \code{max_width} is calculated using the available space between x ticks.
 #'
 #' @examples
-#'
+#' \dontrun{
 #' data("CSDperceptions", package = "rhtmlPalmTrees")
 #'
 #' weights = rep(1,ncol(CSDperceptions))
@@ -85,9 +85,7 @@
 #'                          suffix = suffix,
 #'                          tooltips = TRUE,
 #'                          colors = qColors)
-#'
-#'
-#'
+#'  }
 #' @import htmlwidgets
 #' @importFrom jsonlite unbox
 #' @export

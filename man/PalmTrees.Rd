@@ -194,7 +194,7 @@ Frond size is calculated by mapping \code{data} to a linear scale \code{[min_wid
 \code{min_width} is currently set at 8 pixcels and \code{max_width} is calculated using the available space between x ticks.
 }
 \examples{
-
+\dontrun{
 data("CSDperceptions", package = "rhtmlPalmTrees")
 
 weights = rep(1,ncol(CSDperceptions))
@@ -210,7 +210,5 @@ rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                          suffix = suffix,
                          tooltips = TRUE,
                          colors = qColors)
-
-
-
+ }
 }
