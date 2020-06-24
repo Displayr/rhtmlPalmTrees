@@ -27,10 +27,18 @@ test_that("Basic working palmtree", {
 })
 
 test_that("Newlines in labels", {
-    colnames(data)[2] <- "Price:\r\nExpensive"
-    rownames(data)[3] <- "Coke\nZero"
-    expect_error(pt <- PalmTrees(data), NA)
+    newline.data <- data
+    colnames(newline.data)[2] <- "Price:\r\nExpensive"
+    rownames(newline.data)[3] <- "Coke\nZero"
+    expect_error(pt <- PalmTrees(newline.data), NA)
     expect_equal(pt$x$settings$colNames[2], "Price: Expensive")
     expect_equal(pt$x$settings$rowNames[3], "Coke Zero")
+})
+
+test_that("NAs in data", {
+    na.data <- data
+    na.data[, 1] <- NA
+    expect_error(pt <- PalmTrees(na.data), NA)
+    expect_true(all(is.nan(pt$x$data[,1])))
 })
 

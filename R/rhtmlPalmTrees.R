@@ -175,14 +175,10 @@ PalmTrees <- function(data = NULL,
     }
 
     raw.data <- data
-    if (sum(is.na(data)) > 0) {
-        data[is.na(data)] <- 0
-        warning("Missing values detected.")
-    }
+    data[is.na(data)] <- NaN
 
-    if (sum(data < 0) > 0) {
+    if (any(data < 0, na.rm = TRUE))
         stop("Input data must not contain negative numbers.")
-    }
 
     nr <- nrow(data)
     nc <- ncol(data)
