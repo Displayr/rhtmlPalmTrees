@@ -2,122 +2,122 @@
 % Please edit documentation in R/rhtmlPalmTrees.R
 \name{PalmTrees}
 \alias{PalmTrees}
-\title{Create a PalmTree plot}
+\title{Create a palm tree plot}
 \usage{
-PalmTrees(col.font.color = "#000000",
+PalmTrees(
+  data = NULL,
+  weights = NULL,
+  hover.color = "#eeeeee",
+  row.names = NULL,
+  row.font.size = 11,
+  row.font.family = "sans-serif",
+  row.font.color = "#000000",
+  row.heading = NULL,
+  row.heading.font.size = 12,
+  row.heading.font.family = "sans-serif",
+  row.heading.font.color = "#000000",
+  col.names = NULL,
+  col.font.size = 11,
+  col.font.family = "sans-serif",
+  col.font.color = "#000000",
   col.font.color.unselected = "#aaaaaa",
-  col.font.family = "sans-serif", col.font.size = 11,
-  col.heading = NULL, col.heading.font.color = "#000000",
-  col.heading.font.family = "sans-serif", col.heading.font.size = 12,
-  col.names = NULL, colors = NULL, data = NULL, digits = 1,
-  footer = NULL, footer.font.size = 11,
-  footer.font.family = "sans-serif", footer.font.color = "#000000",
-  frond.color.that = "#cccccc", frond.color.this = "#000000",
-  frond.color.unselected = "#cccccc", height = NULL,
-  hover.color = "#eeeeee", legend.background.color = "#ffffff",
-  legend.border.color = "#000000", legend.maxProportion = 0.25,
-  order = "descending", prefix = NULL, row.font.color = "#000000",
-  row.font.family = "sans-serif", row.font.size = 11,
-  row.heading = NULL, row.heading.font.color = "#000000",
-  row.heading.font.family = "sans-serif", row.heading.font.size = 12,
-  row.names = NULL, subtitle = NULL, subtitle.font.size = 18,
-  subtitle.font.family = "sans-serif", subtitle.font.color = "#000000",
-  suffix = NULL, title = NULL, title.font.size = 24,
-  title.font.family = "sans-serif", title.font.color = "#000000",
-  tooltips = TRUE, tooltips.font.family = "sans-serif",
-  tooltips.font.size = 11, tooltips.heading.font.family = "sans-serif",
-  tooltips.heading.font.size = 12, weights = NULL, width = NULL,
-  y.digits = 1, y.font.color = "#000000",
-  y.font.family = "sans-serif", y.font.size = 11, y.lab = NULL,
-  y.lab.font.color = "#000000", y.lab.font.family = "sans-serif",
-  y.lab.font.size = 12, y.show = TRUE)
+  col.heading = NULL,
+  col.heading.font.size = 12,
+  col.heading.font.family = "sans-serif",
+  col.heading.font.color = "#000000",
+  frond.color.unselected = "#cccccc",
+  frond.color.this = "#000000",
+  frond.color.that = "#cccccc",
+  legend.maxProportion = 0.25,
+  legend.background.color = "#ffffff",
+  legend.border.color = "#000000",
+  tooltips = TRUE,
+  tooltips.font.family = "sans-serif",
+  tooltips.font.size = 11,
+  tooltips.heading.font.family = "sans-serif",
+  tooltips.heading.font.size = 12,
+  title = NULL,
+  title.font.size = 24,
+  title.font.family = "sans-serif",
+  title.font.color = "#000000",
+  subtitle = NULL,
+  subtitle.font.size = 18,
+  subtitle.font.family = "sans-serif",
+  subtitle.font.color = "#000000",
+  footer = NULL,
+  footer.font.size = 11,
+  footer.font.family = "sans-serif",
+  footer.font.color = "#000000",
+  y.show = TRUE,
+  y.lab = NULL,
+  y.digits = 1,
+  y.font.size = 11,
+  y.font.family = "sans-serif",
+  y.font.color = "#000000",
+  y.lab.font.size = 12,
+  y.lab.font.family = "sans-serif",
+  y.lab.font.color = "#000000",
+  prefix = NULL,
+  suffix = NULL,
+  colors = NULL,
+  order = "descending",
+  digits = 1,
+  width = NULL,
+  height = NULL
+)
 }
 \arguments{
+\item{data}{numeric matrix or data frame}
+
+\item{weights}{numeric vector specifying weights. Length must equal to \code{ncol(data)}}
+
+\item{hover.color}{color of cells that are highlighted by mouse interaction}
+
+\item{row.names}{character vector specifying x ticks. Default value are obtained from \code{rownames(data)}}
+
+\item{row.font.size}{Default x axis font size = 11}
+
+\item{row.font.family}{x axis font family = "sans-serif"}
+
+\item{row.font.color}{font color for x axis text}
+
+\item{row.heading}{character, used as x label}
+
+\item{row.heading.font.size}{Default row heading font size = 12}
+
+\item{row.heading.font.family}{Default row heading font family = "sans-serif"}
+
+\item{row.heading.font.color}{font color for x axis title text}
+
+\item{col.names}{character vector specifying the legend. Default value obtained from \code{colnames(data)}}
+
+\item{col.font.size}{Default column font size = 11}
+
+\item{col.font.family}{Default column font family = "sans-serif"}
+
 \item{col.font.color}{legend font color}
 
 \item{col.font.color.unselected}{legend fond color to indicate inactive selections (rows and orders)}
 
-\item{col.font.family}{Default column font family = "sans-serif"}
-
-\item{col.font.size}{Default column font size = 11}
-
 \item{col.heading}{character vector specifying the heading}
-
-\item{col.heading.font.color}{legend title font color}
-
-\item{col.heading.font.family}{Default column heading font family = "sans-serif"}
 
 \item{col.heading.font.size}{Default column heading font size = 12}
 
-\item{col.names}{character vector specifying the legend. Default value obtained from \code{colnames(data)}}
+\item{col.heading.font.family}{Default column heading font family = "sans-serif"}
 
-\item{colors}{colors of the fronds. D3 colors will be used if no values are provided}
-
-\item{data}{numeric matrix or data frame}
-
-\item{digits}{integer to control the number of decimal places in the tooltips}
-
-\item{footer}{character. Sets the footer of the chart, defaults to NULL. The footer is left-aligned.}
-
-\item{footer.font.size}{integer. Font size of the chart footer.font.size, defaults to 11 pixcels.}
-
-\item{footer.font.family}{character. Font family of the chart footer.font.family, defaults to "sans-serif".}
-
-\item{footer.font.color}{An RGB character to set the color of the chart footer.font.color. Defaults to "#000000".}
-
-\item{frond.color.that}{color used in legend for other fronds in frond legend row}
-
-\item{frond.color.this}{color used in legend to show frond placement in each frond legend row}
+\item{col.heading.font.color}{legend title font color}
 
 \item{frond.color.unselected}{color used on unselected fronds on the main plot}
 
-\item{height}{}
+\item{frond.color.this}{color used in legend to show frond placement in each frond legend row}
 
-\item{hover.color}{color of cells that are hilighted by mouse interaction}
+\item{frond.color.that}{color used in legend for other fronds in frond legend row}
+
+\item{legend.maxProportion}{Max proportion of legend width to plot width. Default = 0.25}
 
 \item{legend.background.color}{the canvas background color}
 
 \item{legend.border.color}{legend border color}
-
-\item{legend.maxProportion}{Max proportion of legend width to plot width. Default = 0.25}
-
-\item{order}{= c("original", "alphabetical", "ascending", "descending") specifies the column order with default = "descending"}
-
-\item{prefix}{prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis}
-
-\item{row.font.color}{font color for x axis text}
-
-\item{row.font.family}{x axis font family = "sans-serif"}
-
-\item{row.font.size}{Default x axis font size = 11}
-
-\item{row.heading}{character, used as x label}
-
-\item{row.heading.font.color}{font color for x axis title text}
-
-\item{row.heading.font.family}{Default row heading font family = "sans-serif"}
-
-\item{row.heading.font.size}{Default row heading font size = 12}
-
-\item{row.names}{character vector specifying x ticks. Default value are obtained from \code{rownames(data)}}
-
-\item{subtitle}{character. Sets the subtitle of the chart, defaults to NULL. The subtitle is centred.}
-
-\item{subtitle.font.size}{integer. Font size of the chart subtitle, defaults to 18 pixcels.}
-
-\item{subtitle.font.family}{character. Font family of the chart subtitle, defaults to "sans-serif".}
-
-\item{subtitle.font.color}{An RGB character to set the color of the chart subtitle. Defaults to "#000000".}
-
-\item{suffix}{suffix of numbers in the tooltips}
-
-\item{title}{character. Sets the title of the chart, defaults to NULL. The title is centred.}
-
-\item{title.font.size}{integer. Font size of the chart title, defaults to 24 pixcels.}
-
-\item{title.font.family}{character. Font family of the chart title, defaults to "sans-serif".}
-
-\item{title.font.color}{An RGB character to set the color of the chart title. Defaults to "#000000".}
 
 \item{tooltips}{logical, whether to attach tooltips on mouseover, default true}
 
@@ -129,28 +129,64 @@ PalmTrees(col.font.color = "#000000",
 
 \item{tooltips.heading.font.size}{Default tooltip heading font size = 12}
 
-\item{weights}{numeric vector specifying weights. Length must equal to \code{ncol(data)}}
+\item{title}{character. Sets the title of the chart, defaults to NULL. The title is centred.}
 
-\item{y.digits}{integer to control the number of decimal places of the y axis}
+\item{title.font.size}{integer. Font size of the chart title, defaults to 24 pixcels.}
 
-\item{y.font.color}{y axis font color}
+\item{title.font.family}{character. Font family of the chart title, defaults to "sans-serif".}
 
-\item{y.font.family}{Default y axis font family = "sans-serif"}
+\item{title.font.color}{An RGB character to set the color of the chart title. Defaults to "#000000".}
 
-\item{y.font.size}{Default y axis font size = 11}
+\item{subtitle}{character. Sets the subtitle of the chart, defaults to NULL. The subtitle is centred.}
+
+\item{subtitle.font.size}{integer. Font size of the chart subtitle, defaults to 18 pixcels.}
+
+\item{subtitle.font.family}{character. Font family of the chart subtitle, defaults to "sans-serif".}
+
+\item{subtitle.font.color}{An RGB character to set the color of the chart subtitle. Defaults to "#000000".}
+
+\item{footer}{character. Sets the footer of the chart, defaults to NULL. The footer is left-aligned.}
+
+\item{footer.font.size}{integer. Font size of the chart footer.font.size, defaults to 11 pixcels.}
+
+\item{footer.font.family}{character. Font family of the chart footer.font.family, defaults to "sans-serif".}
+
+\item{footer.font.color}{An RGB character to set the color of the chart footer.font.color. Defaults to "#000000".}
+
+\item{y.show}{show the y axis}
 
 \item{y.lab}{y axis labels}
 
-\item{y.lab.font.color}{y axis labels font color}
+\item{y.digits}{integer to control the number of decimal places of the y axis}
 
-\item{y.lab.font.family}{Default y axis label font family = "sans-serif"}
+\item{y.font.size}{Default y axis font size = 11}
+
+\item{y.font.family}{Default y axis font family = "sans-serif"}
+
+\item{y.font.color}{y axis font color}
 
 \item{y.lab.font.size}{Default y axis label font size = 12}
 
-\item{y.show}{show the y axis}
+\item{y.lab.font.family}{Default y axis label font family = "sans-serif"}
+
+\item{y.lab.font.color}{y axis labels font color}
+
+\item{prefix}{prefix of numbers in the tooltips. If suffix is not provided, prefix will take suffix' place on the y axis}
+
+\item{suffix}{suffix of numbers in the tooltips}
+
+\item{colors}{colors of the fronds. D3 colors will be used if no values are provided}
+
+\item{order}{One of "original", "alphabetical", "ascending", "descending". Specifies the column order with default = "descending"}
+
+\item{digits}{integer to control the number of decimal places in the tooltips}
+
+\item{width}{Width of output}
+
+\item{height}{Height of output}
 }
 \description{
-Create a PalmTree plot
+Create a palm tree plot to display a 2D numeric table.
 }
 \details{
 Frond size is calculated by mapping \code{data} to a linear scale \code{[min_width, max_width]} so that
@@ -158,7 +194,7 @@ Frond size is calculated by mapping \code{data} to a linear scale \code{[min_wid
 \code{min_width} is currently set at 8 pixcels and \code{max_width} is calculated using the available space between x ticks.
 }
 \examples{
-
+\dontrun{
 data("CSDperceptions", package = "rhtmlPalmTrees")
 
 weights = rep(1,ncol(CSDperceptions))
@@ -174,7 +210,5 @@ rhtmlPalmTrees::PalmTrees(data = CSDperceptions,
                          suffix = suffix,
                          tooltips = TRUE,
                          colors = qColors)
-
-
-
+ }
 }
