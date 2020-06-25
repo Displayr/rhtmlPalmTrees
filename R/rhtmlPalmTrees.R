@@ -190,7 +190,8 @@ PalmTrees <- function(data = NULL,
     }
 
     if (is.null(col.names))
-        col.names <- gsub("(\\r\\n|\\n|\\r)", " ", colnames(data))
+        col.names <- colnames(data)
+    col.names <- gsub("(\\r\\n|\\n|\\r)", " ", col.names)
 
     if (is.null(col.names))
         col.names <- paste0("column", 1:nc)
@@ -200,7 +201,8 @@ PalmTrees <- function(data = NULL,
         col.names <- c(col.names, paste0("column", (length(col.names)+1):nc))
 
     if (is.null(row.names))
-        row.names <- gsub("(\\r\\n|\\n|\\r)", " ", rownames(data))
+        row.names <- rownames(data)
+    row.names <- gsub("(\\r\\n|\\n|\\r)", " ", row.names)
 
     if (is.null(row.names))
         row.names <- paste0("row", 1:nr)
