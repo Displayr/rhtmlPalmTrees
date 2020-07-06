@@ -1,5 +1,7 @@
 context("Test palm trees")
 
+# The following tests have been converted to table tests in the test project R htmlwidgets.Q
+
 data <- structure(c(25.0764525993884, 25.6880733944954, 27.3846153846154,
             23.9263803680982, 27.6923076923077, 19.9386503067485, 0, 0.305810397553517,
             0.307692307692308, 0.613496932515337, 0, 0, 0, 0, 0, 0, 0, 0.920245398773006,
