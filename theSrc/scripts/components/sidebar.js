@@ -4,7 +4,7 @@ import * as rootLog from 'loglevel'
 import BaseComponent from './baseComponent'
 import {
   splitIntoLinesByCharacter,
-  getLabelDimensionsUsingSvgApproximation
+  getLabelDimensionsUsingSvgApproximation,
 } from '../labelUtils'
 
 const log = rootLog.getLogger('sidebar')
@@ -32,7 +32,7 @@ class Sidebar extends BaseComponent {
       headingFontSize: 14,
       headingFontFamily: 'arial',
       headingFontColor: '#000000',
-      headingFontWeight: 'bold'
+      headingFontWeight: 'bold',
     })
   }
 
@@ -48,7 +48,7 @@ class Sidebar extends BaseComponent {
       return {
         frondName: this.config.frondNames[frondGroupIndex],
         color: this.config.colors[frondGroupIndex],
-        index: frondGroupIndex
+        index: frondGroupIndex,
       }
     })
 
@@ -64,7 +64,7 @@ class Sidebar extends BaseComponent {
       outerMargin: 5,
       rowHorizontalPadding: 3, // TODO used for both vertical and horizontal ... (for calc of colorBarHeight)
       rowMinVerticalPadding: 2,
-      rowMaxVerticalPadding: 5
+      rowMaxVerticalPadding: 5,
     }
 
     this.computeStaticDimensions()
@@ -101,7 +101,7 @@ class Sidebar extends BaseComponent {
       rowHeight: this.config.fontSize + 2 * this._calcVerticalRowPadding(this.config.fontSize),
       headerHeight: (this.config.headingText)
         ? this.config.headingFontSize + 2 * this._calcVerticalRowPadding(this.config.headingFontSize)
-        : 0
+        : 0,
     }
 
     // second round of dimension settings that rely on first round
@@ -110,7 +110,7 @@ class Sidebar extends BaseComponent {
       height: Math.ceil(this.collapsedDimensions.headerHeight + this.constants.frondRowCount * this.collapsedDimensions.rowHeight),
       frondRadius: (this.collapsedDimensions.rowHeight - 2) / 2,
       colorBarHeight: colorBarHeight,
-      colorBarWidth: Math.round(colorBarHeight * 0.6)
+      colorBarWidth: Math.round(colorBarHeight * 0.6),
     })
 
     // this.expandedDimensions specifies dimensions when mouse over sidebar and extra controls are shown
@@ -149,7 +149,7 @@ class Sidebar extends BaseComponent {
         maxWidth: this.maxWidth - 2 * this.constants.rowHorizontalPadding,
         fontSize: this.config.headingFontSize,
         fontFamily: this.config.headingFontFamily,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
       })
       sideBarRowsDesiredWidths.push(dimensions.width + 2 * this.constants.rowHorizontalPadding)
     }
@@ -160,7 +160,7 @@ class Sidebar extends BaseComponent {
         text: sortText,
         maxWidth: this.maxWidth - 2 * this.constants.rowHorizontalPadding,
         fontSize: this.expandedDimensions.fontSize,
-        fontFamily: this.config.fontFamily
+        fontFamily: this.config.fontFamily,
       })
       // NB: why 3 * padding ? 2 for outer, one for inner padding between radioButton and text
       sideBarRowsDesiredWidths.push(dimensions.width + this.expandedDimensions.radioButtonWidth + 3 * this.constants.rowHorizontalPadding)
@@ -171,7 +171,7 @@ class Sidebar extends BaseComponent {
       text: 'All On All Off',
       maxWidth: this.maxWidth - 2 * this.constants.rowHorizontalPadding,
       fontSize: this.expandedDimensions.fontSize,
-      fontFamily: this.config.fontFamily
+      fontFamily: this.config.fontFamily,
     })
     sideBarRowsDesiredWidths.push(toggleAllControlDimensions.width + 2 * this.constants.rowHorizontalPadding)
 
@@ -186,7 +186,7 @@ class Sidebar extends BaseComponent {
         text: columnText,
         maxWidth: this.config.maxWidth - widthOfNonTextElementsInFrondRows,
         fontSize: this.collapsedDimensions.fontSize,
-        fontFamily: this.config.fontFamily
+        fontFamily: this.config.fontFamily,
       })
       sideBarRowsDesiredWidths.push(dimensions.width + widthOfNonTextElementsInFrondRows)
     })
@@ -196,7 +196,7 @@ class Sidebar extends BaseComponent {
         _(sideBarRowsDesiredWidths).max(),
         this.config.maxWidth
       ),
-      height: 0
+      height: 0,
     }
   }
 
@@ -337,7 +337,7 @@ class Sidebar extends BaseComponent {
         maxLines: 1,
         fontSize: this.config.headingFontSize,
         fontFamily: this.config.headingFontFamily,
-        fontWeight: this.config.headingFontWeight
+        fontWeight: this.config.headingFontWeight,
       })[0]
       sdBarDisp.append('text')
         .attr('class', 'sdBarHeading')
@@ -364,7 +364,7 @@ class Sidebar extends BaseComponent {
         maxWidth: this.bounds.width - widthOfNonTextElementsInFrondRows,
         maxLines: 1,
         fontSize: this.config.fontSize,
-        fontFamily: this.config.fontFamily
+        fontFamily: this.config.fontFamily,
       })[0]
       return _.assign(d, { truncatedText })
     })
@@ -489,7 +489,7 @@ class Sidebar extends BaseComponent {
       { x: radius * 0.75, y: -radius * 0.13 },
       { x: radius, y: 0 },
       { x: radius * 0.75, y: radius * 0.13 },
-      { x: radius * 0.25, y: radius * 0.07 }
+      { x: radius * 0.25, y: radius * 0.07 },
     ]
   }
 

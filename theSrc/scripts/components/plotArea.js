@@ -14,7 +14,7 @@ d3Tip(d3)
 const hardCodes = {
   tipBarScale: [2, 30],
   frondMaxSizePlotProportion: 0.1,
-  frondMaxSizeColumnProportion: 0.7
+  frondMaxSizeColumnProportion: 0.7,
 }
 
 class PlotArea extends BaseComponent {
@@ -40,7 +40,7 @@ class PlotArea extends BaseComponent {
     tooltipsHeadingFontSize,
     tooltipsFontFamily,
     tooltipsFontSize,
-    frondColorUnselected
+    frondColorUnselected,
 
   }) {
     super()
@@ -67,7 +67,7 @@ class PlotArea extends BaseComponent {
       tooltipsHeadingFontSize,
       tooltipsFontFamily,
       tooltipsFontSize,
-      frondColorUnselected
+      frondColorUnselected,
     })
     _.assign(this, _.pick(this.palmMath.getData(), ['normalizedDataMap']))
     log.debug('plotArea.constructor')
@@ -88,7 +88,7 @@ class PlotArea extends BaseComponent {
       weightedSumMax,
       normalizedDataMin,
       normalizedDataMax,
-      sortedWeightedSums
+      sortedWeightedSums,
     } = this.palmMath.getData()
 
     this.line = d3.svg.line()
@@ -277,7 +277,7 @@ class PlotArea extends BaseComponent {
     const params = {
       treeId,
       yPos: value,
-      xPos: name
+      xPos: name,
     }
 
     if (this.showTooltipDesiredState) {
@@ -298,7 +298,7 @@ class PlotArea extends BaseComponent {
         data: this.rawData[treeId],
         tipScale: this.tipBarScale,
         colors: this.colors,
-        unselectedColor: this.frondColorUnselected
+        unselectedColor: this.frondColorUnselected,
       })
 
       const { width, height } = getBoundsOfTip(params.html, this.tooltipsFontSize, this.tooltipsFontfamily)
@@ -427,7 +427,7 @@ class PlotArea extends BaseComponent {
       { x: frondValue * 0.75, y: -frondValue * 0.05 },
       { x: frondValue, y: 0 },
       { x: frondValue * 0.75, y: frondValue * 0.05 },
-      { x: frondValue * 0.25, y: frondValue * 0.03 }
+      { x: frondValue * 0.25, y: frondValue * 0.03 },
     ]
   }
 
@@ -438,7 +438,7 @@ class PlotArea extends BaseComponent {
       { x: frondValue * 0.75, y: -frondValue * 0.13 },
       { x: frondValue, y: 0 },
       { x: frondValue * 0.75, y: frondValue * 0.13 },
-      { x: frondValue * 0.25, y: frondValue * 0.07 }
+      { x: frondValue * 0.25, y: frondValue * 0.07 },
     ]
   }
 }

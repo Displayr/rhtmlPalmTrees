@@ -27,7 +27,7 @@ function makeTipContent ({
   columnStates,
   tipScale,
   colors,
-  unselectedColor
+  unselectedColor,
 }) {
   const rowContent = data.map((columnValue, index) => {
     return makeTipContentRow({
@@ -41,7 +41,7 @@ function makeTipContent ({
       fontSize,
       barWidth: (columnValue) ? tipScale(columnValue) : 0,
       barColor: colors[index],
-      unselectedColor
+      unselectedColor,
     })
   }).join('\n')
 
@@ -67,7 +67,7 @@ function makeTipContentRow ({
   suffix,
   fontFamily,
   fontSize,
-  unselectedColor
+  unselectedColor,
 }) {
   return `<tr class="tip-column tip-column-${columnIndex} ${(valueEnabled) ? '' : 'column-off"'}">
     <td style="text-align:right;font-family:${fontFamily};font-size:${fontSize}px">${prefix || ''}${value || ''}${suffix || ''}</td>

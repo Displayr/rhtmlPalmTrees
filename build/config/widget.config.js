@@ -10,7 +10,7 @@ const config = {
     default_border: false,
     isReadySelector: 'svg.svgContent',
     css: [
-      '/style/rhtmlPalmTrees.css'
+      '/style/rhtmlPalmTrees.css',
     ],
     singleWidgetSnapshotSelector: '#widget-container',
   },

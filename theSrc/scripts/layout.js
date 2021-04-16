@@ -11,14 +11,14 @@ const cells = {
   YAXIS_TITLE: 'YAXIS_TITLE',
   YAXIS: 'YAXIS',
   XAXIS: 'XAXIS',
-  XAXIS_TITLE: 'XAXIS_TITLE'
+  XAXIS_TITLE: 'XAXIS_TITLE',
 }
 
 const LayoutColumns = [
   { name: 'YAXIS_TITLE', cells: [cells.YAXIS_TITLE] },
   { name: 'YAXIS', cells: [cells.YAXIS] },
   { name: 'PLOT', cells: [cells.TITLE, cells.SUBTITLE, cells.PLOT, cells.XAXIS, cells.XAXIS_TITLE, cells.FOOTER] },
-  { name: 'SIDEBAR', cells: [cells.SIDEBAR] }
+  { name: 'SIDEBAR', cells: [cells.SIDEBAR] },
 ]
 
 const LayoutRows = [
@@ -27,7 +27,7 @@ const LayoutRows = [
   { name: 'PLOT', cells: [cells.YAXIS_TITLE, cells.YAXIS, cells.PLOT, cells.SIDEBAR] },
   { name: 'XAXIS', cells: [cells.XAXIS] },
   { name: 'XAXIS_TITLE', cells: [cells.XAXIS_TITLE] },
-  { name: 'FOOTER', cells: [cells.FOOTER] }
+  { name: 'FOOTER', cells: [cells.FOOTER] },
 ]
 
 class Layout {
@@ -39,7 +39,7 @@ class Layout {
         fill: false,
         width: 0,
         height: 0,
-        meta: {}
+        meta: {},
       }
     }, {})
 

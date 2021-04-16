@@ -16,7 +16,7 @@ class HorizontalWrappedLabel extends BaseComponent {
     fontColor,
     maxWidth,
     maxHeight,
-    classNames
+    classNames,
   }) {
     super()
     _.assign(this, {
@@ -30,7 +30,7 @@ class HorizontalWrappedLabel extends BaseComponent {
       fontColor,
       maxWidth,
       maxHeight,
-      classNames
+      classNames,
     })
 
     this.innerLinePadding = 1 // TODO move up
@@ -43,7 +43,7 @@ class HorizontalWrappedLabel extends BaseComponent {
       maxWidth: this.maxWidth,
       maxHeight: this.maxHeight,
       fontSize: this.fontSize,
-      fontFamily: this.fontFamily
+      fontFamily: this.fontFamily,
     })
     this.estimatedLineCount = lines.length
     const lineDimensions = lines.map(text => getLabelDimensionsUsingSvgApproximation({
@@ -51,12 +51,12 @@ class HorizontalWrappedLabel extends BaseComponent {
       parentContainer: this.parentContainer,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      rotation: 0
+      rotation: 0,
     }))
 
     return {
       width: _(lineDimensions).map('width').max(),
-      height: _(lineDimensions).map('height').sum() + (lines.length - 1) * this.innerLinePadding
+      height: _(lineDimensions).map('height').sum() + (lines.length - 1) * this.innerLinePadding,
     }
   }
 
@@ -70,7 +70,7 @@ class HorizontalWrappedLabel extends BaseComponent {
       maxWidth: bounds.width, // NB note here we are not using this.maxWidth, we are using bounds provided
       maxHeight: bounds.height, // NB note here we are not using this.maxHeight, we are using bounds provided
       fontSize: this.fontSize,
-      fontFamily: this.fontFamily
+      fontFamily: this.fontFamily,
     })
 
     this.container = parentContainer.append('g')

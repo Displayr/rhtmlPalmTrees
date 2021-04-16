@@ -18,7 +18,7 @@ class XAxis extends BaseComponent {
     maxHeight,
     orientation,
     parentContainer,
-    placement
+    placement,
   }) {
     super()
     _.assign(this, {
@@ -31,7 +31,7 @@ class XAxis extends BaseComponent {
       maxHeight,
       orientation,
       parentContainer,
-      placement
+      placement,
     })
 
     // to deal with superfluous zoom calls at beginning of render
@@ -67,14 +67,14 @@ class XAxis extends BaseComponent {
         parentContainer: this.parentContainer,
         text: name,
         verticalAlignment: this.placement === 'top' ? 'bottom' : 'top',
-        horizontalAlignment: 'center'
+        horizontalAlignment: 'center',
       })
     })
     let labelDimensions = this.labelObjects.map(labelObject => labelObject.computePreferredDimensions())
 
     const preferredDimensions = {
       width: 0, // NB xaxis width takes what is given, and does not force width on the chart
-      height: _(labelDimensions).map('height').max()
+      height: _(labelDimensions).map('height').max(),
     }
 
     return preferredDimensions
@@ -94,8 +94,8 @@ class XAxis extends BaseComponent {
           top: 0,
           left: i * columnWidth,
           height: bounds.height,
-          width: columnWidth
-        }
+          width: columnWidth,
+        },
       })
     })
   }
