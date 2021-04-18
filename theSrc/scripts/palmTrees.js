@@ -40,7 +40,7 @@ class PalmTrees {
     return _.cloneDeep({
       selectedColumns: [],
       sortBy: 'descending',
-      data: []
+      data: [],
     })
   }
 
@@ -105,7 +105,7 @@ class PalmTrees {
       data: dataPoints,
       plotState: this.plotState,
       rowNames: this.settings.rowNames,
-      weights: this.settings.weights
+      weights: this.settings.weights,
     })
   }
 
@@ -162,7 +162,7 @@ class PalmTrees {
     this.plotState.setState({
       data: this.data,
       sortBy: this.settings.order,
-      selectedColumns
+      selectedColumns,
     })
     return this
   }
@@ -250,8 +250,8 @@ class PalmTrees {
         secondaryFontColor: this.settings.colFontColorUnselected,
         headingFontSize: this.settings.colHeadingFontSize,
         headingFontFamily: this.settings.colHeadingFontFamily,
-        headingFontColor: this.settings.colHeadingFontColor
-      }
+        headingFontColor: this.settings.colHeadingFontColor,
+      },
     })
     const dimensions = this.components[CellNames.SIDEBAR].computePreferredDimensions()
     this.layout.enable(CellNames.SIDEBAR)
@@ -279,7 +279,7 @@ class PalmTrees {
       tooltipsHeadingFontFamily: this.settings.tooltipsHeadingFontFamily,
       tooltipsHeadingFontSize: this.settings.tooltipsHeadingFontSize,
       tooltipsFontFamily: this.settings.tooltipsFontFamily,
-      tooltipsFontSize: this.settings.tooltipsFontSize
+      tooltipsFontSize: this.settings.tooltipsFontSize,
     })
     this.layout.enable(CellNames.PLOT)
     this.layout.setFillCell(CellNames.PLOT)
@@ -292,7 +292,7 @@ class PalmTrees {
         fontFamily: this.settings.yLabFontFamily,
         fontSize: this.settings.yLabFontSize,
         fontColor: this.settings.yLabFontColor,
-        maxHeight: 0.8 * this.viewerHeight // TODO make configurable
+        maxHeight: 0.8 * this.viewerHeight, // TODO make configurable
       })
 
       const dimensions = this.components[CellNames.YAXIS_TITLE].computePreferredDimensions()
@@ -313,7 +313,7 @@ class PalmTrees {
         fontColor: this.settings.yFontColor,
         maxWidth: 1000, // hard code
         maxLines: 1,
-        innerPadding: 1
+        innerPadding: 1,
       })
 
       const dimensions = this.components[CellNames.YAXIS].computePreferredDimensions()
@@ -331,7 +331,7 @@ class PalmTrees {
       placement: 'bottom',
       fontSize: this.settings.rowFontSize,
       fontFamily: this.settings.rowFontFamily,
-      fontColor: this.settings.rowFontColor
+      fontColor: this.settings.rowFontColor,
     })
 
     // NB Xaxis, title, subtitle, and footer, xtitle complication: wrapping.
@@ -355,7 +355,7 @@ class PalmTrees {
         fontSize: this.settings.rowHeadingFontSize,
         fontFamily: this.settings.rowHeadingFontFamily,
         fontColor: this.settings.rowHeadingFontColor,
-        innerPadding: 1 // TODO make configurable
+        innerPadding: 1, // TODO make configurable
       })
 
       const axisTitleDimensions = this.components[CellNames.XAXIS_TITLE].computePreferredDimensions(estimatedPlotAreaBoundsWidth)
@@ -377,7 +377,7 @@ class PalmTrees {
         maxWidth: 2 * shorterSide,
         maxHeight: this.viewerHeight / 4, // TODO make this configurable
         bold: false,
-        innerPadding: 2 // TODO make configurable
+        innerPadding: 2, // TODO make configurable
       })
 
       const dimensions = this.components[CellNames.TITLE].computePreferredDimensions()
@@ -399,7 +399,7 @@ class PalmTrees {
         maxWidth: 2 * shorterSide,
         maxHeight: this.viewerHeight / 4, // TODO make this configurable
         bold: false,
-        innerPadding: 2 // TODO make configurable
+        innerPadding: 2, // TODO make configurable
       })
 
       const dimensions = this.components[CellNames.SUBTITLE].computePreferredDimensions()
@@ -421,7 +421,7 @@ class PalmTrees {
         maxWidth: 2 * shorterSide,
         maxHeight: this.viewerHeight / 4, // TODO make this configurable
         bold: false,
-        innerPadding: 2 // TODO make configurable
+        innerPadding: 2, // TODO make configurable
       })
 
       const dimensions = this.components[CellNames.FOOTER].computePreferredDimensions()

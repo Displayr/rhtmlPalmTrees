@@ -18,7 +18,7 @@ class YAxis extends BaseComponent {
       maxWidth,
       maxLines,
       innerPadding,
-      yDigits
+      yDigits,
     })
 
     const commasFormatter = d3.format(',.' + this.yDigits + 'f')
@@ -36,7 +36,7 @@ class YAxis extends BaseComponent {
         parentContainer,
         fontSize,
         fontFamily,
-        rotation
+        rotation,
       })
       return dimensions
     }
@@ -46,7 +46,7 @@ class YAxis extends BaseComponent {
     const boundaryValues = [
       this.tickFormatterFactory(weightedSumMax)(weightedSumMin),
       this.tickFormatterFactory(weightedSumMax)(weightedSumMax),
-      this.suffix || this.prefix || ''
+      this.suffix || this.prefix || '',
     ]
 
     const dimensions = boundaryValues.map(value => {
@@ -55,14 +55,14 @@ class YAxis extends BaseComponent {
         text: value,
         maxWidth: this.maxWidth,
         fontSize: this.fontSize,
-        fontFamily: this.fontFamily
+        fontFamily: this.fontFamily,
       })
     })
 
     this.maxLabelWidth = _(dimensions).map('width').max()
     return {
       width: this.maxLabelWidth,
-      height: 0
+      height: 0,
     }
   }
 

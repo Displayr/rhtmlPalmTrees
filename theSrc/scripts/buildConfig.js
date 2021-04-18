@@ -44,7 +44,7 @@ const defaultConfig = {
   ylab: '',
   yLabFontColor: '#000000',
   yLabFontFamily: 'sans-serif',
-  yLabFontSize: 12
+  yLabFontSize: 12,
 }
 
 function buildConfig (userConfig) {

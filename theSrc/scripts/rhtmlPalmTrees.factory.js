@@ -38,6 +38,6 @@ module.exports = function (el, w, h, stateChangedFn) {
     },
 
     // TODO do I need this ?
-    palm: palm
+    palm: palm,
   }
 }

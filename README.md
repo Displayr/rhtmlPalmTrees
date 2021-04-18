@@ -126,12 +126,21 @@ $ git push origin head
 1. Do not work in master, as the master branch of rhtmlTemplate is used to verify the R server build process.
 1. Create a branch, make some changes, add test for your changes, update the docs if necessary, push your branch, and create a pull request on github.
 
-## Terminology Notes
+### Concerns / TODOs
 
-### Palm Tree Anatomy
+* BDD: test north / east / west tooltips (only south is tested)
+* BDD: test multiple calls to renderValue
+* BDD: test that when i disable a frond, the sort order sometimes changes
+* labelUtils: duplicated from heatmap : extract into shared component
+* theSrc/scripts/components/parts: duplicated from heatmap : extract into shared component
+
+### Terminology Notes
+
+#### Palm Tree Anatomy
 
 ![PalmTree Anatomy](./docs/palmtree_terminology.png)
 
-### Sidebar Anatomy
+#### Sidebar Anatomy
 
 ![Sidebar Anatomy](./docs/sidebar_terminology.png)
+

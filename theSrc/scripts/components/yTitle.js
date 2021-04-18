@@ -20,19 +20,19 @@ class YTitle extends BaseComponent {
       maxLines: 1,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      fontWeight: (this.bold) ? 'bold' : 'normal'
+      fontWeight: (this.bold) ? 'bold' : 'normal',
     })[0]
     const dimensions = getLabelDimensionsUsingSvgApproximation({
       text: truncatedText,
       parentContainer: this.parentContainer,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      fontWeight: (this.bold) ? 'bold' : 'normal'
+      fontWeight: (this.bold) ? 'bold' : 'normal',
     })
 
     return {
       width: dimensions.height,
-      height: 0 // NB yTitle height takes what is given, and does not force height on the chart
+      height: 0, // NB yTitle height takes what is given, and does not force height on the chart
     }
   }
 
@@ -51,7 +51,7 @@ class YTitle extends BaseComponent {
       maxLines: 1,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      fontWeight: (this.bold) ? 'bold' : 'normal'
+      fontWeight: (this.bold) ? 'bold' : 'normal',
     })[0]
 
     titleContainer.append('text')

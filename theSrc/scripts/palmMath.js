@@ -43,7 +43,7 @@ class PalmMath {
   getData () {
     const response = {
       weightedSums: new Array(this.data.length),
-      unweightedSums: new Array(this.data.length)
+      unweightedSums: new Array(this.data.length),
     }
 
     _.range(this.data.length).map(treeId => {
@@ -69,7 +69,7 @@ class PalmMath {
       original: () => 1,
       alphabetical: (a) => a.name,
       ascending: (a) => a.value,
-      descending: (a) => -1 * a.value
+      descending: (a) => -1 * a.value,
     }
 
     if (!_.has(sorts, sortStrategy)) {
@@ -80,7 +80,7 @@ class PalmMath {
       .map((weightedSum, i) => ({
         value: weightedSum,
         name: this.rowNames[i],
-        treeId: i
+        treeId: i,
       }))
       .sortBy(sorts[sortStrategy])
       .value()

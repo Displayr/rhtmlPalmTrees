@@ -18,14 +18,14 @@ class VerticalBottomToTopWrappedLabel extends BaseComponent {
       maxLines: 1,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      rotation: -90
+      rotation: -90,
     })
     const dimensions = getLabelDimensionsUsingSvgApproximation({
       text: lines[0],
       parentContainer: this.parentContainer,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      rotation: -90
+      rotation: -90,
     })
 
     return dimensions
@@ -41,7 +41,7 @@ class VerticalBottomToTopWrappedLabel extends BaseComponent {
       maxLines: 1,
       fontSize: this.fontSize,
       fontFamily: this.fontFamily,
-      rotation: -90
+      rotation: -90,
     })[0]
 
     this.container = parentContainer.append('g')
