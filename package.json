@@ -19,7 +19,7 @@
     "gulp": "^4.0.2",
     "husky": "0.13.3",
     "jquery": "^3.5.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "rhtmlBuildUtils": "github:Displayr/rhtmlBuildUtils#7.0.2"
   },
   "dependencies": {
