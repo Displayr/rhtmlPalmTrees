@@ -173,7 +173,7 @@ function _splitIntoLines ({ parentContainer, text, fontSize = 12, fontFamily = '
   }
 
   const finalResult = (lines.length === 0)
-    ? ['...']
+    ? ['']
     : lines
 
   return finalResult
