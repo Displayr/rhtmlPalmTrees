@@ -1,0 +1,10 @@
+version: 1
+title: rownames with punctuation
+general_comments:
+  - 'Check that punctuation in rownames is shown properly with no errors'
+width: 1000
+height: 750
+rowSize: 1
+type: single_widget_single_page
+comments: []
+data: data.edge_cases.rownames_with_punct
