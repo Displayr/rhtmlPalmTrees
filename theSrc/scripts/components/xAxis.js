@@ -105,7 +105,7 @@ class XAxis extends BaseComponent {
       const columnWidth = this.bounds.width / this.labelCount
       const { sortedWeightedSums } = this.palmMath.getData()
       sortedWeightedSums.forEach(({ name }, i) => {
-        this.container.select('.xaxis-label[data-name="' + name.replace(/["\\]/g, '\\$&') + '"]')
+        this.container.select('.xaxis-label[data-name="' + name.replace(/["\\]/g, '\\$1') + '"]')
           .transition('barHeight')
           .duration(600)
           .attr('transform', `translate(${columnWidth * i},0)`)
