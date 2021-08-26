@@ -1,0 +1,12 @@
+{
+  "data": [
+    [ 0.3, 0.3, 0.3, 0.3],
+    [ 0.25, 0.25, 0.25, 0.25 ],
+    [ 0.0625, 0.125, 0.25, 0.5 ]
+  ],
+  "settings": {
+    "weights": [ 0.25, 0.25, 0.25, 0.25],
+    "rowNames": [ "No special char?", "Some \"quote\"\\Other", "#3's"],
+    "colNames": [ "Col1", "Col2", "Col3", "Col4"]
+  }
+}
