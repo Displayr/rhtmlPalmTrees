@@ -8,7 +8,7 @@ const config = {
   internalWebSettings: {
     includeDimensionsOnWidgetDiv: true,
     default_border: false,
-    isReadySelector: 'svg.svgContent',
+    isReadySelector: 'div[rhtmlWidget-status=ready]',
     css: [
       '/style/rhtmlPalmTrees.css',
     ],

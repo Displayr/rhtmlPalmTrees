@@ -181,6 +181,8 @@ class PalmTrees {
   draw (rootElement) {
     log.debug('PalmTree.draw()')
 
+    rootElement.setAttribute('rhtmlwidget-status', 'loading')
+
     const { width, height } = getContainerDimensions(_.has(rootElement, 'length') ? rootElement[0] : rootElement)
     this.viewerWidth = width
     this.viewerHeight = height
@@ -210,6 +212,8 @@ class PalmTrees {
 
     // register self as a listener for stae changes, and update plot any time an update is made
     this.addStateListener(newState => this.updatePlot(false))
+
+    rootElement.setAttribute('rhtmlwidget-status', 'ready')
   }
 
   updatePlot (initialization) {
