@@ -61,7 +61,7 @@ class YTitle extends BaseComponent {
       .attr('dy', 0)
       .attr('transform', `translate(0,${bounds.height / 2}),rotate(-90)`)
       .style('font-weight', (this.bold) ? 'bold' : 'normal')
-      .style('font-size', this.fontSize)
+      .style('font-size', this.fontSize + 'px')
       .style('fill', this.fontColor)
       .style('font-family', this.fontFamily)
       .style('text-anchor', 'middle')
