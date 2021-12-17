@@ -14,7 +14,7 @@ d3Tip(d3)
 const hardCodes = {
   tipBarScale: [2, 30],
   frondMaxSizePlotProportion: 0.1,
-  frondMaxSizeColumnProportion: 0.7,
+  frondMaxSizeColumnProportion: 1,
 }
 
 class PlotArea extends BaseComponent {
@@ -106,7 +106,7 @@ class PlotArea extends BaseComponent {
 
     this.maxFrondSize = Math.min(
       bounds.height * hardCodes.frondMaxSizePlotProportion,
-      Math.floor(this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion)
+      Math.floor(0.5 * this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion)
     )
 
     this.yscale = d3.scale.linear()
