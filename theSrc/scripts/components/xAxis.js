@@ -96,7 +96,7 @@ class XAxis extends BaseComponent {
         container: this.container, // TODO this is odd given we already supply parentContainer to constructor
         bounds: {
           top: 0,
-          left: i * columnWidth,
+          left: (i + (this.frondMaxSizeColumnProportion - 0.5)) * columnWidth,
           height: bounds.height,
           width: columnWidth,
         },
@@ -106,15 +106,15 @@ class XAxis extends BaseComponent {
 
   updatePlot () {
     if (!this.plotState.areAllColumnOff()) {
-      const xScale = d3.scale.ordinal().domain(_(this.labelObjects).map('data.name').value()).rangeRoundBands([0, this.bounds.width * this.labelCount / ((this.labelCount - 1) + 2 * this.frondMaxSizeColumnProportion)])
+      const names = _(this.labelObjects).map('data.name').value()
+      const xScale = d3.scale.ordinal().domain(names).rangeRoundBands([0, this.bounds.width * this.labelCount / ((this.labelCount - 1) + 2 * this.frondMaxSizeColumnProportion)])
       const columnWidth = xScale.rangeBand()
       const { sortedWeightedSums } = this.palmMath.getData()
       sortedWeightedSums.forEach(({ name }, i) => {
-        console.log(xScale(name) + Math.round(columnWidth * (this.frondMaxSizeColumnProportion - 0.5)))
         this.container.select('.xaxis-label[data-name="' + name.replace(/"/g, '&quot;').replace(/\\/g, '&bsol;') + '"]')
           .transition('barHeight')
           .duration(600)
-          .attr('transform', `translate(${xScale(name) + Math.round(columnWidth * (this.frondMaxSizeColumnProportion - 0.5))})`)
+          .attr('transform', `translate(${xScale(names[0]) + columnWidth * i + Math.round(columnWidth * (this.frondMaxSizeColumnProportion - 0.5))})`)
       })
     }
   }
