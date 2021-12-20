@@ -14,7 +14,7 @@ d3Tip(d3)
 const hardCodes = {
   tipBarScale: [2, 30],
   frondMaxSizePlotProportion: 0.1,
-  frondMaxSizeColumnProportion: 1,
+  frondMaxSizeColumnProportion: 0.7, // keep in sync with frondMaxSizeColumnProportion in xAxis.js until better solution found
 }
 
 class PlotArea extends BaseComponent {
@@ -102,11 +102,11 @@ class PlotArea extends BaseComponent {
 
     this.xscale = d3.scale.ordinal()
       .domain(_(sortedWeightedSums).map('name').value())
-      .rangeRoundBands([0, bounds.width])
+      .rangeRoundBands([0, bounds.width * sortedWeightedSums.length / ((sortedWeightedSums.length - 1) + 2 * hardCodes.frondMaxSizeColumnProportion)])
 
     this.maxFrondSize = Math.min(
       bounds.height * hardCodes.frondMaxSizePlotProportion,
-      Math.floor(0.5 * this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion)
+      Math.floor(this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion)
     )
 
     this.yscale = d3.scale.linear()
@@ -123,8 +123,8 @@ class PlotArea extends BaseComponent {
       .append('rect')
       .attr('id', d => `treeTrunk${d.treeId}`)
       .attr('class', 'treeTrunk')
-      .attr('data-name', d => d.name)
-      .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+      .attr('data-name', d => d.name.replace(/"/g, '&quot;').replace(/\\/g, '&bsol;'))
+      .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion))
       .attr('width', 1)
       .attr('y', d => this.yscale(d.value))
       .attr('height', d => bounds.height - this.yscale(d.value))
@@ -148,9 +148,9 @@ class PlotArea extends BaseComponent {
 
     this.treeTops = treeTopsEnter
       .attr('id', d => `treeTop${d.treeId}`)
-      .attr('data-name', d => d.name)
+      .attr('data-name', d => d.name.replace(/"/g, '&quot;').replace(/\\/g, '&bsol;'))
       .attr('class', 'treeTop')
-      .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+      .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion},${this.yscale(d.value)})`)
 
     this.fronds = this.treeTops
       .selectAll('path')
@@ -221,12 +221,12 @@ class PlotArea extends BaseComponent {
         })
     } else {
       withConditionalTransition(this.treeTrunks, 'treeTrunkHeight')
-        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() / 2))
+        .attr('x', d => this.xscale(d.name) + Math.round(this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion))
         .attr('y', d => this.yscale(d.value))
         .attr('height', d => this.bounds.height - this.yscale(d.value))
 
       withConditionalTransition(this.treeTops, 'treeTopHeight')
-        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() / 2},${this.yscale(d.value)})`)
+        .attr('transform', d => `translate(${this.xscale(d.name) + this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion},${this.yscale(d.value)})`)
     }
   }
 
@@ -366,7 +366,7 @@ class PlotArea extends BaseComponent {
       directionClass = 'northTip'
       triangleTop = ghostRectDimensions.y - heightOfTriangle
       triangleLeft = treeTrunkRectBboxDimensions.x - halfWidthOfTriangle
-    } else if (this.xscale(xPos) + Math.round(this.xscale.rangeBand() / 2) >= this.plotWidth * 0.5) {
+    } else if (this.xscale(xPos) + Math.round(this.xscale.rangeBand() * hardCodes.frondMaxSizeColumnProportion) >= this.plotWidth * 0.5) {
       direction = 'w'
       offset = [0, -10]
       directionClass = 'westTip'
