@@ -75,7 +75,7 @@ class HorizontalWrappedLabel extends BaseComponent {
 
     this.container = parentContainer.append('g')
       .classed(this.classNames, true)
-      .attr('data-name', this.data.name)
+      .attr('data-name', this.data.name.replace(/"/g, '&quot;').replace(/\\/g, '&bsol;'))
       .attr('transform', this.buildTransform(bounds))
 
     this.rectSelection = this.container.append('rect')
@@ -110,12 +110,12 @@ class HorizontalWrappedLabel extends BaseComponent {
         break
       case 'center':
         this.textSelection
-          .attr('transform', `translate(${bounds.width / 2}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(bounds.width) / 2}, ${textYOffset})`)
           .style('text-anchor', 'middle')
         break
       case 'right':
         this.textSelection
-          .attr('transform', `translate(${bounds.width}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(bounds.width)}, ${textYOffset})`)
           .style('text-anchor', 'end')
         break
       default:
@@ -169,7 +169,7 @@ class HorizontalWrappedLabel extends BaseComponent {
       .attr('transform', `translate(${xOffset},${this.bounds.top})`) // TODO should this be this.bounds.left + xOffset
 
     this.rectSelection
-      .attr('width', newCellWidth)
+      .attr('width', Math.floor(newCellWidth))
 
     this.textSelection
       .classed('in-zoom', inZoom)
@@ -182,12 +182,12 @@ class HorizontalWrappedLabel extends BaseComponent {
         break
       case 'center':
         this.textSelection
-          .attr('transform', `translate(${newCellWidth / 2}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(newCellWidth) / 2}, ${textYOffset})`)
           .style('text-anchor', 'middle')
         break
       case 'right':
         this.textSelection
-          .attr('transform', `translate(${newCellWidth}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(newCellWidth)}, ${textYOffset})`)
           .style('text-anchor', 'end')
         break
     }
@@ -217,11 +217,11 @@ class HorizontalWrappedLabel extends BaseComponent {
         break
       case 'center':
         this.textSelection
-          .attr('transform', `translate(${this.bounds.width / 2}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(this.bounds.width) / 2}, ${textYOffset})`)
         break
       case 'right':
         this.textSelection
-          .attr('transform', `translate(${this.bounds.width}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(this.bounds.width)}, ${textYOffset})`)
         break
     }
   }
@@ -254,11 +254,11 @@ class HorizontalWrappedLabel extends BaseComponent {
         break
       case 'center':
         this.textSelection
-          .attr('transform', `translate(${this.bounds.width / 2}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(this.bounds.width) / 2}, ${textYOffset})`)
         break
       case 'right':
         this.textSelection
-          .attr('transform', `translate(${this.bounds.width}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(this.bounds.width)}, ${textYOffset})`)
         break
     }
   }
@@ -287,11 +287,11 @@ class HorizontalWrappedLabel extends BaseComponent {
         break
       case 'center':
         this.textSelection
-          .attr('transform', `translate(${this.bounds.width / 2}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(this.bounds.width / 2)}, ${textYOffset})`)
         break
       case 'right':
         this.textSelection
-          .attr('transform', `translate(${this.bounds.width}, ${textYOffset})`)
+          .attr('transform', `translate(${Math.floor(this.bounds.width)}, ${textYOffset})`)
         break
     }
   }

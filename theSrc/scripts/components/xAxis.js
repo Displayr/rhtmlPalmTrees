@@ -1,3 +1,4 @@
+import d3 from 'd3'
 import _ from 'lodash'
 import BaseComponent from './baseComponent'
 
@@ -37,6 +38,8 @@ class XAxis extends BaseComponent {
     // to deal with superfluous zoom calls at beginning of render
     this.amIZoomed = false
     this.labelCount = this.labels.length
+
+    this.frondMaxSizeColumnProportion = 0.7 // keep in sync with frondMaxSizeColumnProportion in plotArea.js until better solution found
 
     if (this.orientation === 'horizontal') {
       this.LabelFactory = HorizontalWrappedLabel
@@ -86,13 +89,14 @@ class XAxis extends BaseComponent {
       .classed('axis xaxis', true)
       .attr('transform', this.buildTransform(bounds))
 
-    const columnWidth = bounds.width / this.labelCount
+    const xScale = d3.scale.ordinal().domain(_(this.labelObjects).map('data.name').value()).rangeRoundBands([0, this.bounds.width * this.labelCount / ((this.labelCount - 1) + 2 * this.frondMaxSizeColumnProportion)])
+    const columnWidth = xScale.rangeBand()
     this.labelObjects.map((labelObject, i) => {
       labelObject.draw({
         container: this.container, // TODO this is odd given we already supply parentContainer to constructor
         bounds: {
           top: 0,
-          left: i * columnWidth,
+          left: (i + (this.frondMaxSizeColumnProportion - 0.5)) * columnWidth,
           height: bounds.height,
           width: columnWidth,
         },
@@ -102,13 +106,15 @@ class XAxis extends BaseComponent {
 
   updatePlot () {
     if (!this.plotState.areAllColumnOff()) {
-      const columnWidth = this.bounds.width / this.labelCount
+      const names = _(this.labelObjects).map('data.name').value()
+      const xScale = d3.scale.ordinal().domain(names).rangeRoundBands([0, this.bounds.width * this.labelCount / ((this.labelCount - 1) + 2 * this.frondMaxSizeColumnProportion)])
+      const columnWidth = xScale.rangeBand()
       const { sortedWeightedSums } = this.palmMath.getData()
       sortedWeightedSums.forEach(({ name }, i) => {
-        this.container.select('.xaxis-label[data-name="' + name.replace(/["\\]/g, '\\$1') + '"]')
+        this.container.select('.xaxis-label[data-name="' + name.replace(/"/g, '&quot;').replace(/\\/g, '&bsol;') + '"]')
           .transition('barHeight')
           .duration(600)
-          .attr('transform', `translate(${columnWidth * i},0)`)
+          .attr('transform', `translate(${xScale(names[0]) + columnWidth * i + Math.round(columnWidth * (this.frondMaxSizeColumnProportion - 0.5))})`)
       })
     }
   }
