@@ -2,7 +2,7 @@ version: 1
 type: single_widget_single_page
 comments:
   - location: 0
-    text: left most tree , left side frond is clipped
+    text: left most tree , left side frond used to be clipped (fixed by VIS-475)
     status: yellow
 width: 1000
 height: 1000
