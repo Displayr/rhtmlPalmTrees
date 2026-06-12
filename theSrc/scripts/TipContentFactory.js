@@ -1,4 +1,14 @@
 import _ from 'lodash'
+
+function escapeHtml (value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // tip depends on
 // this.settings.tooltipsHeadingFontFamily
 // this.settings.tooltipsHeadingFontSize
@@ -45,8 +55,8 @@ function makeTipContent ({
     })
   }).join('\n')
 
-  let headingText = `${rowName}${(_.isEmpty(yLabel) ? '' : ` - ${yLabel}`)} ${rowTotal}`
-  return `<div class="tipHeading tip-${rowIndex}" style="font-family:${headingFontFamily};font-size:${headingFontSize}px">${headingText}</div>
+  let headingText = `${escapeHtml(rowName)}${(_.isEmpty(yLabel) ? '' : ` - ${escapeHtml(yLabel)}`)} ${rowTotal}`
+  return `<div class="tipHeading tip-${rowIndex}" style="font-family:${escapeHtml(headingFontFamily)};font-size:${headingFontSize}px">${headingText}</div>
     <div class="tipTableContainer">
       <table class="tipTable">
         <tbody>
@@ -70,10 +80,10 @@ function makeTipContentRow ({
   unselectedColor,
 }) {
   return `<tr class="tip-column tip-column-${columnIndex} ${(valueEnabled) ? '' : 'column-off"'}">
-    <td style="text-align:right;font-family:${fontFamily};font-size:${fontSize}px">${prefix || ''}${value || ''}${suffix || ''}</td>
-    <td style="text-align:left;font-family:${fontFamily};font-size:${fontSize}px">${name}</td>
+    <td style="text-align:right;font-family:${escapeHtml(fontFamily)};font-size:${fontSize}px">${prefix ? escapeHtml(prefix) : ''}${value || ''}${suffix ? escapeHtml(suffix) : ''}</td>
+    <td style="text-align:left;font-family:${escapeHtml(fontFamily)};font-size:${fontSize}px">${escapeHtml(name)}</td>
     <td style="text-align:center">
-      <div style="width:${barWidth}px;height:8px;background-color:${(valueEnabled) ? barColor : unselectedColor}"></div>
+      <div style="width:${barWidth}px;height:8px;background-color:${(valueEnabled) ? escapeHtml(barColor) : escapeHtml(unselectedColor)}"></div>
     </td>
   </tr>`
 }
