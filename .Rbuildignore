@@ -15,3 +15,5 @@ package-lock.json
 .eslintignore
 .eslintrc
 .keys
+^AGENTS\.md$
+^CLAUDE\.md$
